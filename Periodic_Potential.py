@@ -1,18 +1,9 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[2]:
-
 
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 import matplotlib.lines as mlines
 from scipy import interpolate
-
-
-# In[3]:
-
 
 π = np.pi
 hbar = 6.58211899e-16           #h/2π in [eV*s]
@@ -21,10 +12,6 @@ e0 = 1.602176487e-19            #electron charge in [C]
 ηm = (hbar**2*e0*10**20)/m0     #hbar^2/mo in [eV A^2]
 μB = 5.7883818066e-2            #in [meV/T]
 meVpK = 8.6173325e-2            #Kelvin into [meV]
-
-
-# In[18]:
-
 
 ax = 100.0  #unit cell size along x-direction in [A]
 ay = 100.0
@@ -77,31 +64,6 @@ def NN_Arr(c_arr, ax, ay):
                 NN[n, 3]= m
     return NN
 
-#alternative algorithm to get NN array. Uses defined lattice sites for conditional statements, may be useful when changing
-# .. geometry
-
-count = 0
-NN2 = np.zeros((N,4))
-for i in range(len(lattice[0])):
-    for j in range(len(lattice[1])):
-        if j == 0:
-            NN[count, 0] = -1
-        else:
-            NN[count, 0] = lattice[i,j] - 1
-        if i == 0:
-            NN[count, 1] = -1
-        else:
-            NN[count, 1] = lattice[i,j] - Nx
-        if j == Nx-1:
-            NN[count, 2] = -1
-        else:
-            NN[count, 2] = lattice[i,j] + 1
-        if i == Nx-1:
-            NN[count, 3] = -1
-        else:
-            NN[count, 3] = lattice[i,j] + Nx
-        count += 1
-
 NN =   NN_Arr(coor, ax, ay)
 
 idx = 24
@@ -120,7 +82,4 @@ plt.show()
 #print(lattice)
 #print(NN[:,3])
 
-
-# # Descritizing $k_x$ and $k_y$
-
-# In[ ]:
+# Descritizing $k_x$ and $k_y$
