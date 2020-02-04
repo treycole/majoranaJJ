@@ -84,6 +84,38 @@ def k_y(coor, ax, ay):
                 k_x[j,i] = -1j/(2*ax)
     return k_x
 
+#Descritizing kx^2 and ky^2
+def k_x2(coor, ax, ay):
+    k_x2 = np.zeros((N,N), dtype='complex')
+    NN = NN_Arr(coor, ax, ay)
+    for i in range(N):
+        for j in range(N):
+            if NN[j,0] == i:
+                k_x2[j,i] = -1/ax**2
+            if NN[j, 2] == i:
+                k_x2[j,i] = -1/ax**2
+            if i == j:
+                k_x2[j,i] = 2/ax**2
+    return k_x2
+
+#Defining Hamiltonian for simple free particle in the lattice
+def H0(coor, ax, ay):
+    H = np.zeros((N,N), dtype = 'complex')
+    H = hbar**2/(2*m0)*k_x2(coor, ax, ay)
+    return H
+
+#Getting energies
+def E0(coor, ax, ay):
+    H = H0(coor, ax, ay)
+    eigvals, eigvecs = LA.eigh(H)
+    return np.sort(eigvals)
+
+#Getting States
+def eigstate(coor, ax, ay):
+     H = H0(coor, ax, ay)
+     eigvals, eigvecs = LA.eigh(H)
+     return eigvecs
+
 NN =   NN_Arr(coor, ax, ay)
 idx = 24
 plt.scatter(coor[:,0],coor[:,1],c = 'b')
