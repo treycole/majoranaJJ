@@ -45,3 +45,6 @@ plt.show()
 #Eigenvalue testing
 print(E0_d.shape)
 print(E0_d[0:100]/E0_d[0])
+
+###################################################
+#Eigenvalue plotting
