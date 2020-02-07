@@ -46,3 +46,30 @@ def NN_Arr(coor, ax, ay):
             if abs((yn - ym) - ay) < tol and abs(xn - xm) < tol:
                 NN[n, 3]= m
     return NN
+
+
+#Disk with a hole
+def donut(R, r, ax, ay):
+    CAx = []
+    CAy = []
+
+    xmin = -R #Radius of disk
+    ymin = -R
+
+    Nx = int(2*R/ax + 2)
+    Ny = int(2*R/ay + 2)
+
+    for j in range(Ny):
+        for i in range(Nx):
+            x = xmin + i*ax
+            y = ymin + j*ay
+            #decide if x,y is inside shape
+            r_ij = np.sqrt(x**2+y**2)
+            if r_ij < R and r_ij > r:
+                CAx.append(x)
+                CAy.append(y)
+
+    coor_arr = np.zeros((len(CAx), 2))
+    coor_arr[:, 0] = np.array(CAx)
+    coor_arr[:, 1] = np.array(CAy)
+    return coor_arr
