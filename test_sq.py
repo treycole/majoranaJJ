@@ -16,6 +16,11 @@ Nx = 10     #number of lattice sites in x direction
 N = Ny*Nx
 ####################################################
 
+coor = lat.square(Nx, Ny, ax, ay) #square coordinate array
+NN =  lat.NN_Arr(coor, ax, ay) #nearest neighbor array of square lattice
+E0 = op.E0(coor, ax, ay) #energy eigenvalues of square lattice
+states = op.eigstate(coor, ax, ay) #energy eigenvectors of square lattice
+
 #Nearest Neighbor Testing
 NN =   NN_Arr(coor, ax, ay)
 idx = 24
@@ -30,16 +35,9 @@ plt.show()
 ####################################################
 
 #Eigenvalue testing
-E0 = op.E0(coor, ax, ay)
-states = op.eigstate(coor, ax, ay)
 
 print(np.shape(states[5]))
 print(E0[:]/E0[0])
 print (E0.shape)
 
 ####################################################
-
-#donut testing
-CA = lat.donut(4, 2, .1, .1)
-plt.scatter(CA[:,0], CA[:,1])
-plt.show()
