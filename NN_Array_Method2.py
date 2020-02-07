@@ -22,7 +22,3 @@ for i in range(len(lattice[0])):
         else:
             NN[count, 3] = lattice[i,j] + Nx
         count += 1
-
-#for i in (NN == np.transpose(NN2)):
-#    if (i.any())!= True:
-#        print('Not equal')
