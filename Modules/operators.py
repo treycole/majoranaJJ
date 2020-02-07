@@ -26,7 +26,6 @@ def k_y(coor, ax, ay):
             if NN[j, 3] == i:
                 k_x[j,i] = -1j/(2*ax)
     return k_x
-
 #Descritizing kx^2 and ky^2
 def k_x2(coor, ax, ay):
     N = coor.shape[0]
@@ -41,7 +40,6 @@ def k_x2(coor, ax, ay):
             if i == j:
                 k_x2[j,i] = 2/ax**2
     return k_x2
-
 def k_y2(coor, ax, ay):
     N = coor.shape[0]
     k_y2 = np.zeros((N,N), dtype='complex')
@@ -62,7 +60,6 @@ def H0(coor, ax, ay):
     H = np.zeros((N,N), dtype = 'complex')
     H = const.hbar**2/(2*const.m0)*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
     return H
-
 #Getting energies
 def E0(coor, ax, ay):
     N = coor.shape[0]
@@ -70,7 +67,6 @@ def E0(coor, ax, ay):
     print (H.shape)
     eigvals, eigvecs = LA.eigh(H)
     return np.sort(eigvals)
-
 #Getting States
 def eigstate(coor, ax, ay):
     N = coor.shape[0]
