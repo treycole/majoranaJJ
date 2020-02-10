@@ -63,17 +63,22 @@ def H0(coor, ax, ay):
     H = const.hbar**2/(2*const.m0)*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
     return H
 
-#Getting energies
-def E0(coor, ax, ay):
+#Defining Hamiltonian for simple free particle in the lattice
+def H0(coor, ax, ay):
     N = coor.shape[0]
+    H = np.zeros((N,N), dtype = 'complex')
+    H = const.hbar**2/(2*const.m0)*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
+    return H
+
+def diagH(coor, ax, ay):
     H = H0(coor, ax, ay)
     print(H.shape)
     eigvals, eigvecs = LA.eigh(H)
-    return np.sort(eigvals)
+    return np.sort(eigvals), eigvecs
 
-#Getting States
-def eigstate(coor, ax, ay):
-    N = coor.shape[0]
-    H = H0(coor, ax, ay)
-    eigvals, eigvecs = LA.eigh(H)
-    return eigvecs
+def state_cplot(coor, eigarr):
+    prob_dens = np.square(abs(eigarr))
+    plt.scatter(coor[:,0], coor[:,1], c = prob_dens)
+    #plt.clim(min(prob_dens), max(prob_dens))
+    plt.colorbar()
+    
