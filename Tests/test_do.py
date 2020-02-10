@@ -17,7 +17,7 @@ N = Ny*Nx
 #donut creation, neighbor array, eigenvalues, eigenstates
 
 donut = lat.donut(1.5, 0.3, ax, ay) #donut coordinate array
-NN_d = lat.NN_Arr(donut, ax, ay) #nearest neighbor array for donut
+NN_d = lat.NN_Arr(donut) #nearest neighbor array for donut
 E0_d = op.E0(donut, ax, ay) #energy eigenvalues of donut lattice
 states_d = op.eigstate(donut, ax, ay) #energy eigenvectors of donut lattice
 
