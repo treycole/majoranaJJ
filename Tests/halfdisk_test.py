@@ -1,8 +1,6 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
+from os import path
+import sys
+sys.path.append(path.abspath('./Modules'))
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,45 +12,22 @@ import lattice as lat
 import constants as const
 import operators as op
 
-
-# In[2]:
-
-
 ax = .1  #unit cell size along x-direction in [A]
 ay = .1
 Ny = 25    #number of lattice sites in y direction
 Nx = 25     #number of lattice sites in x direction
 N = Ny*Nx
 
-
-# In[3]:
-
-
 R = 20
-
-
-# In[4]:
-
-
 CA = lat.halfdisk(R)
 NN = lat.NN_Arr(CA)
 energy, states = op.diagH(CA, ax, ay)
 
-
-# In[5]:
-
-
-get_ipython().run_line_magic('matplotlib', 'notebook')
 plt.scatter(CA[:,0], CA[:,1])
 plt.xlim(0, max(CA[:,0]))
 plt.ylim(0, max(CA[:,1]))
 plt.show()
 
-
-# In[8]:
-
-
-get_ipython().run_line_magic('matplotlib', 'notebook')
 #This is to visualize the array as points and see if the nearest neighbor array is working correctly
 idx = 45
 plt.scatter(CA[:,0],CA[:,1],c = 'b')
@@ -65,26 +40,10 @@ plt.xlim(0, max(CA[:,0]))
 plt.ylim(0, max(CA[:,1]))
 plt.show()
 
-
-# In[9]:
-
-
 #Ibeam Eigenvalues
 print(energy.shape)
 print(energy[0:10]/energy[0])
 
-
-# In[26]:
-
-
-get_ipython().run_line_magic('matplotlib', 'notebook')
 plt.xlim(0, max(CA[:,0]))
 plt.ylim(0, max(CA[:,1]))
 op.state_cplot(CA, states[:, 2])
-
-
-# In[ ]:
-
-
-
-
