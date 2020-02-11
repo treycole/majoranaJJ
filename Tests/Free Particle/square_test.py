@@ -21,6 +21,7 @@ print(N)
 
 coor = lat.square(Nx, Ny) #square coordinate array
 NN =  lat.NN_Arr(coor) #nearest neighbor array of square lattice
+H = op.H0(coor, ax, ay) # Hamiltonian
 
 #lattice viewing
 plt.scatter(coor[:,0], coor[:,1])
@@ -37,7 +38,7 @@ plt.scatter(coor[NN[idx,3],0], coor[NN[idx,3],1],c = 'cyan')
 plt.show()
 
 #energy eigenvalues of square lattice
-E0, states = op.diagH(coor, ax, ay)
+E0, states = LA.eigh(H)
 
 #checking eigenvalues
 print(np.shape(states[5]))

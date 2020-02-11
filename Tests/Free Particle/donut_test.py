@@ -23,7 +23,8 @@ R = 25
 r = 10
 donut = lat.donut(R, r) #donut coordinate array
 NN_d = lat.NN_Arr(donut) #nearest neighbor array for donut
-E0_d, states_d = op.diagH(donut, ax, ay) #energy eigenvalues and eigenvectors of donut lattice
+H = op.H0(donut, ax, ay)
+E0_d, states_d = LA.eigh(H) #energy eigenvalues and eigenvectors of donut lattice
 
 plt.scatter(donut[:,0], donut[:,1])
 plt.show()
