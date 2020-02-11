@@ -1,5 +1,6 @@
 import numpy as np
 from numpy import linalg as LA
+import matplotlib.pyplot as plt
 import constants as const
 import lattice as lat
 
@@ -81,4 +82,4 @@ def state_cplot(coor, eigarr):
     plt.scatter(coor[:,0], coor[:,1], c = prob_dens)
     #plt.clim(min(prob_dens), max(prob_dens))
     plt.colorbar()
-    
+    plt.show()
