@@ -1,2 +1,2 @@
 # Majoranas-peridodicJJ
-Calculating the energy structure for a periodic array of Josephson Junctions proximitized by superconducting blocks with nodular stucture. Inside the junction are semiconducting 2DEG's that become superconducting via spin-orbit coupling to the proximitized superconductors. Upon the addition of a Zeeman field along the junction, localized Majorana modes should appear at the ends, or perhaps some other form will appear. Hypothetically, these arrays of JJ's could be implemented on a chip to serve as Qubits in a Topological Quantum Computer. 
+Calculating the energy structure for a periodic array of topological superconductors hosting Majorana modes.
