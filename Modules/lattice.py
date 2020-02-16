@@ -120,3 +120,26 @@ def NN_Arr(coor):
             if abs((yn - ym) - 1) == 0 and abs(xn - xm) == 0:
                 NN[n, 3]= m
     return NN
+
+#Periodic Boundary conditions
+def NN_Bound(NN, coor):
+#     left_reg = []
+#     top_reg = []
+#     right_reg = []
+#     bottom_reg = []
+#     xmin = np.min(coor[:,0])
+    N = NN.shape[0]
+    NNk = -1*np.ones((N,4), dtype = 'int')
+    #if statements: if i has no left nearest neighbor and j has no right nearest neighbor and the ith index has the same y-value
+    # as the jth index then the periodic boundary nearest neighbor for i is j
+    for i in range(N):
+        for j in range(N):
+            if NN[i, 0] == -1 and NN[j, 2] == -1 and coor[i, 1] == coor[j, 1]:
+                NNk[i, 0] = j
+            if NN[i, 1] == -1 and NN[j, 3] == -1 and coor[i, 0] == coor[j, 0]:
+                NNk[i, 1] = j
+            if NN[i, 2] == -1 and NN[j, 0] == -1 and coor[i, 1] == coor[j, 1]:
+                NNk[i, 2] = j
+            if NN[i, 3] == -1 and NN[j, 1] == -1 and coor[i, 0] == coor[j, 0]:
+                NNk[i, 3] = j
+    return NNk
