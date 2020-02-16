@@ -17,19 +17,18 @@ ay = .1
 Ny = 25    #number of lattice sites in y direction
 Nx = 25     #number of lattice sites in x direction
 N = Ny*Nx
-print(N)
 
-coor = lat.square(Nx, Ny) #square coordinate array
-NN =  lat.NN_Arr(coor) #nearest neighbor array of square lattice
+R = 20
 
-V = op.V_barrier(10000, 10, 15, coor)
-print(V[11,11])
+coor = lat.halfdisk(R)
+NN = lat.NN_Arr(coor)
+H0 = op.H0(coor, ax, ay)
+energy, states = LA.eigh(H0)
 
-#checking eigenvalues
-#H = op.H0(coor, ax, ay) + V
-gamma = 0.01
-alpha = 0.08
-H = op.H_SOC(coor, ax, ay, V, gamma, alpha)
-energy, states = LA.eigh(H)
+#Ibeam Eigenvalues
+print(energy.shape)
+print(energy[0:10]/energy[0])
 
-op.state_cplot(coor, states[:, 100])
+plt.xlim(0, max(coor[:, 0]))
+plt.ylim(0, max(coor[:, 1]))
+op.state_cplot(coor, states[:, 25])
