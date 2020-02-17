@@ -42,7 +42,7 @@ if NN[idx, 3] != -1:
     plt.scatter(coor[NN[idx,3], 0], coor[NN[idx, 3], 1], c = 'cyan')
 plt.show()
 
-idx = 0
+idx = 451
 print(NN[idx, 0], NN[idx, 1], NN[idx, 2], NN[idx, 3])
 plt.scatter(coor[:, 0],coor[:, 1] ,c = 'b')
 plt.scatter(coor[idx, 0],coor[idx, 1], c = 'r')
