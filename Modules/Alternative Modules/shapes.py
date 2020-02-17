@@ -1,34 +1,5 @@
-#defining nearest neighbor array
-#NN_arr is Nx4, the columns store the index of the nearest neighbors.
-#Left: NN[n,0] = (n-Nx), Above: NN[n,1] = n+1, Right: NN[n, 2] = n+1, Down NN[n, 3] = n+Nx
-#if there is no lattice site in nearest neighbor spot, value is -1
-def NN_Arr(coor, ax, ay):
-    N = coor.shape[0]
-    tol = 1e-8
-    NN = -1*np.ones((N,4), dtype = 'int')
-    for n in range(N):
-        for m in range(N):
-            xn = coor[n, 0]
-            xm = coor[m, 0]
-            yn = coor[n,1]
-            ym = coor[m,1]
+#Used if we are defining each x and y coordinate in terms of the lattice spacing ax and ay
 
-            if abs((xn - xm) - ax)< tol and abs(yn - ym) < tol:
-                NN[n, 0] = m
-            if abs((xn - xm) + ax) < tol and abs(yn - ym) < tol:
-                    NN[n, 2] = m
-            if abs((yn - ym) + ay) < tol and abs(xn - xm) < tol:
-                        NN[n, 1] = m
-            if abs((yn - ym) - ay) < tol and abs(xn - xm) < tol:
-                            NN[n, 3]= m
-        return NN
-#defining lattice, numbered 0->N
-def lattice(Nx, Ny):
-    lattice = np.zeros((Nx, Ny))
-    for i in range(Ny):
-        for j in range(Nx):
-            lattice[i, j] = j + i*Ny
-    return lattice
 #defining coordinate array
 #coordinate array is Nx2, first column is array of x values in units of [A], second column is y values in units of [A]
 #creates a square or rectangular coordinate array, it stores i*ax as x coordinate, n = nx + nx*ny means ...
@@ -44,6 +15,7 @@ def square(Nx, Ny, ax, ay):
             coor[n,0] = x
             coor[n,1] = y
     return coor
+
 #Disk with a hole
 def donut(R, r, ax, ay):
     CAx = []

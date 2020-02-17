@@ -2,7 +2,13 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.linalg as scl
+import numpy as np
+import matplotlib.pyplot as plt
+
 # Values of parameters
+m=9.1e-31 #mass of electron in Kg
+hbar= 6.05e-19 # h/2*pi  in eV-s
+
 Nx=4# Nx = Number of lattice points along x-axis
 Ny=4# Ny=Number of lattice points along y-axis
 N=Nx*Ny # N=Nx*Ny, total number of lattice sites
@@ -10,18 +16,18 @@ ax=500 # lattice constant along x-axis,define later(in 10e-10meter)
 ay=500 # lattice constant, alog y-axix,define latter(in 10e-10 meter)
 Lx=50e-9 # Length of lattice along x-axis (in meter)
 Ly=50e-9 # Length lattiice along y-axis( in meter)
-m=9.1e-31 #mass of electron in Kg
-hbar= 6.05e-19 # h/2*pi  in eV-s
-import numpy as np
-import matplotlib.pyplot as plt
+
 R=15
 r=3
 ax=1
 ay=1
+
 Nx=int(2*R/ax+1)
 Ny=int(2*R/ay+1)
+
 coor_arr_x=[]
 coor_arr_y=[]
+
 xmin=-R
 ymin=-R
 for j in range(Ny):
@@ -38,6 +44,7 @@ coor_arr[:,0]=np.array(coor_arr_x)
 coor_arr[:,1]=np.array(coor_arr_y)
 plt.scatter(coor_arr[:,0],coor_arr[:,1],c='blue', s=50)
 plt.show()
+
 def neig_arr(coor_arr,ax,ay):
         tol = 10e-8
         N=coor_arr.shape[0]
@@ -71,6 +78,7 @@ plt.scatter(coor_arr[neig[idx,3],0],coor_arr[neig[idx,3],1],c = 'cyan',s=50)
 print (coor_arr[-1])
 print (neig[8,0])
 plt.show()
+
 # Discritization of Operators (kx,k**2x, ky, k**2y)
 # Discritization of Kx
 def kx(coor_arr,ax,ay):
@@ -78,10 +86,10 @@ def kx(coor_arr,ax,ay):
     kx=np.zeros((N,N),dtype="complex")
     for i in range(N):
         for j in range(N):
-            if neig[j,0]==i:
+            if neig[j,0] == i:
                 kx[j,i] = -1j/2*ax    # j in the right side is the imaginary uite
-            if neig[j,2]==i:
-                kx[j,i] = j/2*ax
+            if neig[j,2] == i:
+                kx[j,i] = 1j/2*ax
         return kx
 
 # Discritization of Ky
@@ -90,9 +98,9 @@ def ky(coor_arr,ax,ay):
     ky=np.zeros((N,N),dtype="complex")
     for i in range(N):
         for j in range(N):
-            if neig[j,0]==i:
+            if neig[j,1]==i:
                 kx[j,i] = -1j/2*ay    # j in the right side is the imaginary uite
-            if neig[j,2]==i:
+            if neig[j,3]==i:
                 kx[j,i] = 1j/2*ay
         return ky
 
@@ -109,8 +117,7 @@ def kx_2(coor_arr, ax,ay):
             if i==j:
                 kx_2[j,i] = 2/ax**2
     return kx_2
-B=kx_2(coor_arr, ax,ay)
-print("B:",B)
+
 #Discritization of Ky^2
 def ky_2(coor_arr,ax,ay):
     N=coor_arr.shape[0]
@@ -124,6 +131,7 @@ def ky_2(coor_arr,ax,ay):
             if i==j:
                 ky_2[j,i] = 2/ay**2
     return ky_2
+
 # Define Hamilton
 def Ham_gen(coor_arr, ax, ay):
     H=np.ones((N,N),dtype='complex')
@@ -131,9 +139,11 @@ def Ham_gen(coor_arr, ax, ay):
     return(H)
 Ham = Ham_gen(coor_arr,ax,ay)
 print (Ham)
+
 # Find eigenvalues and eigenvectors
-E,phi=np.linalg.eigh(Ham)
+E, phi = np.linalg.eigh(Ham)
 #print(E)
+
 n = 6
 phi_0= np.square(np.absolute(phi[:,n]))
 plt.scatter(coor_arr[:,0], coor_arr[:,1], c =phi_0 , s=50)
