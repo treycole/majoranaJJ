@@ -4,7 +4,8 @@ from numpy import linalg as LA
 import constants as const
 import lattice as lat
 
-# Descritizing kx
+#################### Descritizing momomentum operators ##################################
+
 def k_x(coor, ax, ay):
     N = coor.shape[0]
     k_x = np.zeros((N,N), dtype = "complex")
@@ -17,7 +18,6 @@ def k_x(coor, ax, ay):
                 k_x[j,i] = 1j/(2*ax)
     return k_x
 
-#Descritizing kx^2
 def k_x2(coor, ax, ay):
     N = coor.shape[0]
     k_x2 = np.zeros((N,N), dtype='complex')
@@ -32,6 +32,7 @@ def k_x2(coor, ax, ay):
                 k_x2[j,i] = 2/ax**2
     return k_x2
 
+#Descritizing kx^2 and ky^2
 def k_y(coor, ax, ay):
     N = coor.shape[0]
     k_y = np.zeros((N,N), dtype = "complex")
@@ -43,7 +44,6 @@ def k_y(coor, ax, ay):
             if NN[j, 3] == i:
                 k_y[j,i] = -1j/(2*ay)
     return k_y
-
 
 def k_y2(coor, ax, ay):
     N = coor.shape[0]
@@ -59,9 +59,9 @@ def k_y2(coor, ax, ay):
                 k_y2[j,i] = 2/ay**2
     return k_y2
 
-######################################################
+#################### Periodic momentum operators ##################################
 
-#Periodic momentum operators, p is for periodic
+
 def kp_x(qx, coor, ax, ay):
     N = coor.shape[0]                           #Number of Lattice sites
     xmin = min(coor[:, 0])                      #To determine the factor in the phase shift for periodic sites
@@ -77,9 +77,9 @@ def kp_x(qx, coor, ax, ay):
             if NN[j, 2] == i:
                 kbx[j,i] = 1j/(2*ax)            #Same as bulk p-operator
             if NNb[j, 0] == i:
-                kbx[j, i] = (-1j/2*ax)*np.exp(1j*qx*(xmin-xmax)*ax)       #Hopping to next unit cell, e^ik(Nx)
+                kbx[j, i] = (-1j/2*ax)*np.exp(1j*qx*(xmin-xmax+1)*ax)       #Hopping to next unit cell, e^ik(Nx)
             if NNb[j, 2] == i:
-                kbx[j,i] = (1j/2*ax)*np.exp(1j*qx*(xmax-xmin)*ax)
+                kbx[j,i] = (1j/2*ax)*np.exp(1j*qx*(xmax-xmin+1)*ax)
     return kbx
 
 def kp_x2(qx, coor, ax, ay):
@@ -99,9 +99,9 @@ def kp_x2(qx, coor, ax, ay):
             if i == j:
                 kbx[j,i] = 2/ax**2              #Same as bulk p^2-operator
             if NNb[j, 0] == i:
-                kbx[j, i] = (-1/ax**2)*np.exp(1j*qx*(xmin-xmax)*ax)
+                kbx[j, i] = (-1/ax**2)*np.exp(1j*qx*(xmin-xmax+1)*ax)
             if NNb[j, 2] == i:
-                kbx[j,i] = (-1/ax**2)*np.exp(1j*qx*(xmax-xmin)*ax)
+                kbx[j,i] = (-1/ax**2)*np.exp(1j*qx*(xmax-xmin+1)*ax)
 
     return kbx
 
@@ -120,9 +120,9 @@ def kp_y(qy, coor, ax, ay):
             if NN[j, 3] == i:
                 k_y[j,i] = -1j/(2*ay)
             if NNb[j, 1] == i:
-                k_y[j, i] = (1j/2*ay)*np.exp(1j*qy*(ymax-ymin)*ay)       #Hopping to next unit cell, e^ik(Ny)
+                k_y[j, i] = (1j/2*ay)*np.exp(1j*qy*(ymax-ymin+1)*ay)       #Hopping to next unit cell, e^ik(Ny)
             if NNb[j, 3] == i:
-                k_y[j,i] = (-1j/2*ay)*np.exp(1j*qy*(ymin-ymax)*ay)
+                k_y[j,i] = (-1j/2*ay)*np.exp(1j*qy*(ymin-ymax+1)*ay)
     return k_y
 
 def kp_y2(qy, coor, ax, ay):
@@ -142,16 +142,13 @@ def kp_y2(qy, coor, ax, ay):
             if i == j:
                 k_y2[j,i] = 2/ay**2
             if NNb[j, 1] == i:
-                k_y2[j, i] = (1j/2*ay)*np.exp(1j*qy*(ymax-ymin)*ay)       #Hopping to next unit cell, e^ik(Nx)
-            if NNb[j, 2] == i:
-                k_y2[j,i] = (-1j/2*ay)*np.exp(1j*qy*(ymin-ymax)*ay)
+                k_y2[j, i] = (-1/ay**2)*np.exp(1j*qy*(ymax-ymin+1)*ay)       #Hopping to next unit cell, e^ik(Nx)
+            if NNb[j, 3] == i:
+                k_y2[j,i] = (-1/ay**2)*np.exp(1j*qy*(ymin-ymax+1)*ay)
     return k_y2
 
+######################## Potential shapes ##############################
 
-######################################################
-#Potential Shapes
-
-#Barrier in the range xi --> xf
 def V_barrier(size, xi, xf, coor):
     N = coor.shape[0]
     V = np.zeros((N, N))
@@ -161,23 +158,22 @@ def V_barrier(size, xi, xf, coor):
                 V[i,j] = size
     return V
 
-#Some sinusoidal frequency oscillating with some defined frequency
-def V_periodic(freq, coor):
+def V_periodic(V0, Nx, Ny, coor):
     N = coor.shape[0]
     V = np.zeros((N,N))
     for i in range(N):
         for j in range(N):
             if i==j:
-                V[i,j] = np.sin(2*np.pi*coor[i,0]/freq)
+                V[i,j] = V0*np.sin(np.pi*(coor[i,0])/(Nx-1))*np.sin(np.pi*coor[i,1]/(Ny-1))
     return V
 
-######################################################
+###################### Hamiltonians for single unit cell ################################
 
-#Defining Hamiltonian for simple free particle in the lattice
+
 def H0(coor, ax, ay):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')
-    H = const.hbar**2/(2*const.m0)*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
+    H = (const.hbar**2/(2*const.m0))*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
     return H
 
 #Spin orbit coupling, spin energy splitting, size 2Nx2N: 0->N spin up states, N -> 2N spin down states
@@ -195,14 +191,15 @@ def H_SOC(coor, ax, ay, V, gamma, alpha):
     H = np.block([[H00, H01],[H10, H11]])
     return H
 
-#e(i qx / Lx) phase acquired when the wf hops to the site off the edge of lattice, complex conjugate when left edge -> right edge
+###################### Hamiltonians with periodic boundary conditions ################################
+
 def H0k(qx, qy, coor, ax, ay):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')
     H = const.hbar**2/(2*const.m0)*(kp_x2(qx, coor, ax, ay) + kp_y2(qy, coor, ax, ay))
     return H
 
-def H_SOCk(qx, qy, coor, ax, ay):
+def H_SOCk(qx, qy, coor, ax, ay, V, gamma, alpha):
     H_0 = H0k(qx, qy, coor, ax, ay)
     N = H_0.shape[0]
     kx = kp_x(qx, coor, ax, ay)
@@ -213,10 +210,11 @@ def H_SOCk(qx, qy, coor, ax, ay):
     H11 = H_0 - gamma*np.eye(N,N) + V
     H10 = alpha*(1j*kx - ky)
     H01 = alpha*(-1j*kx - ky)
-    H = np.block([H00, H01], [H10, H11])
+    H = np.block([[H00, H01], [H10, H11]])
     return H
 
-######################################################
+
+###################### Plotting states and energies ################################
 
 def state_cplot(coor, states):
     if coor.shape[0] < states.shape[0]:
@@ -231,13 +229,11 @@ def state_cplot(coor, states):
     plt.colorbar()
     plt.show()
 
-def bands_FP(coor, ax, ay, Nx, Ny, nbands):
-    steps = 40
-    qx = np.linspace(-np.pi/Nx, np.pi/Nx, steps)
-    qy = np.linspace(-np.pi/Ny, np.pi/Ny, steps)
-    eigarr = np.zeros((steps, nbands))
-    for i in range(steps):
-        eigarr[i, :] = LA.eigh(H0k(qx[i], qy[i], coor, ax, ay))[0][:nbands]
+
+def bands(eigarr, q):
     for j in range(eigarr.shape[1]):
-        plt.plot(qx, eigarr[:, j], c ='b', linestyle = 'solid')
-        plt.show()
+        plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
+    plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
+    plt.xlabel('k [1/m]')
+    plt.ylabel('Energy [eV]')
+    plt.show()
