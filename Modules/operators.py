@@ -73,11 +73,11 @@ def kp_x(qx, coor, ax, ay):
     for i in range(N):
         for j in range(N):
             if NN[j,0] == i:
-                kbx[j,i] = -1j/(2*ax)           #Same as bulk p-operator
+                kbx[j,i] = -1j/(2*ax)           #Same as bulk k-operator
             if NN[j, 2] == i:
-                kbx[j,i] = 1j/(2*ax)            #Same as bulk p-operator
+                kbx[j,i] = 1j/(2*ax)            #Same as bulk k-operator
             if NNb[j, 0] == i:
-                kbx[j, i] = (-1j/2*ax)*np.exp(1j*qx*(xmin-xmax+1)*ax)       #Hopping to next unit cell, e^ik(Nx)
+                kbx[j, i] = (-1j/2*ax)*np.exp(1j*qx*(xmin-xmax+1)*ax)       #Hopping to next unit cell, e^ik(Lx)
             if NNb[j, 2] == i:
                 kbx[j,i] = (1j/2*ax)*np.exp(1j*qx*(xmax-xmin+1)*ax)
     return kbx
@@ -93,11 +93,11 @@ def kp_x2(qx, coor, ax, ay):
     for i in range(N):
         for j in range(N):
             if NN[j,0] == i:
-                kbx[j,i] = -1/ax**2             #Same as bulk p^2-operator
+                kbx[j,i] = -1/ax**2             #Same as bulk k^2-operator
             if NN[j, 2] == i:
-                kbx[j,i] = -1/ax**2             #Same as bulk p^2-operator
+                kbx[j,i] = -1/ax**2             #Same as bulk k^2-operator
             if i == j:
-                kbx[j,i] = 2/ax**2              #Same as bulk p^2-operator
+                kbx[j,i] = 2/ax**2              #Same as bulk k^2-operator
             if NNb[j, 0] == i:
                 kbx[j, i] = (-1/ax**2)*np.exp(1j*qx*(xmin-xmax+1)*ax)
             if NNb[j, 2] == i:
@@ -149,12 +149,12 @@ def kp_y2(qy, coor, ax, ay):
 
 ######################## Potential shapes ##############################
 
-def V_barrier(size, xi, xf, coor):
+def V_barrier(V0, xi, xf, coor): #(Amplitude, starting point of barrier, ending pt of barrier, coordinate array)
     N = coor.shape[0]
     V = np.zeros((N, N))
     for i in range(N):
         for j in range(N):
-            if i == j and coor[i,0] < xf and coor[i,0] > xi:
+            if i == j and coor[i,0] < xf and coor[i,0] > xi: #Making V operator, onsite energy contribution, if site is between xi and xf
                 V[i,j] = size
     return V
 
@@ -168,7 +168,6 @@ def V_periodic(V0, Nx, Ny, coor):
     return V
 
 ###################### Hamiltonians for single unit cell ################################
-
 
 def H0(coor, ax, ay):
     N = coor.shape[0]
@@ -196,7 +195,7 @@ def H_SOC(coor, ax, ay, V, gamma, alpha):
 def H0k(qx, qy, coor, ax, ay):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')
-    H = const.hbar**2/(2*const.m0)*(kp_x2(qx, coor, ax, ay) + kp_y2(qy, coor, ax, ay))
+    H = (const.hbar**2/(2*const.m0))*(kp_x2(qx, coor, ax, ay) + kp_y2(qy, coor, ax, ay))
     return H
 
 def H_SOCk(qx, qy, coor, ax, ay, V, gamma, alpha):
@@ -232,8 +231,9 @@ def state_cplot(coor, states):
 
 def bands(eigarr, q):
     for j in range(eigarr.shape[1]):
-        plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
+        plt.plot(q, (6.242e18)*eigarr[:, j], c ='b', linestyle = 'solid')
     plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
+    plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
     plt.xlabel('k [1/m]')
     plt.ylabel('Energy [eV]')
     plt.show()

@@ -9,25 +9,59 @@ import lattice as lat
 import constants as const
 import operators as op
 
-ax = 2e-10      #unit cell size along x-direction in [m]
-ay = 2e-10      #unit cell size along y-direction in [m]
-Ny = 3          #number of lattice sites in y direction
-Nx = 3          #number of lattice sites in x direction
-N = Ny*Nx
-print(N)
+print("hbar = {} [J*s]".format(const.hbar))
+print("hbar = {} [ev*s]".format(const.hhbar))
+print("mass of electron = {} [kg]".format(const.m0))
+
+ax = 2e-10  #atomic spacing along x-direction in [m]
+ay = 2e-10  #atomic spacing along y-direction in [m]
+
+Nx = 3      #number of lattice sites in x direction
+Ny = 3      #number of lattice sites in y direction
+N = Ny*Nx   #Total number of lattice sites
+
+Lx = Nx*ax  #Unit cell size in y-direction
+Ly = Ny*ay  #Unit cell size in y-direction
+
+tx = -const.hbar**2/(2*const.m0*ax**2) #Hopping in [J]
+ty = -const.hbar**2/(2*const.m0*ay**2) #Hopping in [J]
+
+print("Number of Lattice Sites= ", N)
+print("Unit cell size in x-direction = {} [m] = {} [A]".format(Lx, Lx*1e10))
+print("Unit cell size in y-direction = {} [m] = {} [A]".format(Ly, Ly*1e10))
+print("Hopping Parameter tx = {} [ev]".format(tx*6.242e18))
+print("Hopping Parameter ty = {} [ev]".format(ty*6.242e18))
 
 coor = lat.square(Nx, Ny)       #square coordinate array
 NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
 NNb = lat.NN_Bound(NN, coor)    #periodic NN array
 
 #checking eigenvalues
-V = op.V_periodic(0.10, Nx, Ny, coor)
+#H0k(qx, qy, coor, ax, ay)
 steps = 50
-nbands = 18
-qx = np.linspace(-np.pi/(Nx*ax), np.pi/(Nx*ax), steps)
-qy = np.linspace(-np.pi/Ny, np.pi/Ny, steps)
+nbands = 9
+qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
+qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
 eigarr = np.zeros((steps, nbands))
 for i in range(steps):
     eigarr[i, :] = LA.eigh(op.H0k(qx[i], 0, coor, ax, ay))[0][:nbands]
-op.bands(eigarr, qx)
-plt.show()
+
+op.bands(eigarr, qx, Lx, Ly)
+
+#H_SOC(coor, ax, ay, V, gamma, alpha)
+#V_periodic(V0, Nx, Ny, coor)
+alpha = 0.02*1e-10*const.evtoJ #[J*m]
+gamma = 0.01*const.evtoJ  #[T]
+V0 = 0.1*const.evtoJ
+
+steps = 50
+nbands = 18
+qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
+qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
+V = op.V_periodic(V0, Nx, Ny, coor)
+eigarr = np.zeros((steps, nbands))
+
+for i in range(steps):
+    eigarr[i, :] = LA.eigh(op.H_SOCk(qx[i], 0, coor, ax, ay, V, gamma, alpha))[0][:nbands]
+
+op.bands(eigarr, qx, Lx, Ly)
