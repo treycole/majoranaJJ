@@ -1,6 +1,3 @@
-from os import path
-import sys
-sys.path.append("...\majoranas")
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
@@ -28,10 +25,10 @@ tx = -const.xi/(ax**2) #Hopping in [eV]
 ty = -const.xi/(ay**2) #Hopping in [eV]
 
 print("Number of Lattice Sites= ", N)
-print("Unit cell size in x-direction = {} [m] = {} [A]".format(Lx, Lx*1e10))
-print("Unit cell size in y-direction = {} [m] = {} [A]".format(Ly, Ly*1e10))
-print("Hopping Parameter tx = {} [ev]".format(tx*6.242e18))
-print("Hopping Parameter ty = {} [ev]".format(ty*6.242e18))
+print("Unit cell size in x-direction = {} [A] = {} [m]".format(Lx, Lx*1e-10))
+print("Unit cell size in y-direction = {} [A] = {} [m]".format(Ly, Ly*1e-10))
+print("Hopping Parameter tx = {} [ev]".format(tx))
+print("Hopping Parameter ty = {} [ev]".format(ty))
 
 coor = lat.square(Nx, Ny)       #square coordinate array
 NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice

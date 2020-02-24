@@ -1,14 +1,10 @@
-from os import path
-import sys
-sys.path.append(path.abspath('./Modules'))
-
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-import lattice as lat
-import constants as const
-import operators as op
+import majoranas.modules.constants as const
+import majoranas.modules.lattice as lat
+import majoranas.modules.operators as op
 
 ax = 2e-10  #unit cell size along x-direction in [m]
 ay = 2e-10  #unit cell size along y-direction in [m]
