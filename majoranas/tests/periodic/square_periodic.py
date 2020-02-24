@@ -1,13 +1,10 @@
-from os import path
-import sys
-sys.path.append(path.abspath('./Modules'))
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-import lattice as lat
-import constants as const
-import operators as op
+import majoranas.modules.constants as const
+import majoranas.modules.lattice as lat
+import majoranas.modules.operators as op
 
 print("hbar = {} [J*s]".format(const.hbarJ))
 print("hbar = {} [ev*s]".format(const.hbar))
@@ -21,17 +18,17 @@ Nx = 3      #number of lattice sites in x direction
 Ny = 3      #number of lattice sites in y direction
 N = Ny*Nx   #Total number of lattice sites
 
-Lx = Nx*ax  #Unit cell size in y-direction
+Lx = Nx*ax  #Unit cell size in x-direction
 Ly = Ny*ay  #Unit cell size in y-direction
 
 tx = -const.xi/(ax**2) #Hopping in [eV]
 ty = -const.xi/(ay**2) #Hopping in [eV]
 
 print("Number of Lattice Sites= ", N)
-print("Unit cell size in x-direction = {} [m] = {} [A]".format(Lx, Lx*1e10))
-print("Unit cell size in y-direction = {} [m] = {} [A]".format(Ly, Ly*1e10))
-print("Hopping Parameter tx = {} [ev]".format(tx*6.242e18))
-print("Hopping Parameter ty = {} [ev]".format(ty*6.242e18))
+print("Unit cell size in x-direction = {} [A] = {} [m]".format(Lx, Lx*1e-10))
+print("Unit cell size in y-direction = {} [A] = {} [m]".format(Ly, Ly*1e-10))
+print("Hopping Parameter tx = {} [ev]".format(tx))
+print("Hopping Parameter ty = {} [ev]".format(ty))
 
 coor = lat.square(Nx, Ny)       #square coordinate array
 NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice

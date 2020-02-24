@@ -1,16 +1,12 @@
-from os import path
-import sys
-sys.path.append(path.abspath('./Modules'))
-
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 import matplotlib.lines as mlines
 from scipy import interpolate
 
-import lattice as lat
-import constants as const
-import operators as op
+import majoranas.modules.constants as const
+import majoranas.modules.lattice as lat
+import majoranas.modules.operators as op
 
 ax = 2      #unit cell size along x-direction in [A]
 ay = 2      #unit cell size along y-direction in [A]
