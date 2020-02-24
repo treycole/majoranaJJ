@@ -1,9 +1,11 @@
-hhbar = 6.58211899e-16          #h/2π in [eV*s]
-hbar = 1.054571726e-34          #h/2π in [J*s]
+Jtoev = 1/(1.602176487e-19)     #Conversion of Joules to eV
+evtoJ = 1.602176487e-19         #Conversion of eV to Joules
+
+hbar = 6.58211899e-16           #h/2π in [eV*s]
+hbarJ = 1.054571726e-34         #h/2π in [J*s]
 m0 = 9.10938215e-31             #electron mass in [kg]
 e0 = 1.602176487e-19            #electron charge in [C]
-ηm = (hbar**2*e0*10**20)/m0     #hbar^2/mo in [eV A^2]
-μB = 5.7883818066e-2            #in [meV/T]
+xi = (hbar**2*e0*10**20)/m0     #hbar^2/mo in [eV A^2]
+
+μB = 5.7883818066e-2            #[meV/T]
 meVpK = 8.6173325e-2            #Kelvin into [meV]
-Jtoev = 6.242e18                #Conversion of Joules to eV
-evtoJ = 6.242e-18               #Conversion of eV to Joules

@@ -172,7 +172,7 @@ def V_periodic(V0, Nx, Ny, coor):
 def H0(coor, ax, ay):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')
-    H = (const.hbar**2/(2*const.m0))*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
+    H = (const.xi/2)*(k_x2(coor, ax, ay) + k_y2(coor, ax, ay))
     return H
 
 #Spin orbit coupling, spin energy splitting, size 2Nx2N: 0->N spin up states, N -> 2N spin down states
@@ -195,7 +195,7 @@ def H_SOC(coor, ax, ay, V, gamma, alpha):
 def H0k(qx, qy, coor, ax, ay):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')
-    H = (const.hbar**2/(2*const.m0))*(kp_x2(qx, coor, ax, ay) + kp_y2(qy, coor, ax, ay))
+    H = (const.xi/2)*(kp_x2(qx, coor, ax, ay) + kp_y2(qy, coor, ax, ay))
     return H
 
 def H_SOCk(qx, qy, coor, ax, ay, V, gamma, alpha):
@@ -231,9 +231,9 @@ def state_cplot(coor, states):
 
 def bands(eigarr, q):
     for j in range(eigarr.shape[1]):
-        plt.plot(q, (6.242e18)*eigarr[:, j], c ='b', linestyle = 'solid')
+        plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
     plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
     plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
-    plt.xlabel('k [1/m]')
+    plt.xlabel('k [1/A]')
     plt.ylabel('Energy [eV]')
     plt.show()

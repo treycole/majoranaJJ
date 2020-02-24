@@ -9,12 +9,13 @@ import lattice as lat
 import constants as const
 import operators as op
 
-print("hbar = {} [J*s]".format(const.hbar))
-print("hbar = {} [ev*s]".format(const.hhbar))
+print("hbar = {} [J*s]".format(const.hbarJ))
+print("hbar = {} [ev*s]".format(const.hbar))
 print("mass of electron = {} [kg]".format(const.m0))
+print("hbar**2/m0 = {} [eV A^2]".format(const.xi))
 
-ax = 2e-10  #atomic spacing along x-direction in [m]
-ay = 2e-10  #atomic spacing along y-direction in [m]
+ax = 2      #atomic spacing along x-direction in [A]
+ay = 2      #atomic spacing along y-direction in [A]
 
 Nx = 3      #number of lattice sites in x direction
 Ny = 3      #number of lattice sites in y direction
@@ -23,8 +24,8 @@ N = Ny*Nx   #Total number of lattice sites
 Lx = Nx*ax  #Unit cell size in y-direction
 Ly = Ny*ay  #Unit cell size in y-direction
 
-tx = -const.hbar**2/(2*const.m0*ax**2) #Hopping in [J]
-ty = -const.hbar**2/(2*const.m0*ay**2) #Hopping in [J]
+tx = -const.xi/(ax**2) #Hopping in [eV]
+ty = -const.xi/(ay**2) #Hopping in [eV]
 
 print("Number of Lattice Sites= ", N)
 print("Unit cell size in x-direction = {} [m] = {} [A]".format(Lx, Lx*1e10))
@@ -50,9 +51,9 @@ op.bands(eigarr, qx, Lx, Ly)
 
 #H_SOC(coor, ax, ay, V, gamma, alpha)
 #V_periodic(V0, Nx, Ny, coor)
-alpha = 0.02*1e-10*const.evtoJ #[J*m]
-gamma = 0.01*const.evtoJ  #[T]
-V0 = 0.1*const.evtoJ
+alpha = 0.2   #[eV*A]
+gamma = 0*0.01  #[T]
+V0 = 0.1
 
 steps = 50
 nbands = 18
