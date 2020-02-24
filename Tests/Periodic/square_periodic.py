@@ -1,13 +1,13 @@
 from os import path
 import sys
-sys.path.append(path.abspath('./Modules'))
+sys.path.append(path.abspath("..\Modules"))
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-import lattice as lat
-import constants as const
-import operators as op
+from Modules import lattice as lat
+from Modules import constants as const
+from Modules import operators as op
 
 print("hbar = {} [J*s]".format(const.hbarJ))
 print("hbar = {} [ev*s]".format(const.hbar))
