@@ -1,13 +1,13 @@
 from os import path
 import sys
-sys.path.append(path.abspath("..\Modules"))
+sys.path.append("...\majoranas")
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-from Modules import lattice as lat
-from Modules import constants as const
-from Modules import operators as op
+import majoranas.modules.constants as const
+import majoranas.modules.lattice as lat
+import majoranas.modules.operators as op
 
 print("hbar = {} [J*s]".format(const.hbarJ))
 print("hbar = {} [ev*s]".format(const.hbar))
@@ -21,7 +21,7 @@ Nx = 3      #number of lattice sites in x direction
 Ny = 3      #number of lattice sites in y direction
 N = Ny*Nx   #Total number of lattice sites
 
-Lx = Nx*ax  #Unit cell size in y-direction
+Lx = Nx*ax  #Unit cell size in x-direction
 Ly = Ny*ay  #Unit cell size in y-direction
 
 tx = -const.xi/(ax**2) #Hopping in [eV]

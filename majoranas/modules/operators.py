@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
-import constants as const
-import lattice as lat
+
+from . import constants as const
+from . import lattice as lat
 
 #################### Descritizing momomentum operators ##################################
 
@@ -229,7 +230,7 @@ def state_cplot(coor, states):
     plt.show()
 
 
-def bands(eigarr, q):
+def bands(eigarr, q, Lx, Ly):
     for j in range(eigarr.shape[1]):
         plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
     plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
