@@ -5,6 +5,7 @@ from numpy import linalg as LA
 import majoranas.modules.constants as const
 import majoranas.modules.lattice as lat
 import majoranas.modules.operators as op
+import majoranas.modules.alt_mod.altoperators as aop
 
 print("hbar = {} [J*s]".format(const.hbarJ))
 print("hbar = {} [ev*s]".format(const.hbar))
@@ -34,32 +35,49 @@ coor = lat.square(Nx, Ny)       #square coordinate array
 NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
 NNb = lat.NN_Bound(NN, coor)    #periodic NN array
 
-#checking eigenvalues
 #H0k(qx, qy, coor, ax, ay)
 steps = 50
-nbands = 9
+nbands = N
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
 eigarr = np.zeros((steps, nbands))
 for i in range(steps):
-    eigarr[i, :] = LA.eigh(op.H0k(qx[i], 0, coor, ax, ay))[0][:nbands]
+    eigarr[i, :] = LA.eigh(aop.H0k(coor, ax, ay, qx[i], 0))[0][:nbands]
 
 op.bands(eigarr, qx, Lx, Ly)
 
-#H_SOC(coor, ax, ay, V, gamma, alpha)
+#H_SOk(coor, ax, ay, qx, qy, V, gamma, alpha)
 #V_periodic(V0, Nx, Ny, coor)
 alpha = 0.2   #[eV*A]
 gamma = 0*0.01  #[T]
-V0 = 0.1
+V0 = 0.0
+V = op.V_periodic(V0, Nx, Ny, coor)
 
-steps = 50
-nbands = 18
+steps = 100
+nbands = 2*N
+qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
+qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
+eigarr = np.zeros((steps, nbands))
+for i in range(steps):
+    eigarr[i, :] = LA.eigh(aop.H_SOk(coor, ax, ay, qx[i], 0, 0, gamma, alpha))[0][:nbands]
+op.bands(eigarr, qx, Lx, Ly)
+
+# H0(coor, ax, ay, potential = 0, gammax = 0, gammay = 0, gammaz = 0,
+#    alpha = 0, qx = 0, qy = 0,
+#    periodic = 'yes'
+#    ):
+#V_periodic(V0, Nx, Ny, coor)
+a = 0.2   #[eV*A]
+gamma = 0*0.01  #[T]
+V0 = 0
+
+steps = 100
+nbands = 2*N
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
 V = op.V_periodic(V0, Nx, Ny, coor)
 eigarr = np.zeros((steps, nbands))
 
 for i in range(steps):
-    eigarr[i, :] = LA.eigh(op.H_SOCk(qx[i], 0, coor, ax, ay, V, gamma, alpha))[0][:nbands]
-
-op.bands(eigarr, qx, Lx, Ly)
+    eigarr[i, :] = LA.eigh(op.H0(coor, ax, ay, potential = V, qx = qx[i]))[0][:nbands]
+op.bands(eigarr, qx, Lx, Ly, title = 'alpha = {}, gammaz = {}, Potential = {}'.format(a, gamma, V0))

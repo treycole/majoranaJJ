@@ -210,13 +210,14 @@ def state_cplot(coor, states, title = 'Probability Density'):
     plt.show()
 
 
-def bands(eigarr, q, Lx, Ly):
+def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     for j in range(eigarr.shape[1]):
         plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
     plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
     plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
     plt.xlabel('k [1/A]')
     plt.ylabel('Energy [eV]')
+    plt.title(title)
     plt.show()
 
 

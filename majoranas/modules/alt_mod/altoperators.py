@@ -63,7 +63,7 @@ def k_y2(coor, ax, ay):
 #################### Periodic momentum operators ##################################
 
 
-def kp_x(qx, coor, ax, ay):
+def kp_x(coor, ax, ay, qx):
     N = coor.shape[0]                           #Number of Lattice sites
     xmin = min(coor[:, 0])                      #To determine the factor in the phase shift for periodic sites
     xmax = max(coor[:, 0])
@@ -83,7 +83,7 @@ def kp_x(qx, coor, ax, ay):
                 kbx[j,i] = (1j/2*ax)*np.exp(1j*qx*(xmax-xmin+1)*ax)
     return kbx
 
-def kp_x2(qx, coor, ax, ay):
+def kp_x2(coor, ax, ay, qx):
     N = coor.shape[0]                           #Number of Lattice sites
     xmin = min(coor[:, 0])                      #To determine the factor in the phase shift for periodic sites
     xmax = max(coor[:, 0])
@@ -106,7 +106,7 @@ def kp_x2(qx, coor, ax, ay):
 
     return kbx
 
-def kp_y(qy, coor, ax, ay):
+def kp_y(coor, ax, ay, qy):
     N = coor.shape[0]
     ymin = min(coor[:, 1])                      #To determine the factor in the phase shift for periodic sites
     ymax = max(coor[:, 1])
@@ -126,7 +126,7 @@ def kp_y(qy, coor, ax, ay):
                 k_y[j,i] = (-1j/2*ay)*np.exp(-1j*qy*(ymax-ymin+1)*ay)
     return k_y
 
-def kp_y2(qy, coor, ax, ay):
+def kp_y2(coor, ax, ay, qy):
     N = coor.shape[0]
     ymin = min(coor[:, 1])                      #To determine the factor in the phase shift for periodic sites
     ymax = max(coor[:, 1])
@@ -193,17 +193,17 @@ def H_SOC(coor, ax, ay, V, gamma, alpha):
 
 ###################### Hamiltonians with periodic boundary conditions ################################
 
-def H0k(qx, qy, coor, ax, ay):
+def H0k(coor, ax, ay, qx = 0, qy = 0):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')
-    H = (const.xi/2)*(kp_x2(qx, coor, ax, ay) + kp_y2(qy, coor, ax, ay))
+    H = (const.xi/2)*(kp_x2(coor, ax, ay, qx) + kp_y2(coor, ax, ay, qy))
     return H
 
-def H_SOCk(qx, qy, coor, ax, ay, V, gamma, alpha):
-    H_0 = H0k(qx, qy, coor, ax, ay)
+def H_SOk(coor, ax, ay, qx = 0, qy = 0, V = 0, gamma = 0, alpha = 0):
+    H_0 = H0k(coor, ax, ay, qx , qy)
     N = H_0.shape[0]
-    kx = kp_x(qx, coor, ax, ay)
-    ky = kp_y(qy, coor, ax, ay)
+    kx = kp_x(coor, ax, ay, qx)
+    ky = kp_y(coor, ax, ay, qy)
     H = np.zeros((2*N, 2*N), dtype = 'complex')
 
     H00 = H_0 + gamma*np.eye(N,N) + V
