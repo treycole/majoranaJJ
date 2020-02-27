@@ -232,11 +232,13 @@ def V_barrier(V0, xi, xf, coor): #(Amplitude, starting point of barrier, ending 
                 V[i,j] = size
     return V
 
-def V_periodic(V0, Nx, Ny, coor):
+def V_periodic(V0, coor):
     N = coor.shape[0]
     V = np.zeros((N,N))
+    Lx = (max(coor[:, 0]) - min(coor[:, 0]))  #Unit cell size in x-direction, no +1 because has to match coor array
+    Ly = (max(coor[:, 1]) - min(coor[:, 1])) #Unit cell size in y-direction
     for i in range(N):
         for j in range(N):
             if i==j:
-                V[i,j] = V0*np.sin(np.pi*(coor[i,0])/(Nx-1))*np.sin(np.pi*coor[i,1]/(Ny-1))
+                V[i,j] = V0*np.sin(np.pi*(coor[i,0])/Lx)*np.sin(np.pi*coor[i,1]/Ly)
     return V

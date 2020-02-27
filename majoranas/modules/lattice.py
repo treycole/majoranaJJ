@@ -20,16 +20,13 @@ def donut(R, r):
     xmin = -R #Radius of disk
     ymin = -R
 
-    Nx = int(2*R + 2)
-    Ny = int(2*R + 2)
-
-    for j in range(Ny):
-        for i in range(Nx):
+    for j in range(int(2*R) + 1):
+        for i in range(int(2*R) + 1):
             x = xmin + i
             y = ymin + j
             #decide if x,y is inside shape
             r_ij = np.sqrt((x)**2+(y)**2)
-            if r_ij < R and r_ij > r:
+            if r_ij < R and r_ij >= r:
                 CAx.append(i)
                 CAy.append(j)
 
@@ -123,11 +120,6 @@ def NN_Arr(coor):
 
 #Periodic Boundary conditions
 def NN_Bound(NN, coor):
-#     left_reg = []
-#     top_reg = []
-#     right_reg = []
-#     bottom_reg = []
-#     xmin = np.min(coor[:,0])
     xmin = min(coor[:, 0])
     ymin = min(coor[:, 1])
     xmax = max(coor[:, 0])
@@ -138,12 +130,12 @@ def NN_Bound(NN, coor):
     # as the jth index then the periodic boundary nearest neighbor for i is j
     for i in range(N):
         for j in range(N):
-            if NN[i, 0] == -1 and NN[j, 2] == -1 and coor[i, 1] == coor[j, 1] and coor[i, 0] == xmin:
+            if NN[i, 0] == -1 and NN[j, 2] == -1 and coor[i, 1] == coor[j, 1] and coor[i, 0] == xmin and coor[j, 0] == xmax:
                 NNk[i, 0] = j
-            if NN[i, 1] == -1 and NN[j, 3] == -1 and coor[i, 0] == coor[j, 0] and coor[i, 1] == ymax:
+            if NN[i, 1] == -1 and NN[j, 3] == -1 and coor[i, 0] == coor[j, 0] and coor[i, 1] == ymax and coor[j, 1] == ymin:
                 NNk[i, 1] = j
-            if NN[i, 2] == -1 and NN[j, 0] == -1 and coor[i, 1] == coor[j, 1] and coor[i, 0] == xmax:
+            if NN[i, 2] == -1 and NN[j, 0] == -1 and coor[i, 1] == coor[j, 1] and coor[i, 0] == xmax and coor[j, 0] == xmin:
                 NNk[i, 2] = j
-            if NN[i, 3] == -1 and NN[j, 1] == -1 and coor[i, 0] == coor[j, 0] and coor[i, 1] == ymin:
+            if NN[i, 3] == -1 and NN[j, 1] == -1 and coor[i, 0] == coor[j, 0] and coor[i, 1] == ymin and coor[j, 1] == ymax:
                 NNk[i, 3] = j
     return NNk

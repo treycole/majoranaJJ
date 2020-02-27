@@ -19,21 +19,23 @@ Nx = 3      #number of lattice sites in x direction
 Ny = 3      #number of lattice sites in y direction
 N = Ny*Nx   #Total number of lattice sites
 
-Lx = Nx*ax  #Unit cell size in x-direction
-Ly = Ny*ay  #Unit cell size in y-direction
+coor = lat.square(Nx, Ny)       #square coordinate array
+NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
+NNb = lat.NN_Bound(NN, coor)    #periodic NN array
+
+Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax  #Unit cell size in x-direction
+Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1 )*ay  #Unit cell size in y-direction
 
 tx = -const.xi/(ax**2) #Hopping in [eV]
 ty = -const.xi/(ay**2) #Hopping in [eV]
 
+print("Lx", Lx)
 print("Number of Lattice Sites= ", N)
 print("Unit cell size in x-direction = {} [A] = {} [m]".format(Lx, Lx*1e-10))
 print("Unit cell size in y-direction = {} [A] = {} [m]".format(Ly, Ly*1e-10))
 print("Hopping Parameter tx = {} [ev]".format(tx))
 print("Hopping Parameter ty = {} [ev]".format(ty))
 
-coor = lat.square(Nx, Ny)       #square coordinate array
-NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
-NNb = lat.NN_Bound(NN, coor)    #periodic NN array
 
 #H0k(qx, qy, coor, ax, ay)
 steps = 50
@@ -51,9 +53,8 @@ op.bands(eigarr, qx, Lx, Ly, title = 'original FP')
 alpha = 0.2   #[eV*A]
 gamma = 0*0.01  #[T]
 V0 = 0.0
-V = op.V_periodic(V0, Nx, Ny, coor)
+V = op.V_periodic(V0, coor)
 
-steps = 100
 nbands = 2*N
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
@@ -71,11 +72,10 @@ a = 0.2   #[eV*A]
 gamma = 0*0.01  #[T]
 V0 = 0
 
-steps = 100
 nbands = 2*N
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
-V = op.V_periodic(V0, Nx, Ny, coor)
+V = op.V_periodic(V0, coor)
 eigarrsoc = np.zeros((steps, nbands))
 eigarrfp = np.zeros((steps, nbands))
 
