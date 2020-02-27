@@ -148,26 +148,6 @@ def kp_y2(coor, ax, ay, qy):
                 k_y2[j,i] = (-1/ay**2)*np.exp(-1j*qy*(ymax-ymin+1)*ay)
     return k_y2
 
-######################## Potential shapes ##############################
-
-def V_barrier(V0, xi, xf, coor): #(Amplitude, starting point of barrier, ending pt of barrier, coordinate array)
-    N = coor.shape[0]
-    V = np.zeros((N, N))
-    for i in range(N):
-        for j in range(N):
-            if i == j and coor[i,0] < xf and coor[i,0] > xi: #Making V operator, onsite energy contribution, if site is between xi and xf
-                V[i,j] = size
-    return V
-
-def V_periodic(V0, Nx, Ny, coor):
-    N = coor.shape[0]
-    V = np.zeros((N,N))
-    for i in range(N):
-        for j in range(N):
-            if i==j:
-                V[i,j] = V0*np.sin(np.pi*(coor[i,0])/(Nx-1))*np.sin(np.pi*coor[i,1]/(Ny-1))
-    return V
-
 ###################### Hamiltonians for single unit cell ################################
 
 def H0(coor, ax, ay):
@@ -212,29 +192,3 @@ def H_SOk(coor, ax, ay, qx = 0, qy = 0, V = 0, gamma = 0, alpha = 0):
     H01 = alpha*(-1j*kx - ky)
     H = np.block([[H00, H01], [H10, H11]])
     return H
-
-
-###################### Plotting states and energies ################################
-
-def state_cplot(coor, states):
-    if coor.shape[0] < states.shape[0]:
-        N = int(states.shape[0]/2)
-        prob_dens = []
-        for i in np.arange(0, int(states.shape[0]/2)):
-            prob_dens.append(np.square(abs(states[i])) + np.square(abs(states[i+N])))
-    else:
-        prob_dens = np.square(abs(states))
-    print(sum(prob_dens))
-    plt.scatter(coor[:,0], coor[:,1], c = prob_dens)
-    plt.colorbar()
-    plt.show()
-
-
-def bands(eigarr, q, Lx, Ly):
-    for j in range(eigarr.shape[1]):
-        plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
-    plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
-    plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
-    plt.xlabel('k [1/A]')
-    plt.ylabel('Energy [eV]')
-    plt.show()
