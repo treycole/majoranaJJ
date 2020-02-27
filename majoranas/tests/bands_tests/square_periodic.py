@@ -44,7 +44,7 @@ eigarr = np.zeros((steps, nbands))
 for i in range(steps):
     eigarr[i, :] = LA.eigh(aop.H0k(coor, ax, ay, qx[i], 0))[0][:nbands]
 
-op.bands(eigarr, qx, Lx, Ly)
+op.bands(eigarr, qx, Lx, Ly, title = 'original FP')
 
 #H_SOk(coor, ax, ay, qx, qy, V, gamma, alpha)
 #V_periodic(V0, Nx, Ny, coor)
@@ -60,7 +60,7 @@ qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
 eigarr = np.zeros((steps, nbands))
 for i in range(steps):
     eigarr[i, :] = LA.eigh(aop.H_SOk(coor, ax, ay, qx[i], 0, 0, gamma, alpha))[0][:nbands]
-op.bands(eigarr, qx, Lx, Ly)
+op.bands(eigarr, qx, Lx, Ly, title = " original SOC")
 
 # H0(coor, ax, ay, potential = 0, gammax = 0, gammay = 0, gammaz = 0,
 #    alpha = 0, qx = 0, qy = 0,
@@ -76,8 +76,13 @@ nbands = 2*N
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps)
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps)
 V = op.V_periodic(V0, Nx, Ny, coor)
-eigarr = np.zeros((steps, nbands))
+eigarrsoc = np.zeros((steps, nbands))
+eigarrfp = np.zeros((steps, nbands))
 
 for i in range(steps):
-    eigarr[i, :] = LA.eigh(op.H0(coor, ax, ay, potential = V, qx = qx[i]))[0][:nbands]
-op.bands(eigarr, qx, Lx, Ly, title = 'alpha = {}, gammaz = {}, Potential = {}'.format(a, gamma, V0))
+    eigarrsoc[i, :] = LA.eigh(op.H0(coor, ax, ay, alpha = a, gammaz = gamma, potential = V, qx = qx[i]))[0][:nbands]
+for i in range(steps):
+    eigarrfp[i, :] = LA.eigh(op.H0(coor, ax, ay, qx = qx[i]))[0][:nbands]
+
+op.bands(eigarrsoc, qx, Lx, Ly, title = 'New SOC: alpha = {}, gammaz = {}, Potential = {}, qy = 0'.format(a, gamma, V0))
+op.bands(eigarrfp, qx, Lx, Ly, title = 'New FP: alpha = {}, gammaz = {}, Potential = {}, qy = 0'.format(0, 0, 0))
