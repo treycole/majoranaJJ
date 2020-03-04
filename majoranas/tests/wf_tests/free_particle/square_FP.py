@@ -11,8 +11,8 @@ import majoranas.modules.alt_mod.altoperators as aop
 
 ax = 2      #unit cell size along x-direction in [A]
 ay = 2      #unit cell size along y-direction in [A]
-Ny = 25     #number of lattice sites in y direction
-Nx = 25     #number of lattice sites in x direction
+Ny = 30     #number of lattice sites in y direction
+Nx = 30     #number of lattice sites in x direction
 N = Ny*Nx   #Total number of lattice sites
 print(N)
 
@@ -37,13 +37,13 @@ periodicity we had to call a different Hamiltonian. The basis for this Hamiltoni
 so as a check the states for this Hamiltonian should be the same as the states in groups of 2 for "H"
 """
 
-energy, statesnp = LA.eigh(H)
+#energy, statesnp = LA.eigh(H)
 energy2, statesp = LA.eigh(Hp)
-energy3, stateso = LA.eigh(H_original)
+#energy3, stateso = LA.eigh(H_original)
 
 nnp = 6
 no = 3
 np = 12
 op.state_cplot(coor, statesp[:, np], title = 'Free particle, PBC, spin up/down basis: {}th excited state'.format(np))
-op.state_cplot(coor, statesnp[:, nnp], title = 'Free particle no PBC: {} excited state'.format(nnp))
-op.state_cplot(coor, stateso[:, no], title = 'Free particle, no PBS, no spin basis: {} excited state'.format(no))
+#op.state_cplot(coor, statesnp[:, nnp], title = 'Free particle no PBC: {} excited state'.format(nnp))
+#op.state_cplot(coor, stateso[:, no], title = 'Free particle, no PBS, no spin basis: {} excited state'.format(no))
