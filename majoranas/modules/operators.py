@@ -189,9 +189,10 @@ def H0(
     Hfree = (const.xi/2)*(k_x2 + k_y2)
 
     V = potential
+    MU = mu*np.eye(N,N)
 
-    H00 = Hfree + gammaz*np.eye(N,N) + V + mu
-    H11 = Hfree - gammaz*np.eye(N,N) + V + mu
+    H00 = Hfree + gammaz*np.eye(N,N) + V - MU
+    H11 = Hfree - gammaz*np.eye(N,N) + V - MU
     H10 = alpha*(1j*k_x - k_y) + gammax*np.eye(N,N) + 1j*gammay*np.eye(N,N)
     H01 = alpha*(-1j*k_x - k_y) + gammax*np.eye(N,N) - 1j*gammay*np.eye(N,N)
 
@@ -210,12 +211,17 @@ def HBDG(
     ):
 
     N = coor.shape[0]
-    Delta = delta*np.eye(2*N, 2*N, dtype = 'complex')
+    Delta = delta*np.eye(N, N, dtype = 'complex')
+    D00 = np.zeros((N,N))
+    D11 = np.zeros((N,N))
+    D01 = Delta
+    D10 = -Delta
+    Delcep = np.block([[D00, D01], [D10, D11]])
 
     H00 =  H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz,
         alpha = alpha, qx = qx, qy = qy, periodic = periodic)
-    H01 = Delta
-    H10 = -np.conjugate(Delta)
+    H01 = Delcep
+    H10 = -np.conjugate(Delcep)
     H11 = -np.conjugate( H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay,
         gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodic = periodic) )
 
