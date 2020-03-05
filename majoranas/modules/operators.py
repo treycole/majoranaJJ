@@ -156,12 +156,17 @@ def kpy2(coor, ax, ay, qy = 0):
 
 ###################### Hamiltonians ################################
 """
-This is the Hamiltonian with only Spin Orbit Coupling and no Superconductivity. The parameter PERIODIC determines whether the function calls a constuction of SOC Hamiltonian with boundary conditions or without boundary conditions. The way that the SOC Hamiltonian is defined it shouldn't matter which constructor it calls.
+This is the Hamiltonian with only Spin Orbit Coupling and no Superconductivity.
+The parameter PERIODIC determines whether the function calls a constuction of SOC Hamiltonian
+with boundary conditions or without boundary conditions. The way that the SOC Hamiltonian is
+defined it shouldn't matter which constructor it calls.
+
 """
 
 def H0(
     coor, ax, ay,
     potential = 0,
+    mu = 0,
     gammax = 0, gammay = 0, gammaz = 0,
     alpha = 0,
     qx = 0, qy = 0,
@@ -185,13 +190,39 @@ def H0(
 
     V = potential
 
-    H00 = Hfree + gammaz*np.eye(N,N) + V
-    H11 = Hfree - gammaz*np.eye(N,N) + V
+    H00 = Hfree + gammaz*np.eye(N,N) + V + mu
+    H11 = Hfree - gammaz*np.eye(N,N) + V + mu
     H10 = alpha*(1j*k_x - k_y) + gammax*np.eye(N,N) + 1j*gammay*np.eye(N,N)
     H01 = alpha*(-1j*k_x - k_y) + gammax*np.eye(N,N) - 1j*gammay*np.eye(N,N)
 
     H = np.block([[H00, H01], [H10, H11]])
     return H
+
+def HBDG(
+    coor, ax, ay,
+    potential = 0,
+    mu = 0,
+    gammax = 0, gammay = 0, gammaz = 0,
+    delta = 0,
+    alpha = 0,
+    qx = 0, qy = 0,
+    periodic = 'yes'
+    ):
+
+    N = coor.shape[0]
+    Delta = delta*np.eye(2*N, 2*N, dtype = 'complex')
+
+    H00 =  H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz,
+        alpha = alpha, qx = qx, qy = qy, periodic = periodic)
+    H01 = Delta
+    H10 = -np.conjugate(Delta)
+    H11 = -np.conjugate( H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay,
+        gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodic = periodic) )
+
+    HBDG = np.block([[H00, H01] , [H10, H11]])
+    return HBDG
+
+
 
 ###################### Plotting states and energies ################################
 
