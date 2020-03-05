@@ -24,7 +24,7 @@ NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
 NNb = lat.NN_Bound(NN, coor)    #periodic NN array
 
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax  #Unit cell size in x-direction
-Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1 )*ay  #Unit cell size in y-direction
+Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay  #Unit cell size in y-direction
 
 tx = -const.xi/(ax**2) #Hopping in [eV]
 ty = -const.xi/(ay**2) #Hopping in [eV]
@@ -36,16 +36,18 @@ print("Unit cell size in y-direction = {} [A] = {} [m]".format(Ly, Ly*1e-10))
 print("Hopping Parameter tx = {} [ev]".format(tx))
 print("Hopping Parameter ty = {} [ev]".format(ty))
 
-# H0(coor, ax, ay, potential = 0, gammax = 0, gammay = 0, gammaz = 0,
+# HBDG(coor, ax, ay,
+#    potential = 0,
+#    gammax = 0, gammay = 0, gammaz = 0,
 #    alpha = 0, qx = 0, qy = 0,
 #    periodic = 'yes'
 #    ):
 #V_periodic(V0, Nx, Ny, coor)
 a = 0.2   #[eV*A]
-gamma = 0.2  #[T]
-delta = 0.3
+gamma = 0.3  #[T]
+delta = 0.1
 V0 = 0.0
-mu = 0.3
+mu = 0.0
 
 steps = 50
 nbands = 5
@@ -55,7 +57,9 @@ V = op.V_periodic(V0, coor)
 eigarr = np.zeros((steps, 2*nbands))
 
 for i in range(steps):
-    eigarr[i, :] = np.sort( LA.eigh(op.HBDG(coor, ax, ay, mu = mu, delta = delta, alpha = a, gammaz = gamma, potential = V, qx = qx[i]))[0] )[2*N - nbands: 2*N + nbands]
+    eigarr[i, :] = np.sort( LA.eigh(op.HBDG(coor, ax, ay, mu = mu, delta = delta, alpha = a, gammaz = gamma,
+    potential = V, qx = qx[i]))[0] )[2*N - nbands: 2*N + nbands]
 
-print('size of bdg = {}'.format(np.size(op.HBDG(coor, ax, ay, delta = delta, alpha = a, gammaz = gamma, potential = V, qx = 0))) )
+print('size of bdg = {}'.format(np.shape(op.HBDG(coor, ax, ay, delta = delta,
+alpha = a, gammaz = gamma, potential = V, qx = 0))) )
 op.bands(eigarr, qx, Lx, Ly, title = 'Superconducting Spectrum'.format(a, gamma, V0))
