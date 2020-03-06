@@ -11,7 +11,7 @@ To run the tests on your machine, clone the repository and add the repository di
 
 this will show you the directories that Python looks for when importing modules. To permanantly update your PYTHONPATH to include the directory of your project, you first need to open your `.bash_profile` in a text editor. You can do this by executing: 
 
-`$ open TextEdit -a .bash_profile`
+`$ open -a TextEdit .bash_profile`
 
 while in the directory that `.bash_profile` is stored, typically in the user profile folder. At the end of the file add the line:
 
