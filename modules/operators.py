@@ -155,27 +155,27 @@ def kpy2(coor, ax, ay, qy = 0):
     return k
 
 ###################### Delta Operator ###############################
-def Delta(coor, Wsc, WJ):
-    if (2*Wsc + WJ) != max(coor[:,1]):
-        print("Need proper junction and superconducting widths")
-        return
+
+def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     N = coor.shape[0]
-    Del = np.zeros(N, N, dtype = 'complex')
+    D = np.zeros((N, N), dtype = 'complex')
     for i in range(N):
         y = coor[i,1]
+        x = coor[i,0]
         if y <= Wsc:
-            Del[i,i] = delta*np.exp(-1j*phi/2)
+            D[i,i] = delta*np.exp(-1j*phi/2)
         if y > Wsc and y <= (Wsc+Wj):
-            Del[i,i] = 0
-        if y >(Wsc+WJ) and y <= (2*Wsc + WJ):
-            Del[i,j] = del*np.exp(1j*phi/2)
+            D[i,i] = 0
+        if y > (Wsc+Wj):
+            D[i,i] = delta*np.exp(1j*phi/2)
+
     #Delta = delta*np.eye(N, N, dtype = 'complex')
     D00 = np.zeros((N,N))
     D11 = np.zeros((N,N))
-    D01 = Del
-    D10 = -Del
-    Delta = np.block([[D00, D01], [D10, D11]])
-    return Delta
+    D01 = D
+    D10 = -D
+    D = np.block([[D00, D01], [D10, D11]])
+    return D
 
 ###################### Hamiltonians ################################
 """
@@ -193,18 +193,20 @@ def H0(
     gammax = 0, gammay = 0, gammaz = 0,
     alpha = 0,
     qx = 0, qy = 0,
-    periodic = 'yes'
+    periodicx = 'no', periodicy = 'no'
     ):
 
-    if periodic.lower() == 'yes':
+    if periodicx.lower() == 'yes':
         k_x = kpx(coor, ax, ay, qx)
-        k_y = kpy(coor, ax, ay, qy)
         k_x2 = kpx2(coor, ax, ay, qx)
-        k_y2 = kpy2(coor, ax, ay, qy)
-    if periodic.lower() == 'no':
+    if periodicx.lower() == 'no':
         k_x = kx(coor, ax, ay)
-        k_y = ky(coor, ax, ay)
         k_x2 = kx2(coor, ax, ay)
+    if periodicy.lower() == 'yes':
+        k_y = kpy(coor, ax, ay, qy)
+        k_y2 = kpy2(coor, ax, ay, qy)
+    if periodicy.lower() == 'no':
+        k_y = ky(coor, ax, ay)
         k_y2 = ky2(coor, ax, ay)
 
     N = coor.shape[0]
@@ -223,29 +225,23 @@ def H0(
     return H
 
 def HBDG(
-    coor, ax, ay, Wsc, WJ,
+    coor, ax, ay, Wsc, Wj,
     potential = 0,
     mu = 0,
     gammax = 0, gammay = 0, gammaz = 0,
-    delta = 0,
+    delta = 0, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty =0,
     alpha = 0,
     qx = 0, qy = 0,
-    periodic = 'yes'
+    periodicx = 'no', periodicy = 'no'
     ):
 
-    N = coor.shape[0]
-    D00 = np.zeros((N,N))
-    D11 = np.zeros((N,N))
-    D01 = Delta
-    D10 = -Delta
-    Delcep = np.block([[D00, D01], [D10, D11]])
-
+    Deltaa = Delta(coor, delta, Wsc, Wj, phi = phi, Sx = Sx, Sy = Sy, cutx = cutx, cuty = cuty)
     H00 =  H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz,
-        alpha = alpha, qx = qx, qy = qy, periodic = periodic)
-    H01 = Delcep
-    H10 = -np.conjugate(Delcep)
+        alpha = alpha, qx = qx, qy = qy, periodicx = periodicx, periodicy = periodicy)
+    H01 = Deltaa
+    H10 = -np.conjugate(Deltaa)
     H11 = -np.conjugate( H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay,
-        gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodic = periodic) )
+        gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodicx = periodicx, periodicy = periodicy) )
 
     HBDG = np.block([[H00, H01] , [H10, H11]])
     return HBDG
@@ -272,13 +268,23 @@ def state_cplot(coor, states, title = 'Probability Density'):
 def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     for j in range(eigarr.shape[1]):
         plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
-    plt.plot(np.linspace(min(q), max(q), 1000), 0*np.linspace(min(q), max(q), 1000), c='k', linestyle='solid', lw=1)
+    x = np.linspace(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx))
+    plt.plot(x, 0*x, c='k', linestyle='solid', lw=1)
     plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
     plt.xlabel('k [1/A]')
     plt.ylabel('Energy [eV]')
     plt.title(title)
     plt.show()
 
+def phase(arr, x, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
+    for j in range(arr.shape[1]):
+        plt.plot(x, arr, c = 'b', linestyle  = 'solid')
+    line = np.linspace(0, max(x))
+    plt.plot(line , 0*line, color = 'k', linestyle = 'solid', lw = 1)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.show()
 
 ######################## Potential shapes ##############################
 
