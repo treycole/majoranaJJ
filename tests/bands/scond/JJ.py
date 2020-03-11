@@ -10,13 +10,16 @@ import modules.alt_mod.altoperators as aop
 ax = 2      #atomic spacing along x-direction in [A]
 ay = 2      #atomic spacing along y-direction in [A]
 
-Wsc = 3
+Wsc = 30
 Wj = 2
 Ny = 2*Wsc + Wj
-Nx = Ny     #number of lattice sites in x direction
+Nx = 3     #number of lattice sites in x direction
 
 N = Ny*Nx   #Total number of lattice sites
 
+coor = lat.square(Nx, Ny)       #square coordinate array
+NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
+NNb = lat.NN_Bound(NN, coor)    #periodic NN array
 coor = lat.square(Nx, Ny)       #square coordinate array
 NN =  lat.NN_Arr(coor)          #nearest neighbor array of square lattice
 NNb = lat.NN_Bound(NN, coor)    #periodic NN array
@@ -40,11 +43,11 @@ print("Hopping Parameter ty = {} [ev]".format(ty))
 #    periodic = 'yes'
 #    ):
 #V_periodic(V0, Nx, Ny, coor)
-a = 0.2   #[eV*A]
-gamma = 0.3  #[T]
-delta = 0.1
+a = 0.0   #[eV*A]
+gamma = 0.0  #[T]
+delta = 0.0
 V0 = 0.0
-mu = 0.0
+mu = 0.114
 
 steps = 50
 nbands = 5
@@ -55,7 +58,9 @@ eigarr = np.zeros((steps, 2*nbands))
 
 for i in range(steps):
     eigarr[i, :] = np.sort( LA.eigh(op.HBDG(coor, ax, ay, Wsc, Wj, mu = mu, delta = delta, alpha = a, gammaz = gamma,
-    potential = V, qx = qx[i]))[0] )[2*N - nbands: 2*N + nbands]
+    potential = V, qx = qx[i], periodicx = 'yes'))[0] )[2*N - nbands: 2*N + nbands]
 
-print('Size of BDG Hamiltonian = {}'.format(np.shape(op.HBDG(coor, ax, ay, delta = delta,
+print('Size of BDG Hamiltonian = {}'.format(np.shape(op.HBDG(coor, ax, ay, Wsc, Wj, delta = delta,
 alpha = a, gammaz = gamma, potential = V, qx = 0))) )
+print('Zero Point Energy = {}'.format(np.sort( LA.eigh(op.HBDG(coor, ax, ay, Wsc, Wj, qx = 0, periodicx = 'yes'))[0])[2*N + 1]))
+op.bands(eigarr, qx, Lx, Ly, title = 'Superconducting Spectrum'.format(a, gamma, V0))
