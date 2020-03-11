@@ -155,7 +155,7 @@ def kpy2(coor, ax, ay, qy = 0):
     return k
 
 ###################### Delta Operator ###############################
-def Delta(coor, Wsc, WJ):
+def delta(coor, Wsc, WJ, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     if (2*Wsc + WJ) != max(coor[:,1]):
         print("Need proper junction and superconducting widths")
         return
@@ -163,7 +163,8 @@ def Delta(coor, Wsc, WJ):
     Del = np.zeros(N, N, dtype = 'complex')
     for i in range(N):
         y = coor[i,1]
-        if y <= Wsc:
+        x = coor[i,0]
+        if y <= Wsc and y <= (Wsc - ycut) and (x < Sx or x > (Sx + cutx) ):
             Del[i,i] = delta*np.exp(-1j*phi/2)
         if y > Wsc and y <= (Wsc+Wj):
             Del[i,i] = 0
@@ -227,23 +228,17 @@ def HBDG(
     potential = 0,
     mu = 0,
     gammax = 0, gammay = 0, gammaz = 0,
-    delta = 0,
+    delta = 0, phi = 0,
     alpha = 0,
     qx = 0, qy = 0,
     periodic = 'yes'
     ):
 
-    N = coor.shape[0]
-    D00 = np.zeros((N,N))
-    D11 = np.zeros((N,N))
-    D01 = Delta
-    D10 = -Delta
-    Delcep = np.block([[D00, D01], [D10, D11]])
-
+    Delta = delta(coor, Wsc, W)
     H00 =  H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz,
         alpha = alpha, qx = qx, qy = qy, periodic = periodic)
-    H01 = Delcep
-    H10 = -np.conjugate(Delcep)
+    H01 = Delta
+    H10 = -np.conjugate(Delta)
     H11 = -np.conjugate( H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay,
         gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodic = periodic) )
 
