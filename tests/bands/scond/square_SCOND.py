@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-import majoranas.modules.constants as const
-import majoranas.modules.lattice as lat
-import majoranas.modules.operators as op
-import majoranas.modules.alt_mod.altoperators as aop
+import modules.constants as const
+import modules.lattice as lat
+import modules.operators as op
+import modules.alt_mod.altoperators as aop
 
 print("hbar = {} [J*s]".format(const.hbarJ))
 print("hbar = {} [ev*s]".format(const.hbar))
@@ -60,6 +60,6 @@ for i in range(steps):
     eigarr[i, :] = np.sort( LA.eigh(op.HBDG(coor, ax, ay, mu = mu, delta = delta, alpha = a, gammaz = gamma,
     potential = V, qx = qx[i]))[0] )[2*N - nbands: 2*N + nbands]
 
-print('size of bdg = {}'.format(np.shape(op.HBDG(coor, ax, ay, delta = delta,
+print('Size of BDG Hamiltonian = {}'.format(np.shape(op.HBDG(coor, ax, ay, delta = delta,
 alpha = a, gammaz = gamma, potential = V, qx = 0))) )
 op.bands(eigarr, qx, Lx, Ly, title = 'Superconducting Spectrum'.format(a, gamma, V0))

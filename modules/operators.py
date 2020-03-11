@@ -154,6 +154,29 @@ def kpy2(coor, ax, ay, qy = 0):
                 k[j,i] = (-1/ay**2)*np.exp(-1j*qy*(Ly))
     return k
 
+###################### Delta Operator ###############################
+def Delta(coor, Wsc, WJ):
+    if (2*Wsc + WJ) != max(coor[:,1]):
+        print("Need proper junction and superconducting widths")
+        return
+    N = coor.shape[0]
+    Del = np.zeros(N, N, dtype = 'complex')
+    for i in range(N):
+        y = coor[i,1]
+        if y <= Wsc:
+            Del[i,i] = delta*np.exp(-1j*phi/2)
+        if y > Wsc and y <= (Wsc+Wj):
+            Del[i,i] = 0
+        if y >(Wsc+WJ) and y <= (2*Wsc + WJ):
+            Del[i,j] = del*np.exp(1j*phi/2)
+    #Delta = delta*np.eye(N, N, dtype = 'complex')
+    D00 = np.zeros((N,N))
+    D11 = np.zeros((N,N))
+    D01 = Del
+    D10 = -Del
+    Delta = np.block([[D00, D01], [D10, D11]])
+    return Delta
+
 ###################### Hamiltonians ################################
 """
 This is the Hamiltonian with only Spin Orbit Coupling and no Superconductivity.
@@ -200,7 +223,7 @@ def H0(
     return H
 
 def HBDG(
-    coor, ax, ay,
+    coor, ax, ay, Wsc, WJ,
     potential = 0,
     mu = 0,
     gammax = 0, gammay = 0, gammaz = 0,
@@ -211,7 +234,6 @@ def HBDG(
     ):
 
     N = coor.shape[0]
-    Delta = delta*np.eye(N, N, dtype = 'complex')
     D00 = np.zeros((N,N))
     D11 = np.zeros((N,N))
     D01 = Delta
