@@ -164,11 +164,11 @@ def delta(coor, Wsc, WJ, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     for i in range(N):
         y = coor[i,1]
         x = coor[i,0]
-        if y <= Wsc and y <= (Wsc - ycut) and (x < Sx or x > (Sx + cutx) ):
+        if y <= Wsc:
             Del[i,i] = delta*np.exp(-1j*phi/2)
         if y > Wsc and y <= (Wsc+Wj):
             Del[i,i] = 0
-        if y >(Wsc+WJ) and y <= (2*Wsc + WJ):
+        if y >(Wsc+WJ):
             Del[i,j] = del*np.exp(1j*phi/2)
     #Delta = delta*np.eye(N, N, dtype = 'complex')
     D00 = np.zeros((N,N))
@@ -194,20 +194,22 @@ def H0(
     gammax = 0, gammay = 0, gammaz = 0,
     alpha = 0,
     qx = 0, qy = 0,
-    periodic = 'yes'
+    periodicx = 'no', periodicy = 'no'
     ):
 
-    if periodic.lower() == 'yes':
+    if periodicx.lower() == 'yes':
         k_x = kpx(coor, ax, ay, qx)
-        k_y = kpy(coor, ax, ay, qy)
         k_x2 = kpx2(coor, ax, ay, qx)
-        k_y2 = kpy2(coor, ax, ay, qy)
-    if periodic.lower() == 'no':
+    if periodicx.lower() == 'no':
         k_x = kx(coor, ax, ay)
-        k_y = ky(coor, ax, ay)
         k_x2 = kx2(coor, ax, ay)
+    if periodicy.lower() == 'yes':
+        k_y = kpy(coor, ax, ay, qy)
+        k_y2 = kpy2(coor, ax, ay, qy)
+    if periodicy.lower() == 'no':
+        k_y = ky(coor, ax, ay)
         k_y2 = ky2(coor, ax, ay)
-
+        
     N = coor.shape[0]
     Hfree = np.zeros((N,N), dtype = 'complex') #free hamiltonian should be real, but just in case
     Hfree = (const.xi/2)*(k_x2 + k_y2)
@@ -231,7 +233,7 @@ def HBDG(
     delta = 0, phi = 0,
     alpha = 0,
     qx = 0, qy = 0,
-    periodic = 'yes'
+    periodicx = 'no', periodicy = 'no'
     ):
 
     Delta = delta(coor, Wsc, W)
@@ -240,7 +242,7 @@ def HBDG(
     H01 = Delta
     H10 = -np.conjugate(Delta)
     H11 = -np.conjugate( H0(coor, ax, ay, potential = potential, mu = mu, gammax = gammax, gammay = gammay,
-        gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodic = periodic) )
+        gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodicx = periodicx, periodicy = periodicy) )
 
     HBDG = np.block([[H00, H01] , [H10, H11]])
     return HBDG
