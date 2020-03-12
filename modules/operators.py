@@ -178,11 +178,11 @@ def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     return D
 
 ###################### Hamiltonians ################################
+
 """
 This is the Hamiltonian with only Spin Orbit Coupling and no Superconductivity.
-The parameter PERIODIC determines whether the function calls a constuction of SOC Hamiltonian
-with boundary conditions or without boundary conditions. The way that the SOC Hamiltonian is
-defined it shouldn't matter which constructor it calls.
+The parameter PERIODIC determines whether the function calls a construction of
+k-operators with or without boundary conditions.
 
 """
 
@@ -210,7 +210,7 @@ def H0(
         k_y2 = ky2(coor, ax, ay)
 
     N = coor.shape[0]
-    Hfree = np.zeros((N,N), dtype = 'complex') #free hamiltonian should be real, but just in case
+    Hfree = np.zeros((N,N), dtype = 'complex')
     Hfree = (const.xi/2)*(k_x2 + k_y2)
 
     V = potential
@@ -223,6 +223,13 @@ def H0(
 
     H = np.block([[H00, H01], [H10, H11]])
     return H
+
+"""
+This is the Bogoliobuv de Gennes Hamiltonian
+with Spin Orbit Coupling, Superconductivity, and Zeeman energy contributions.
+The parameters Sx, Sy, cutx, and cuty all determine the geometry of the Josephson
+Junction along the boundary between the superconductor and 2DEG.
+"""
 
 def HBDG(
     coor, ax, ay, Wsc, Wj,
@@ -246,8 +253,6 @@ def HBDG(
     HBDG = np.block([[H00, H01] , [H10, H11]])
     return HBDG
 
-
-
 ###################### Plotting states and energies ################################
 
 def state_cplot(coor, states, title = 'Probability Density'):
@@ -264,7 +269,6 @@ def state_cplot(coor, states, title = 'Probability Density'):
     plt.colorbar()
     plt.show()
 
-
 def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     for j in range(eigarr.shape[1]):
         plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
@@ -276,9 +280,12 @@ def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     plt.title(title)
     plt.show()
 
-def phase(arr, x, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
-    for j in range(arr.shape[1]):
-        plt.plot(x, arr, c = 'b', linestyle  = 'solid')
+"""
+Plots a phase diagram of y vs x.
+"""
+def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
+    for i in range(y.shape[1]):
+        plt.plot(x, y[i], c = 'b', linestyle  = 'solid')
     line = np.linspace(0, max(x))
     plt.plot(line , 0*line, color = 'k', linestyle = 'solid', lw = 1)
     plt.xlabel(xlabel)
