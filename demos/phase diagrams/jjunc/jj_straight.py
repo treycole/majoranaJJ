@@ -17,7 +17,6 @@ Nx = 3  #number of lattice sites in x direction
 
 N = Ny*Nx   #Total number of lattice sites
 
-
 coor = lat.square(Nx, Ny)  #square coordinate array
 NN =  lat.NN_Arr(coor)  #nearest neighbor array of square lattice
 NNb = lat.NN_Bound(NN, coor)  #periodic NN array

@@ -253,7 +253,9 @@ def HBDG(
     HBDG = np.block([[H00, H01] , [H10, H11]])
     return HBDG
 
-###################### Plotting states and energies ################################
+"""
+Plotting wavefunctions
+"""
 
 def state_cplot(coor, states, title = 'Probability Density'):
     if coor.shape[0] < states.shape[0]:
@@ -269,6 +271,9 @@ def state_cplot(coor, states, title = 'Probability Density'):
     plt.colorbar()
     plt.show()
 
+"""
+Showing band diagrams
+"""
 def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     for j in range(eigarr.shape[1]):
         plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
@@ -281,7 +286,7 @@ def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     plt.show()
 
 """
-Plots a phase diagram of y vs x.
+Plots a phase diagram of y vs x
 """
 def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
     for i in range(y.shape[1]):
