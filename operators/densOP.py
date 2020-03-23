@@ -6,7 +6,9 @@ from . import constants as const
 from . import lattice as lat
 
 #################### Descritizing k operators ##################################
-
+"""
+k-x operator
+"""
 def kx(coor, ax, ay):
     N = coor.shape[0]
     k = np.zeros((N,N), dtype = "complex")
@@ -18,7 +20,9 @@ def kx(coor, ax, ay):
             if NN[j, 2] == i:
                 k[j,i] = 1j/(2*ax)
     return k
-
+"""
+k-x squared operator
+"""
 def kx2(coor, ax, ay):
     N = coor.shape[0]
     k = np.zeros((N,N), dtype='complex')
@@ -33,6 +37,9 @@ def kx2(coor, ax, ay):
                 k[j,i] = 2/ax**2
     return k
 
+"""
+k-y operator
+"""
 def ky(coor, ax, ay):
     N = coor.shape[0]
     k = np.zeros((N,N), dtype = "complex")
@@ -45,6 +52,9 @@ def ky(coor, ax, ay):
                 k[j,i] = -1j/(2*ay)
     return k
 
+"""
+k-y squared operator
+"""
 def ky2(coor, ax, ay):
     N = coor.shape[0]
     k = np.zeros((N,N), dtype='complex')
@@ -180,10 +190,12 @@ def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
 ###################### Hamiltonians ################################
 
 """
-This is the Hamiltonian with only Spin Orbit Coupling and no Superconductivity.
-The parameter PERIODIC determines whether the function calls a construction of
-k-operators with or without boundary conditions.
+This is the Hamiltonian with Spin Orbit Coupling and nearest neighbor hopping and no Superconductivity.
 
+The parameter PERIODIC determines whether the function calls a construction of
+k-operators with or without boundary conditions in x and y directions.
+
+Basis: Two states per lattice site for spin up and down. Rows/Columns 1 -> N correspond to spin up, rows/columns n -> 2N correspond to spin down
 """
 
 def H0(
@@ -226,9 +238,9 @@ def H0(
 
 """
 This is the Bogoliobuv de Gennes Hamiltonian
-with Spin Orbit Coupling, Superconductivity, and Zeeman energy contributions.
-The parameters Sx, Sy, cutx, and cuty all determine the geometry of the Josephson
-Junction along the boundary between the superconductor and 2DEG.
+with nearest neighbor hopping, Spin Orbit Coupling, Superconductivity, and Zeeman energy contributions.
+
+The parameters Sx, Sy, cutx, and cuty determine the geometry of the Josephson Junction along the boundary between the superconductor and 2DEG.
 """
 
 def HBDG(
@@ -252,51 +264,6 @@ def HBDG(
 
     HBDG = np.block([[H00, H01] , [H10, H11]])
     return HBDG
-
-"""
-Plotting wavefunctions
-"""
-
-def state_cplot(coor, states, title = 'Probability Density'):
-    if coor.shape[0] < states.shape[0]:
-        N = int(states.shape[0]/(states.shape[0]/coor.shape[0]))
-        prob_dens = []
-        for i in np.arange(0, int(states.shape[0]/2)):
-            prob_dens.append(np.square(abs(states[i])) + np.square(abs(states[i+N])))
-    else:
-        prob_dens = np.square(abs(states))
-    print(sum(prob_dens))
-    plt.scatter(coor[:,0], coor[:,1], c = prob_dens)
-    plt.title(title)
-    plt.colorbar()
-    plt.show()
-
-"""
-Showing band diagrams
-"""
-def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
-    for j in range(eigarr.shape[1]):
-        plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
-    x = np.linspace(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx))
-    plt.plot(x, 0*x, c='k', linestyle='solid', lw=1)
-    plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
-    plt.xlabel('k [1/A]')
-    plt.ylabel('Energy [eV]')
-    plt.title(title)
-    plt.show()
-
-"""
-Plots a phase diagram of y vs x
-"""
-def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
-    for i in range(y.shape[1]):
-        plt.plot(x, y[i], c = 'b', linestyle  = 'solid')
-    line = np.linspace(0, max(x))
-    plt.plot(line , 0*line, color = 'k', linestyle = 'solid', lw = 1)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
-    plt.show()
 
 ######################## Potential shapes ##############################
 

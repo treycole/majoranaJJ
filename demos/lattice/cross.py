@@ -8,12 +8,6 @@ import majoranas.modules.constants as const
 import majoranas.modules.lattice as lat
 import majoranas.modules.operators as op
 
-ax = .1  #unit cell size along x-direction in [A]
-ay = .1
-Ny = 25    #number of lattice sites in y direction
-Nx = 25     #number of lattice sites in x direction
-N = Ny*Nx
-
 x1 = 10
 x2 = 10
 y1 = 10
