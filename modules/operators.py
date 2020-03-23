@@ -259,7 +259,7 @@ Plotting wavefunctions
 
 def state_cplot(coor, states, title = 'Probability Density'):
     if coor.shape[0] < states.shape[0]:
-        N = int(states.shape[0]/2)
+        N = int(states.shape[0]/(states.shape[0]/coor.shape[0]))
         prob_dens = []
         for i in np.arange(0, int(states.shape[0]/2)):
             prob_dens.append(np.square(abs(states[i])) + np.square(abs(states[i+N])))
