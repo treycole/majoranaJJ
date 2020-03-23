@@ -7,8 +7,8 @@ import modules.lattice as lat
 import modules.operators as op
 import modules.alt_mod.altoperators as aop
 
-ax = 2      #atomic spacing along x-direction in [A]
-ay = 2      #atomic spacing along y-direction in [A]
+ax = 2  #atomic spacing along x-direction in [A]
+ay = 2  #atomic spacing along y-direction in [A]
 
 Wsc = 30 #width of the superconductor along the y-direction
 Wj = 2 #width of the 2DEG junction along the y-diretion
@@ -23,7 +23,7 @@ NNb = lat.NN_Bound(NN, coor)    #periodic NN array
 
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax  #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay  #Unit cell size in y-direction
-H_SizeTest = op.HBDG(coor, ax, ay, Wsc, Wj) #BDG Hamiltonian with no paramters just to test
+H_SizeTest = op.HBDG(coor, ax, ay, Wsc, Wj)
 
 print("Number of Lattice Sites = ", N)
 print('Size of BDG Hamiltonian = {}'.format(np.shape(H_SizeTest)))

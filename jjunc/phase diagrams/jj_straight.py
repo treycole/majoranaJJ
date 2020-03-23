@@ -7,13 +7,13 @@ import modules.lattice as lat
 import modules.operators as op
 import modules.alt_mod.altoperators as aop
 
-ax = 2      #atomic spacing along x-direction in [A]
-ay = 2      #atomic spacing along y-direction in [A]
+ax = 2      #Lattice spacing along x-direction in [A]
+ay = 2      #Lattice spacing along y-direction in [A]
 
 Wsc = 30 #width of the superconductor along the y-direction
 Wj = 2 #width of the 2DEG junction along the y-diretion
-Ny = 2*Wsc + Wj #JJ consists of 2 SC and 1 Junction
-Nx = 3    #number of lattice sites in x direction
+Ny = 2*Wsc + Wj #Unit cell consists of 2 SC's and 1 Junction
+Nx = 3  #number of lattice sites in x direction
 
 N = Ny*Nx   #Total number of lattice sites
 
@@ -33,11 +33,10 @@ NNb = lat.NN_Bound(NN, coor)  #periodic NN array
 """V_periodic(V0, Nx, Ny, coor)"""
 
 steps = 60
-
 a = 0.0   #Spin-Orbit Coupling constant: [eV*A]
 gamma = np.linspace(0, .02, steps)  #Zeeman field energy contribution: [T]
 delta = 0.0 #Superconducting Gap: [eV]
-V = op.V_periodic(V0, coor) #Amplitude of potential : [eV]
+V = op.V_periodic(0, coor) #Amplitude of potential : [eV]
 mu = 0.114 #Chemical Potential: [eV]
 
 eigarr = np.zeros((steps, 2))

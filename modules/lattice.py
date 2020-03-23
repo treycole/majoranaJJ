@@ -12,7 +12,7 @@ def square(Nx, Ny):
             coor[n,1] = y
     return coor
 
-#Disk with a hole
+#Disk with a hole, inner radius r, outer radius R
 def donut(R, r):
     CAx = []
     CAy = []
@@ -57,7 +57,7 @@ def halfdisk(R):
     coor_arr[:, 1] = np.array(CAy)
     return coor_arr
 
-def Ibeam(xbase, xcut, y1, y2):
+def ibeam(xbase, xcut, y1, y2):
     CAx = []
     CAy = []
     ybase = int(2*y1+y2)
@@ -94,9 +94,13 @@ def cross(x1, x2, y1, y2):
     coor_arr[:, 1] = np.array(CAy)
     return coor_arr
 
-#defining nearest neighbor array
-#NN_arr is Nx4, the columns store the index of the nearest neighbors.
-#Left: NN[n,0] = (n-Nx), Above: NN[n,1] = n+1, Right: NN[n, 2] = n+1, Down NN[n, 3] = n+Nx
+#Defining nearest neighbor array
+#NN_arr is Nx4, the columns store the index of the 4 nearest neighbors for each
+#lattice site
+#Left: NN[n,0] = n-1
+#Above: NN[n,1] = n+Nx
+#Right: NN[n, 2] = n+1
+#Down NN[n, 3] = n-Nx
 #if there is no lattice site in nearest neighbor spot, value is -1
 def NN_Arr(coor):
     N = coor.shape[0]
@@ -124,18 +128,25 @@ def NN_Bound(NN, coor):
     ymin = min(coor[:, 1])
     xmax = max(coor[:, 0])
     ymax = max(coor[:, 1])
+
     N = NN.shape[0]
-    NNk = -1*np.ones((N,4), dtype = 'int')
-    #if statements: if i has no left nearest neighbor and j has no right nearest neighbor and the ith index has the same y-value
-    # as the jth index then the periodic boundary nearest neighbor for i is j
+    NNb = -1*np.ones((N,4), dtype = 'int') #stores the values of the coordinate
+                                           #of each periodic neighbor
+
+    #if statements:
+    #if i has no left nearest neighbor (NN[i,0] = -1)
+    #and j has no right nearest neighbor
+    #and the ith index is on the edge of the unit cell along the left wall (xmin)
+    #and the jth index is on the edge of the unit cell along the right wall(xmax)
+    #then i and j are periodic neighbors
     for i in range(N):
         for j in range(N):
             if NN[i, 0] == -1 and NN[j, 2] == -1 and coor[i, 1] == coor[j, 1] and coor[i, 0] == xmin and coor[j, 0] == xmax:
-                NNk[i, 0] = j
+                NNb[i, 0] = j
             if NN[i, 1] == -1 and NN[j, 3] == -1 and coor[i, 0] == coor[j, 0] and coor[i, 1] == ymax and coor[j, 1] == ymin:
-                NNk[i, 1] = j
+                NNb[i, 1] = j
             if NN[i, 2] == -1 and NN[j, 0] == -1 and coor[i, 1] == coor[j, 1] and coor[i, 0] == xmax and coor[j, 0] == xmin:
-                NNk[i, 2] = j
+                NNb[i, 2] = j
             if NN[i, 3] == -1 and NN[j, 1] == -1 and coor[i, 0] == coor[j, 0] and coor[i, 1] == ymin and coor[j, 1] == ymax:
-                NNk[i, 3] = j
-    return NNk
+                NNb[i, 3] = j
+    return NNb
