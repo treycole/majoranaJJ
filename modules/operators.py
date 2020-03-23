@@ -154,7 +154,7 @@ def kpy2(coor, ax, ay, qy = 0):
                 k[j,i] = (-1/ay**2)*np.exp(-1j*qy*(Ly))
     return k
 
-###################### Delta Operator ###############################
+###################### Delta Matrix ###############################
 
 def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     N = coor.shape[0]
