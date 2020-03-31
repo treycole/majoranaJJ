@@ -96,3 +96,28 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
 
     ksq = sparse.csr_matrix((data, (row,col)), shape= (N,N), dtype = 'complex')
     return ksq
+
+def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
+    N = coor.shape[0]
+    row = []; col = []; data = []
+
+    for i in range(N):
+        y = coor[i,1]
+        x = coor[i,0]
+
+        if y <= Wsc:
+            D[i,i] = delta*np.exp( -1j*phi/2 )
+
+        if y > Wsc and y <= (Wsc+Wj):
+            D[i,i] = 0
+
+        if y > (Wsc+Wj):
+            D[i,i] = delta*np.exp( 1j*phi/2 )
+
+    #Delta = delta*np.eye(N, N, dtype = 'complex')
+    D00 = np.zeros((N,N))
+    D11 = np.zeros((N,N))
+    D01 = D
+    D10 = -D
+    D = np.block([[D00, D01], [D10, D11]])
+    return D
