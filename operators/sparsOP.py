@@ -4,6 +4,7 @@ import scipy.sparse as sparse
 import scipy.sparse.linalg as sparLA
 
 import majoranaJJ.lattice.neighbors as nn
+import majoranaJJ.const
 
 def kx2(coor, ax, ay, NN):
     row = []; col = []; data = []
