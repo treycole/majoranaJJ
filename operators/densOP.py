@@ -1,6 +1,6 @@
 import numpy as np
 
-from majoranas import constants as const
+from majoranaJJ import constants as const
 
 #################### Descritizing kx operators #################################
 """
