@@ -5,12 +5,18 @@ import majoranaJJ.const as const
 def kx(coor, ax, ay, NN, NNb = None, periodic = 'no'):
     row = []; col = []; data = []
     N = coor.shape[0]
+
     for i in range(N):
         if NN[i,0] != -1:
             row.append(NN[i,0]); col.append(i); data.append(-1j/2*ax)
         if NN[i,2] != -1:
             row.append(NN[i,2]); col.append(i); data.append(1j/2*ax)
-        if peridic.lower() == 
+        if periodic.lower() == 'yes':
+            if NNb[i,0] != -1:
+                row.append(NN[i,0]); col.append(i); data.append(-1j/2*ax)
+            if NNb[i,2] != -1:
+                row.append(NN[i,2]); col.append(i); data.append(1j/2*ax)
+
     ksq = sparse.csr_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
