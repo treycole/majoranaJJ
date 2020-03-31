@@ -1,10 +1,8 @@
-import numpy as np
-import matplotlib.pyplot as plot
 import scipy.sparse as sparse
-import scipy.sparse.linalg as sparLA
+import scipy.sparse.linalg as LA
 
 import majoranaJJ.lattice.neighbors as nn
-import majoranaJJ.const
+import majoranaJJ.const as const
 
 def kx2(coor, ax, ay, NN):
     row = []; col = []; data = []
