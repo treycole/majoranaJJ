@@ -46,7 +46,6 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
         if NNb != None and NNb[i,2] != -1:
             row.append(NNb[i,2]); col.append(i); data.append(-tx*np.exp(1j*qx*Lx))
 
-
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
@@ -119,14 +118,6 @@ def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
 
     D01 = sparse.csc_matrix((data01, (row, col)), shape = (N,N), dtype = 'complex')
     D10 = sparse.csr_matrix((data10, (row, col)), shape = (N,N), dtype = 'complex')
-    #D00 = sparse.csc_matrix((dataD, (row, col)), shape = (N,N), dtype = 'complex')
-    #D11 = sparse.csc_matrix((dataD, (row, col)), shape = (N,N), dtype = 'complex')
 
     D = sparse.bmat([[None, D01], [D10, None]])
     return D
-
-    #D00 = np.zeros((N,N))
-    #D11 = np.zeros((N,N))
-    #D01 = D
-    #D10 = -D
-    #D = np.block([[D00, D01], [D10, D11]])
