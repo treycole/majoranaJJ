@@ -31,7 +31,8 @@ qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
 V = op.V_periodic(V0, coor) #Periodic potential with same periodicity as the unit cell lattice sites
 
-
+H=HBDG(
+       coor,ax,ay,NN,Wsc,Wj,mu=mu)
 num = 5 # This is the number of eigenvalues and eigenvectors you want
 sigma = 0 *0.001766 # This is the eigenvalue we search around
 which = 'LM'
