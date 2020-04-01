@@ -62,7 +62,8 @@ Plots band diagrams
 """
 def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
     for j in range(eigarr.shape[1]):
-        plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
+        #plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
+        plt.scatter(q, eigarr[:, j], c ='b')
     x = np.linspace(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx))
     plt.plot(x, 0*x, c='k', linestyle='solid', lw=1)
     plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
@@ -84,7 +85,7 @@ def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
     plt.title(title)
     plt.show()
 
-def state_cplot(coor,vec):
+def state_cplot(coor,vec,title='wavefunction'):
     vec_Sq=np.square(np.absolute(vec))
     num_div=int(vec.shape[0]/coor.shape[0])
     s=coor.shape[0]
@@ -93,4 +94,5 @@ def state_cplot(coor,vec):
         vec_proj[:]=vec_proj[:] + vec_Sq[n*s:(n+1)*s]
     print(sum(vec_proj))
     plt.scatter(coor[:,0],coor[:,1],c=vec_proj,cmap='hot')
+    plt.title(title)
     plt.show()
