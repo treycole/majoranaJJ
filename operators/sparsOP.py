@@ -122,7 +122,7 @@ def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     #D00 = sparse.csc_matrix((dataD, (row, col)), shape = (N,N), dtype = 'complex')
     #D11 = sparse.csc_matrix((dataD, (row, col)), shape = (N,N), dtype = 'complex')
 
-    D = sparse.bmat([[None, D01], [D10, None]])
+    D = sparse.bmat([[None, D01], [D10, None]],format='csc')
     return D
 
     #D00 = np.zeros((N,N))
@@ -130,3 +130,36 @@ def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     #D01 = D
     #D10 = -D
     #D = np.block([[D00, D01], [D10, D11]])
+def H0(
+       coor,ax,ay,NN,
+       NNb=None,V=0,mu=0,gammax=0,gammay=0,gammaz=0,alpha=0,qx=0,qy=0):  # Hamiltonian with SOC
+    N=coor.shape[0]
+    I=sparse.identity(N)
+    kxsq=kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
+    kysq=ky2(coor, ax, ay, NN, NNb = NNb, qy = qy)
+    k_x=kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
+    k_y=ky(coor, ax, ay, NN, NNb = NNb, qy = qy)
+    H00=(const.xi/2)*(kxsq+kysq)+V+gammaz*I-mu*I
+    H11=(const.xi/2)*(kxsq+kysq)+V-gammaz*I-mu*I
+    H10 = alpha*(1j*k_x - k_y) + gammax*I + 1j*gammay*I
+    H01 = alpha*(-1j*k_x - k_y) + gammax*I - 1j*gammay*I
+    H=sparse.bmat([[H00, H01], [H10, H11]],format='csc')
+    return H
+def HBDG(
+       coor,ax,ay,NN,Wsc,Wj,delta=0,phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0,
+       NNb=None,V=0,mu=0,gammax=0,gammay=0,gammaz=0,alpha=0,qx=0,qy=0):
+    N=coor.shape[0]
+    D=Delta(coor, delta, Wsc, Wj, phi = phi, Sx = Sx, Sy = Sy, cutx = cutx, cuty = cuty)
+    H00=H0(
+       coor,ax,ay,NN,
+       NNb=NNb,V=V,mu=mu,gammax=gammax,gammay=gammay,gammaz=gammaz,alpha=alpha,qx=qx,qy=qy)
+    H11=-1*H0(
+       coor,ax,ay,NN,
+       NNb=NNb,V=V,mu=mu,gammax=gammax,gammay=gammay,gammaz=gammaz,alpha=alpha,qx=-qx,qy=-qy).conjugate()
+    H10=D
+    H01=D.conjugate().transpose()
+    H=sparse.bmat([[H00, H01], [H10, H11]],format='csc')
+    return H
+
+    
+    
