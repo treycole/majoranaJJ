@@ -39,15 +39,16 @@ def neyb(idx, coor, NN = None, NNb = None):
 """
 Plotting wavefunctions
 """
-
+"""
 def state_cplot(coor, states, title = 'Probability Density'):
-    if coor.shape[0] < states.shape[0]:
-        N = int(states.shape[0]/(states.shape[0]/coor.shape[0]))
-        prob_dens = []
-        for i in np.arange(0, int(states.shape[0]/2)):
-            prob_dens.append(np.square(abs(states[i])) + np.square(abs(states[i+N])))
-    else:
-        prob_dens = np.square(abs(states))
+
+    N = coor.shape[0]
+    M=states.shape[0]/N
+    prob_dens = []
+    for i in np.arange(0, N):
+        for i in range(0,M+1):
+        prob_dens.append(np.square(abs(states[i])) + np.square(abs(states[i+N])))
+
     print(sum(prob_dens))
     plt.scatter(coor[:,0], coor[:,1], c = prob_dens)
     plt.xlim(0, max(coor[:, 0]))
@@ -55,7 +56,7 @@ def state_cplot(coor, states, title = 'Probability Density'):
     plt.title(title)
     plt.colorbar()
     plt.show()
-
+"""
 """
 Plots band diagrams
 """
@@ -81,4 +82,15 @@ def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
+    plt.show()
+
+def state_cplot(coor,vec):
+    vec_Sq=np.square(np.absolute(vec))
+    num_div=int(vec.shape[0]/coor.shape[0])
+    s=coor.shape[0]
+    vec_proj=np.zeros(s)
+    for n in range(num_div):
+        vec_proj[:]=vec_proj[:] + vec_Sq[n*s:(n+1)*s]
+    print(sum(vec_proj))
+    plt.scatter(coor[:,0],coor[:,1],c=vec_proj,cmap='hot')
     plt.show()
