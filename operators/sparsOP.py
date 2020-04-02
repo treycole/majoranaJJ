@@ -8,7 +8,7 @@ import majoranaJJ.constants as const
 """
 k-x operator
 """
-def kx(coor, ax, ay, NN, NNb = None, qx = 0):
+def kx(coor, ax, ay, NN, NNb = 0, qx = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
 
@@ -26,11 +26,11 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
             row.append( NN[i,2] ); col.append(i)
             data.append(tx)
 
-        if not(isinstance(NNb, None)) and NNb[i,0] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,0] != -1:
             row.append(NNb[i,0]); col.append(i)
             data.append( -tx*np.exp(-1j*qx*Lx) )
 
-        if not(isinstance(NNb, None)) and NNb[i,2] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,2] != -1:
             row.append( NNb[i,2] ); col.append(i)
             data.append( tx*np.exp(1j*qx*Lx) )
 
@@ -40,7 +40,7 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
 """
 k-x squared operator
 """
-def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
+def kx2(coor, ax, ay, NN, NNb = 0, qx = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
 
@@ -59,11 +59,11 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
             row.append( NN[i,2] ); col.append(i)
             data.append( -tx )
 
-        if not(isinstance(NNb, None)) and NNb[i,0] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,0] != -1:
             row.append( NNb[i,0] ); col.append(i)
             data.append( -tx*np.exp(-1j*qx*Lx) )
 
-        if not(isinstance(NNb, None)) and NNb[i,2] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,2] != -1:
             row.append( NNb[i,2] ); col.append(i)
             data.append( -tx*np.exp(1j*qx*Lx) )
 
@@ -75,7 +75,7 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
 """
 k-y operator
 """
-def ky(coor, ax, ay, NN, NNb = None, qy = 0):
+def ky(coor, ax, ay, NN, NNb = 0, qy = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
 
@@ -93,11 +93,11 @@ def ky(coor, ax, ay, NN, NNb = None, qy = 0):
             row.append( NN[i,3] ); col.append(i)
             data.append( ty )
 
-        if not(isinstance(NNb, None)) and NNb[i,1] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,1] != -1:
             row.append( NNb[i,1] ); col.append(i)
             data.append( -ty*np.exp(-1j*qy*Ly) )
 
-        if not(isinstance(NNb, None)) and NNb[i,3] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,3] != -1:
             row.append(NNb[i,3]); col.append(i)
             data.append( ty*np.exp(1j*qy*Ly) )
 
@@ -107,7 +107,7 @@ def ky(coor, ax, ay, NN, NNb = None, qy = 0):
 """
 k-y squared operator
 """
-def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
+def ky2(coor, ax, ay, NN, NNb = 0, qy = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
 
@@ -126,11 +126,11 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
             row.append( NN[i,3] ); col.append(i)
             data.append(-ty)
 
-        if not(isinstance(NNb, None)) and NNb[i,1] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,1] != -1:
             row.append( NNb[i,1] ); col.append(i)
             data.append( -ty*np.exp(-1j*qy*Ly) )
 
-        if not(isinstance(NNb, None)) and NNb[i,3] != -1:
+        if not(isinstance(NNb, int)) and NNb[i,3] != -1:
             row.append( NNb[i,3] ); col.append(i)
             data.append( -ty*np.exp(1j*qy*Ly) )
 
@@ -207,10 +207,10 @@ def H0(
 
 def HBDG(
     coor, ax, ay, NN, Wsc, Wj, NNb=None,
-    phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0,
+    Sx = 0, Sy = 0, cutx = 0, cuty = 0,
     V = 0, mu = 0,
     gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0, phi = 0,
-    qx=0, qy=0,
+    qx = 0, qy = 0,
     periodicX = "NO", periodicY = "NO"
     ): #BDG Hamiltonian for superconductivity and SOC
 

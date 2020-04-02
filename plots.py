@@ -36,33 +36,12 @@ def neyb(idx, coor, NN = None, NNb = None):
         plt.show()
 
 """
-Plotting wavefunctions
-
-def state_cplot(coor, states, title = 'Probability Density'):
-
-    N = coor.shape[0]
-    M=states.shape[0]/N
-    prob_dens = []
-    for i in np.arange(0, N):
-        for i in range(0,M+1):
-        prob_dens.append(np.square(abs(states[i])) + np.square(abs(states[i+N])))
-
-    print(sum(prob_dens))
-    plt.scatter(coor[:,0], coor[:,1], c = prob_dens)
-    plt.xlim(0, max(coor[:, 0]))
-    plt.ylim(0, max(coor[:, 1]))
-    plt.title(title)
-    plt.colorbar()
-    plt.show()
-"""
-
-"""
 Plots band diagrams
 """
 def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
-    for j in range(eigarr.shape[1]):
-        #plt.plot(q, eigarr[:, j], c ='b', linestyle = 'solid')
-        plt.scatter(q, eigarr[:, j], c ='b')
+    for i in range(eigarr.shape[1]):
+        plt.plot(q, eigarr[:, i], c ='b', linestyle = 'solid')
+        #plt.scatter(q, eigarr[:, j], c ='b')
     x = np.linspace(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx))
     plt.plot(x, 0*x, c='k', linestyle='solid', lw=1)
     plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
