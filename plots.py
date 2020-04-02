@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 Plotting the lattice neighbors and boundary neighbors
 """
 def neyb(idx, coor, NN = None, NNb = None):
-
     if NN is not None:
         idx = 0 #idx
         plt.scatter(coor[:, 0], coor[:, 1] ,c = 'b')
@@ -38,8 +37,7 @@ def neyb(idx, coor, NN = None, NNb = None):
 
 """
 Plotting wavefunctions
-"""
-"""
+
 def state_cplot(coor, states, title = 'Probability Density'):
 
     N = coor.shape[0]
@@ -57,6 +55,7 @@ def state_cplot(coor, states, title = 'Probability Density'):
     plt.colorbar()
     plt.show()
 """
+
 """
 Plots band diagrams
 """
@@ -85,7 +84,7 @@ def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
     plt.title(title)
     plt.show()
 
-def state_cplot(coor,vec,title='wavefunction'):
+def state_cplot(coor, vec, title='wavefunction'):
     vec_Sq=np.square(np.absolute(vec))
     num_div=int(vec.shape[0]/coor.shape[0])
     s=coor.shape[0]

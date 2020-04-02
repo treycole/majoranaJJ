@@ -204,8 +204,6 @@ def H0(
 
     H = sparse.bmat([[H00, H01], [H10, H11]],format='csc')
     return H
-<<<<<<< HEAD
-=======
 
 def HBDG(
     coor, ax, ay, NN, Wsc, Wj, NNb=None,
@@ -230,4 +228,3 @@ def HBDG(
 
     H = sparse.bmat([[H00, H01], [H10, H11]],format='csc')
     return H
->>>>>>> ebb186642651f4c48caefdc99d11d8e328219f81
