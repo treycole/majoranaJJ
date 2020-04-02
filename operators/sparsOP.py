@@ -8,7 +8,6 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
 
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
-
     Lx = (xmax - xmin + 1)*ax
     print(Lx,qx,qx*Lx)
 
@@ -33,7 +32,6 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
 
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
-
     Lx = (xmax - xmin + 1)*ax
     tx = 1/ax**2
 
@@ -57,7 +55,6 @@ def ky(coor, ax, ay, NN, NNb = None, qy = 0):
 
     ymax = max(coor[:, 1])
     ymin = min(coor[:, 1])
-
     Ly = (ymax - ymin + 1)*ay
     ty = 1j/2*ay
 
@@ -157,4 +154,3 @@ def HBDG(coor,ax,ay,NN,Wsc,Wj,
     H01=D.conjugate().transpose()
     H=sparse.bmat([[H00, H01], [H10, H11]],format='csc')
     return H
-

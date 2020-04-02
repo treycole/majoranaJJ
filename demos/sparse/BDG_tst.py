@@ -1,25 +1,25 @@
 
-import numpy as np
-import majoranaJJ.plots as plots
-import matplotlib.pyplot as plt
-import scipy.sparse.linalg as spLA
 import majoranaJJ.operators.sparsOP as spop
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 
-Nx=15
-Ny=15
-ax=2
-ay=2
+import numpy as np
+import majoranaJJ.plots as plots
+import matplotlib.pyplot as plt
+import scipy.sparse.linalg as spLA
+
+Nx = 15
+Ny = 15
+ax = 2
+ay = 2
 coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
 NNb = nb.NN_Bound(coor)
 
-Wsc = 2
+Wsc = Ny
 Wj = 0
-Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax  #Unit cell size in x-direction
-Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay
-
+Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
+Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
 alpha = 0.0   #Spin-Orbit Coupling constant: [eV*A]
 gamma = 0.00  #Zeeman field energy contribution: [T]
@@ -27,7 +27,7 @@ delta = 0.01 #Superconducting Gap: [eV]
 V0 = 0.0 #Amplitude of potential : [eV]
 mu = 0 #Chemical Potential: [eV]
 
-steps = 70*2 #Number of kx and ky values that are evaluated
+steps = 50 #Number of kx and ky values that are evaluated
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
 
