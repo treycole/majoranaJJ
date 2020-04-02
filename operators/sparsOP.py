@@ -208,8 +208,8 @@ def H0(
 def HBDG(
     coor, ax, ay, NN, Wsc, Wj, NNb=None,
     phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0,
-    V=0, mu=0,
-    gammax=0, gammay=0, gammaz=0, alpha=0, delta=0, phi = 0,
+    V = 0, mu = 0,
+    gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0, phi = 0,
     qx=0, qy=0,
     periodicX = "NO", periodicY = "NO"
     ): #BDG Hamiltonian for superconductivity and SOC

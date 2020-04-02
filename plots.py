@@ -85,13 +85,15 @@ def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
     plt.show()
 
 def state_cplot(coor, vec, title='wavefunction'):
-    vec_Sq=np.square(np.absolute(vec))
-    num_div=int(vec.shape[0]/coor.shape[0])
-    s=coor.shape[0]
-    vec_proj=np.zeros(s)
+    probdens = np.square(np.absolute(vec))
+    num_div = int(vec.shape[0]/coor.shape[0])
+    s = coor.shape[0]
+    vec_proj = np.zeros(s)
+
     for n in range(num_div):
-        vec_proj[:]=vec_proj[:] + vec_Sq[n*s:(n+1)*s]
+        vec_proj[:] = vec_proj[:] + probdens[n*s:(n+1)*s]
+
     print(sum(vec_proj))
-    plt.scatter(coor[:,0],coor[:,1],c=vec_proj,cmap='hot')
+    plt.scatter(coor[:,0], coor[:,1], c=vec_proj, cmap='hot')
     plt.title(title)
     plt.show()
