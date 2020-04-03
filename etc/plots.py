@@ -72,6 +72,6 @@ def state_cplot(coor, vec, title='wavefunction'):
         vec_proj[:] = vec_proj[:] + probdens[n*s:(n+1)*s]
 
     print(sum(vec_proj))
-    plt.scatter(coor[:,0], coor[:,1], c =vec_proj, cmap='hot')
+    plt.scatter(coor[:,0], coor[:,1], c = vec_proj, cmap='hot')
     plt.title(title)
     plt.show()
