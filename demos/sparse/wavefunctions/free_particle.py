@@ -2,9 +2,9 @@ import time
 import majoranaJJ.operators.sparsOP as spop
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
+import majoranaJJ.etc.plots as plots
 
 import numpy as np
-import majoranaJJ.plots as plots
 import matplotlib.pyplot as plt
 import scipy.sparse.linalg as spLA
 
@@ -41,7 +41,6 @@ start = time.time()
 eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 end = time.time()
 print("Time for diagonalization for Hamiltonian of size {} = ".format(H.shape[0]), end-start, "[s]")
-
 
 idx_sort = np.argsort(eigs)
 eigs = eigs[idx_sort]

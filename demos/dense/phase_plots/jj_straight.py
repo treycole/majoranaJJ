@@ -1,5 +1,4 @@
 import numpy as np
-#import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
 import modules.constants as const
@@ -32,7 +31,7 @@ NNb = lat.NN_Bound(NN, coor)  #periodic NN array
 """V_periodic(V0, Nx, Ny, coor)"""
 
 steps = 60
-a = 0.0   #Spin-Orbit Coupling constant: [eV*A]
+alpha = 0.0   #Spin-Orbit Coupling constant: [eV*A]
 gamma = np.linspace(0, .02, steps)  #Zeeman field energy contribution: [T]
 delta = 0.0 #Superconducting Gap: [eV]
 V = op.V_periodic(0, coor) #Amplitude of potential : [eV]

@@ -6,7 +6,7 @@ Plotting the lattice neighbors and boundary neighbors
 """
 def neyb(idx, coor, NN = None, NNb = None):
     if NN is not None:
-        idx = 0 #idx
+        idx = 0 #site we are looking at
         plt.scatter(coor[:, 0], coor[:, 1] ,c = 'b')
         plt.scatter(coor[idx, 0], coor[idx, 1], c = 'r')
         if NN[idx, 0] != -1:
@@ -21,7 +21,7 @@ def neyb(idx, coor, NN = None, NNb = None):
         plt.show()
 
     if NNb is not None:
-        idx = 0 #idx
+        idx = 0 #sige we are looking at
         plt.scatter(coor[:, 0], coor[:, 1] ,c = 'b')
         plt.scatter(coor[idx, 0], coor[idx, 1], c = 'r')
         if NNb[idx, 0] != -1:
@@ -38,14 +38,14 @@ def neyb(idx, coor, NN = None, NNb = None):
 """
 Plots band diagrams
 """
-def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
+def bands(eigarr, q, Lx, Ly, direction = 'x', title = 'Band Structure'):
     for i in range(eigarr.shape[1]):
         plt.plot(q, eigarr[:, i], c ='b', linestyle = 'solid')
         #plt.scatter(q, eigarr[:, j], c ='b')
-    x = np.linspace(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx))
-    plt.plot(x, 0*x, c='k', linestyle='solid', lw=1)
-    plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx+0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
-    plt.xlabel('k [1/A]')
+    x = np.linspace( -np.pi/Lx, np.pi/Lx + 0.1*(np.pi/Lx) )
+    plt.plot(x, 0*x, c = 'k', linestyle='solid', lw=1)
+    plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx + 0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
+    plt.xlabel('k{} [1/A]'.format(direction))
     plt.ylabel('Energy [eV]')
     plt.title(title)
     plt.show()
@@ -54,10 +54,9 @@ def bands(eigarr, q, Lx, Ly, title = 'Band Structure'):
 Plots a phase diagram of y vs x
 """
 def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
-    for i in range(y.shape[1]):
-        plt.plot(x, y[i], c = 'b', linestyle  = 'solid')
-    line = np.linspace(0, max(x))
-    plt.plot(line , 0*line, color = 'k', linestyle = 'solid', lw = 1)
+    plt.plot(x, y, c = 'b', linestyle  = 'solid')
+    zeroLine = np.linspace(0, max(x))
+    plt.plot(zeroLine , 0*zeroLine, color = 'k', linestyle = 'solid', lw = 1)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
