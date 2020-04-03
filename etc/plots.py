@@ -54,7 +54,7 @@ def bands(eigarr, q, Lx, Ly, direction = 'x', title = 'Band Structure'):
 Plots a phase diagram of y vs x
 """
 def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
-    plt.plot(x, y, c = 'b', linestyle  = 'solid')
+    plt.plot(x, y, c = 'b')
     zeroLine = np.linspace(0, max(x))
     plt.plot(zeroLine , 0*zeroLine, color = 'k', linestyle = 'solid', lw = 1)
     plt.xlabel(xlabel)
@@ -72,6 +72,6 @@ def state_cplot(coor, vec, title='wavefunction'):
         vec_proj[:] = vec_proj[:] + probdens[n*s:(n+1)*s]
 
     print(sum(vec_proj))
-    plt.scatter(coor[:,0], coor[:,1], c=vec_proj, cmap='hot')
+    plt.scatter(coor[:,0], coor[:,1], c =vec_proj, cmap='hot')
     plt.title(title)
     plt.show()
