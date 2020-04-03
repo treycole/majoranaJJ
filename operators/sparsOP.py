@@ -139,7 +139,11 @@ def ky2(coor, ax, ay, NN, NNb = 0, qy = 0):
 
 ###################### Delta Matrix ###############################
 
-def Delta(coor, Wsc, Wj, delta = 0, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
+def Delta(
+    coor, Wsc, Wj,
+    delta = 0, phi = 0,
+    Sx = 0, Sy = 0, cutx = 0, cuty = 0
+    ):
     N = coor.shape[0]
     row = []; col = []; data01 = []
     row = []; col = []; data10 = []
@@ -227,5 +231,5 @@ def HBDG(
 
     H01 = D.conjugate().transpose()
 
-    H = sparse.bmat([[H00, H01], [H10, H11]],format='csc')
+    H = sparse.bmat([[H00, H01], [H10, H11]], format='csc')
     return H
