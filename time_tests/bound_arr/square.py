@@ -2,9 +2,9 @@ import time
 import matplotlib.pyplot as plt
 
 import majoranaJJ.lattice.shapes as shp
-import majoranaJJ.etc.neighbors as nb2
+import majoranaJJ.etc.old.neighbors as nb2
 import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.plots as plot
+import majoranaJJ.etc.plots as plot
 
 print("")
 N = 45
@@ -23,7 +23,7 @@ print("time for original method = {} [s]".format(end-start))
 print(NNb2[0:5, :])
 
 idx = 0
-plot.neyb(idx, coor, NNb = NNb2)
+plot.lattice(idx, coor, NNb = NNb2)
 print(" ")
 
 ###############################################################################
@@ -33,7 +33,7 @@ end = time.time()
 print("time for new method = {} [s]".format(end-start))
 print(NNb[0:5, :])
 
-plot.neyb(idx, coor, NNb = NNb)
+plot.lattice(idx, coor, NNb = NNb)
 print(" ")
 
 ###############################################################################

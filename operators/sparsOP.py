@@ -1,12 +1,11 @@
 import scipy.sparse as sparse
+import scipy.sparse.linalg as spLA
 import numpy as np
 
 import majoranaJJ.etc.constants as const
 
-#################### Descritizing kx operators ################################
-
 """
-k-x operator
+Descritizing k-x operator
 """
 def kx(coor, ax, ay, NN, NNb = None, qx = 0):
     row = []; col = []; data = []
@@ -38,7 +37,7 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
     return ksq
 
 """
-k-x squared operator
+descritizing k-x squared operator
 """
 def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
     row = []; col = []; data = []
@@ -70,10 +69,10 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
-#################### Descritizing ky operators ################################
+############ Descritizing ky operators ##############
 
 """
-k-y operator
+descritizing k-y operator
 """
 def ky(coor, ax, ay, NN, NNb = None, qy = 0):
     row = []; col = []; data = []
@@ -105,7 +104,7 @@ def ky(coor, ax, ay, NN, NNb = None, qy = 0):
     return ksq
 
 """
-k-y squared operator
+descritizing k-y squared operator
 """
 def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
     row = []; col = []; data = []
@@ -137,16 +136,18 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
     ksq = sparse.csc_matrix((data, (row,col)), shape= (N,N), dtype = 'complex')
     return ksq
 
-###################### Delta Matrix ###############################
+##########################################################
 
+"""
+Delta particle hole coupling Matrix
+"""
 def Delta(
     coor, Wsc, Wj,
     delta = 0, phi = 0,
     Sx = 0, Sy = 0, cutx = 0, cuty = 0
     ):
     N = coor.shape[0]
-    row = []; col = []; data01 = []
-    row = []; col = []; data10 = []
+    row = []; col = []; data = []#; data10 = []
 
     for i in range(N):
         y = coor[i, 1]
@@ -154,49 +155,47 @@ def Delta(
 
         if y <= Wsc:
             row.append(i); col.append(i)
-            data10.append( -delta*np.exp(-1j*phi/2 ) )
-            data01.append( delta*np.exp(-1j*phi/2 ) )
+            #data10.append( -delta*np.exp(-1j*phi/2 ) )
+            data.append( delta*np.exp(-1j*phi/2 ) )
 
         if y > Wsc and y <= (Wsc+Wj):
             row.append(i); col.append(i)
-            data10.append(0)
-            data01.append(0)
+            #data10.append(0)
+            data.append(0)
 
         if y > (Wsc+Wj):
             row.append(i); col.append(i)
-            data10.append( -delta*np.exp( 1j*phi/2 ) )
-            data01.append( delta*np.exp( 1j*phi/2 ) )
+            #data10.append( -delta*np.exp( 1j*phi/2 ) )
+            data.append( delta*np.exp( 1j*phi/2 ) )
 
-    D01 = sparse.csc_matrix((data01, (row, col)), shape = (N,N), dtype = 'complex')
-    D10 = sparse.csr_matrix((data10, (row, col)), shape = (N,N), dtype = 'complex')
-    D = sparse.bmat([[None, D01], [D10, None]],format='csc')
-    return D
+    D = sparse.csc_matrix((data01, (row, col)), shape = (N,N), dtype = 'complex')
+
+    delta = sparse.bmat([[None, D], [-D, None]], format='csc')
+    return delta
 
 def H0(
     coor, ax, ay, NN, NNb = None,
     V=0, mu=0,
     gammax=0, gammay=0, gammaz=0, alpha=0,
     qx=0, qy=0,
-    periodicX = "NO", periodicY = "NO"
+    periodicX = False, periodicY = False
     ):  # Hamiltonian with SOC
 
     N = coor.shape[0]
     I = sparse.identity(N)
 
-    #two conditionals to allow selective periodicity in x and y directions
-    #if the periodic parameters are no, then we forego passing through
-    #NNb array and the matrix sites with coupling to next lattice sites are
-    #equal to zero
-    if periodicX.lower() == "yes":
+    """ Two conditionals to allow selective periodicity in x and y directions. If the periodic parameters are False in either direction, then we do not pass through NNb array for that direction's k operators, which has the consequence of the k operators not considering neighboring lattice sites. If you follow the path NNb takes when called by a Hamilonian this will be clear.
+    """
+    if periodicX:
         k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
         k_x2 = kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
-    if periodicY.lower() == "yes":
+    if periodicY:
         k_y = ky(coor, ax, ay, NN, NNb = NNb, qy = qy)
         k_y2 = ky2(coor, ax, ay, NN, NNb = NNb, qy = qy)
-    if periodicX.lower() == "no":
+    if not periodicX:
         k_x = kx2(coor, ax, ay, NN)
         k_x2 = kx2(coor, ax, ay, NN)
-    if periodicY.lower() == "no":
+    if not periodicY:
         k_y = ky(coor, ax, ay, NN,)
         k_y2 = ky2(coor, ax, ay, NN)
 
@@ -214,18 +213,16 @@ def HBDG(
     V = 0, mu = 0,
     gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0,
-    periodicX = "NO", periodicY = "NO"
+    periodicX = False, periodicY = False
     ): #BDG Hamiltonian for superconductivity and SOC
 
     N = coor.shape[0]
 
     D = Delta(coor, Wsc, Wj, delta = delta, phi = phi, Sx = Sx, Sy = Sy, cutx = cutx, cuty = cuty)
 
-    H00 = H0( coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz,
-    alpha = alpha, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+    H00 = H0( coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
 
-    H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, V=V, mu=mu, gammax = gammax, gammay = gammay, gammaz = gammaz,
-    alpha = alpha, qx = -qx, qy = -qy, periodicX = periodicX, periodicY = periodicY).conjugate()
+    H11 = -1*H0(coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, qx = -qx, qy = -qy, periodicX = periodicX, periodicY = periodicY).conjugate()
 
     H10 = D
 
@@ -233,3 +230,38 @@ def HBDG(
 
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc')
     return H
+
+#######################################################
+
+#Energy eigenvalues for BDG Hamilonian
+def EBDG(
+    coor, ax, ay, NN, Wsc, Wj, NNb = None,
+    Sx = 0, Sy = 0, cutx = 0, cuty = 0,
+    V = 0, mu = 0,
+    gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0, phi = 0,
+    qx = 0, qy = 0,
+    periodicX = False, periodicY = False,
+    num = 5, sigma = 0, which = 'LM'
+    ):
+
+    H = 1000*HBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, V = V, mu = mu, alpha = alpha, delta = delta, gammax = gammax, gammay = gammay, gammaz = gammaz, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+
+    Energy, States = spLA.eigsh(H, k = num, sigma = sigma, which = which)
+
+    return Energy
+    
+#Energy Eignencalues for SOC Hamiltonain, or H0
+def ESOC(
+    coor, ax, ay, NN, NNb = None,
+    V = 0, mu = 0,
+    gammax = 0, gammay = 0, gammaz = 0, alpha = 0,
+    qx = 0, qy = 0,
+    periodicX = False, periodicY = False,
+    num = 5, sigma = 0, which = 'LM'
+    ):
+
+    H = 1000*HBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, V = V, mu = mu, alpha = alpha, delta = delta, gammax = gammax, gammay = gammay, gammaz = gammaz, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+
+    Energy, States = spLA.eigsh(H, k = num, sigma = sigma, which = which)
+
+    return Energy

@@ -2,7 +2,7 @@ import time
 import matplotlib.pyplot as plt
 
 import majoranaJJ.lattice.shapes as shp
-import majoranaJJ.etc.neighbors as nb2
+import majoranaJJ.etc.old.neighbors as nb2
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.plots as plot
 

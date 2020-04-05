@@ -1,20 +1,17 @@
 import numpy as np
+import majoranaJJ.etc.constants as const
 
-from majoranaJJ import constants as const
-
-#################### Descritizing kx operators #################################
+########### Descritizing kx operators ##############
 """
 k-x operator
 """
 def kx(coor, ax, ay, NN):
-
     N = coor.shape[0]
     k = np.zeros((N,N), dtype = "complex")
 
     for i in range(N):
         if NN[i,0] != -1:
             k[ NN[i,0] , i] = -1j/(2*ax)
-
         if NN[i, 2] != -1:
             k[ NN[i,2] , i] = 1j/(2*ax)
 
@@ -24,16 +21,13 @@ def kx(coor, ax, ay, NN):
 k-x squared operator
 """
 def kx2(coor, ax, ay, NN):
-
     N = coor.shape[0]
     k = np.zeros((N,N), dtype='complex')
 
     for i in range(N):
         k[i,i] = 2/ax**2
-
         if NN[i,0] != -1:
             k[ NN[i,0] , i] = -1/ax**2
-
         if NN[i, 2] != -1:
             k[ NN[i,0] , i] = -1/ax**2
 
@@ -44,14 +38,12 @@ def kx2(coor, ax, ay, NN):
 k-y operator
 """
 def ky(coor, ax, ay, NN):
-
     N = coor.shape[0]
     k = np.zeros((N,N), dtype = "complex")
 
     for i in range(N):
         if NN[i,1] != -1:
             k[ NN[i,1] , i] = -1j/(2*ay)
-
         if NN[i, 3] != -1:
             k[ NN[i,3] , i] = 1j/(2*ay)
 
@@ -61,43 +53,35 @@ def ky(coor, ax, ay, NN):
 k-y squared operator
 """
 def ky2(coor, ax, ay, NN):
-
     N = coor.shape[0]
     k = np.zeros((N,N), dtype='complex')
 
     for i in range(N):
         k[i,i] = 2/ay**2
-
         if NN[i,1] != -1:
             k[ NN[i,1] , i] = -1/ay**2
-
         if NN[i, 3] != -1:
             k[ NN[i,3] , i] = -1/ay**2
 
     return k
 
 
-#################### Periodic kx operators ##################################
+############# Periodic kx operators ###############
 
 def kpx(coor, ax, ay, NN, NNb, qx = 0):
     N = coor.shape[0]   #Number of Lattice sites
     xmin = min(coor[:, 0])
     xmax = max(coor[:, 0])
-
     Lx = (xmax - xmin + 1)*ax
 
     k = np.zeros((N,N), dtype = "complex")
-
     for i in range(N):
         if NN[i,0] != -1:
-            k[ NN[i,0] , i] = -1j/(2*ax)
-
+            k[ NN[i,0], i] = -1j/(2*ax)
         if NN[i, 2] != -1:
-            k[ NN[i,0] , i] = 1j/(2*ax)
-
+            k[ NN[i,0], i] = 1j/(2*ax)
         if NNb[i, 0] != -1:
-            k[ NNb[i,0] , i] = ( -1j/2*ax )*np.exp( -1j*qx*Lx )
-
+            k[ NNb[i,0], i] = ( -1j/2*ax )*np.exp( -1j*qx*Lx )
         if NNb[i, 2] != -1:
             k[ NNb[i,2] , i] = ( 1j/2*ax )*np.exp( 1j*qx*Lx )
 
@@ -107,11 +91,9 @@ def kpx2(coor, ax, ay, NN, NNb, qx = 0):
     N = coor.shape[0]
     xmin = min(coor[:, 0])
     xmax = max(coor[:, 0])
-
     Lx = (xmax - xmin + 1)*ax
 
     k = np.zeros((N,N), dtype = "complex")
-
     for i in range(N):
         k[i,i] = 2/ax**2
 
@@ -127,9 +109,9 @@ def kpx2(coor, ax, ay, NN, NNb, qx = 0):
         if NNb[i, 2] != -1:
             k[ NNb[i, 2] , i] = ( -1/ax**2 )*np.exp( 1j*qx*Lx )
 
-return k
+    return k
 
-#################### Periodic ky operators ##################################
+#############Periodic ky operators ##############
 
 def kpy(coor, ax, ay, NN, NNb, qy = 0):
     N = coor.shape[0]
@@ -137,7 +119,6 @@ def kpy(coor, ax, ay, NN, NNb, qy = 0):
     ymax = max(coor[:, 1])
 
     Ly = (ymax - ymin + 1)*ay
-
     k = np.zeros((N,N), dtype = "complex")
 
     for i in range(N):
@@ -160,11 +141,9 @@ def kpy2(coor, ax, ay, NN, NNb, qy = 0):
     N = coor.shape[0]
     ymin = min(coor[:, 1])
     ymax = max(coor[:, 1])
-
     Ly = (ymax - ymin + 1)*ay
 
     k = np.zeros((N,N), dtype='complex')
-
     for i in range(N):
         k[i,i] = 2/ay**2
 
@@ -181,7 +160,7 @@ def kpy2(coor, ax, ay, NN, NNb, qy = 0):
             k[ NNb[i, 3] , i ] = ( -1/ay**2 )*np.exp( 1j*qy*Ly )
     return k
 
-###################### Delta Matrix ###############################
+################# Delta Matrix #####################
 
 def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     N = coor.shape[0]
@@ -208,14 +187,13 @@ def Delta(coor, delta, Wsc, Wj, phi = 0, Sx = 0, Sy = 0, cutx = 0, cuty = 0):
     D = np.block([[D00, D01], [D10, D11]])
     return D
 
-###################### Hamiltonians ################################
+############# Hamiltonians ###############
 
 """
-This is the Hamiltonian with Spin Orbit Coupling and nearest neighbor h
-opping and no Superconductivity.
+This is the Hamiltonian with Spin Orbit Coupling and nearest neighbor hopping and no Superconductivity.
 
-The parameter PERIODIC determines whether the function calls a construction of
-k-operators with or without boundary conditions in x and y directions.
+The parameter PERIODIC determines whether the function calls a construction of k-operators with or without
+boundary conditions in x and y directions.
 
 Basis: Two states per lattice site for spin up and down. Rows/Columns 1 ->
 N correspond to spin up, rows/columns n -> 2N correspond to spin down
@@ -228,34 +206,22 @@ def H0(
     gammax = 0, gammay = 0, gammaz = 0,
     alpha = 0,
     qx = 0, qy = 0,
-    periodicx = 'no', periodicy = 'no'
+    periodicX = False, periodicY = False
     ):
 
-    if periodicx.lower() == 'yes':
-        if NNb == None:
-            print("If periodic need boundary array")
-            return
+    if periodicX:
         k_x = kpx(coor, ax, ay, NN, NNb, qx = qx)
         k_x2 = kpx2(coor, ax, ay, NN, NNb, qx = qx)
 
-    if periodicx.lower() == 'no':
-        if NN == None:
-            print("Need neighbor array")
-            return
+    if not periodicX:
         k_x = kx(coor, ax, ay, NN)
         k_x2 = kx2(coor, ax, ay, NN)
 
-    if periodicy.lower() == 'yes':
-        if NNb == None:
-            print("If periodic need boundary array")
-            return
+    if periodicY:
         k_y = kpy(coor, ax, ay, NN, NNb, qy = qy)
         k_y2 = kpy2(coor, ax, ay, NN, NNb, qy = qy)
 
-    if periodicy.lower() == 'no':
-        if NN == None:
-            print("Need neighbor array")
-            return
+    if not periodicY:
         k_y = ky(coor, ax, ay, NN)
         k_y2 = ky2(coor, ax, ay, NN)
 
@@ -307,7 +273,7 @@ def HBDG(
     HBDG = np.block([[H00, H01] , [H10, H11]])
     return HBDG
 
-######################## Potential shapes ##############################
+############ Potential shapes ##################
 
 def V_barrier(V0, xi, xf, coor):
 #(Amplitude, starting point of barrier, ending pt of barrier, coordinate array)
