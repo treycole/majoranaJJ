@@ -8,20 +8,17 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.sparse.linalg as spLA
 
-Nx = 100
-Ny = 105
+Nx = 12
+Ny = 12
 ax = 2
 ay = 2
 
-start = time.time()
 coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
-NNb = nb.NN_Bound(coor)
-end = time.time()
-print("Time for lattice arrays for lattice of size {} = ".format(coor.shape[0]), end-start, "[s]")
+NNb = nb.Bound_Arr(coor)
 
-Wsc = Ny
-Wj = 0
+Wsc = Ny #Width of Superconductor
+Wj = 0 #Width of Junction
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
@@ -32,22 +29,14 @@ V0 = 0.0 #Amplitude of potential : [eV]
 mu = 0 #Chemical Potential: [eV]
 
 H = spop.HBDG(coor, ax, ay, NN, Wsc, Wj, mu = mu, delta = delta, gammaz = gammaz, NNb = NNb)
+print("H shape: ", H.shape)
+
 num = 20 # This is the number of eigenvalues and eigenvectors you want
 sigma = 0 # This is the eigenvalue we search around
 which = 'LM'
-print("H shape: ", H.shape)
-
-start = time.time()
 eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
-end = time.time()
-print("Time for diagonalization for Hamiltonian of size {} = ".format(H.shape[0]), end-start, "[s]")
 
-idx_sort = np.argsort(eigs)
-eigs = eigs[idx_sort]
-vecs = vecs[:,idx_sort]
-print(eigs[:])
-
-plots.state_cplot(coor,vecs[:, 7],title = 'hole  n = 3 energy eigenstate')
-plots.state_cplot(coor,vecs[:, 12],title = 'particle  n = 3 energy eigenstate')
-plots.state_cplot(coor,vecs[:, 9],title = 'hole n = 1 energy eigenstate')
-plots.state_cplot(coor,vecs[:, 10],title =' particle n = 1 energy eigenstate')
+plots.state_cmap(coor, eigs, vecs, n = 7, title = 'hole  n = 3 energy eigenstate')
+plots.state_cmap(coor, eigs, vecs, n = 12, title = 'particle n = 3 energy eigenstate')
+plots.state_cmap(coor, eigs, vecs, n = 9, title = 'hole n = 1 energy eigenstate')
+plots.state_cmap(coor, eigs, vecs, n = 10, title = 'particle n = 1 energy eigenstate')

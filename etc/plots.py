@@ -62,16 +62,22 @@ def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
 """
 Plotting the probability density
 """
-def state_cplot(coor, vec, title = 'Probability Density Map'):
-    probdens = np.square(np.absolute(vec))
-    num_div = int(vec.shape[0]/coor.shape[0])
-    s = coor.shape[0]
-    vec_proj = np.zeros(s)
+def state_cmap(coor, eigs, states, n = 1,  cmap = 'hot', title = 'Probability Density Map'):
+    N = coor.shape[0]
+    num_div = int(states.shape[0]/N)
+    idx_sort = np.argsort(eigs)
+    eigs = eigs[idx_sort]
+    states = states[:, idx_sort]
 
-    for n in range(num_div):
-        vec_proj[:] = vec_proj[:] + probdens[n*s:(n+1)*s]
+    probdens = np.square(abs(states[:, n]))
+    map = np.zeros(N)
+    for i in range(num_div):
+        map[:] = map[:] + probdens[i*N : (i+1)*N]
 
-    print(sum(vec_proj))
-    plt.scatter(coor[:,0], coor[:,1], c = vec_proj, cmap='hot')
+    print(sum(map))
+    plt.scatter(coor[:, 0], coor[:, 1], c = map, cmap = cmap)
     plt.title(title)
+    plt.xlim(0, max(coor[:, 0]))
+    plt.ylim(0, max(coor[:, 1]))
+    plt.colorbar()
     plt.show()

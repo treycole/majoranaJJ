@@ -3,6 +3,11 @@ import numpy as np
 import majoranaJJ.modules.constants as const
 import majoranaJJ.modules.operators as op
 
+
+"""
+This is how the Hamiltonian was originally defined. If we wanted
+periodicity we had to call a different Hamiltonian.
+"""
 def H0(coor, ax, ay):
     N = coor.shape[0]
     H = np.zeros((N,N), dtype = 'complex')

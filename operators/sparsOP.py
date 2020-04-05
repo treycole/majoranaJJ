@@ -4,9 +4,7 @@ import numpy as np
 
 import majoranaJJ.etc.constants as const
 
-"""
-Descritizing k-x operator
-"""
+"""Descritized k-x operator"""
 def kx(coor, ax, ay, NN, NNb = None, qx = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
@@ -25,20 +23,18 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
             row.append( NN[i,2] ); col.append(i)
             data.append(tx)
 
-        if NNb is not None and NNb[i,0] != -1:
+        if NNb is not None and NNb[i, 0] != -1:
             row.append(NNb[i,0]); col.append(i)
             data.append( -tx*np.exp(-1j*qx*Lx) )
 
-        if NNb is not None and NNb[i,2] != -1:
+        if NNb is not None and NNb[i, 2] != -1:
             row.append( NNb[i,2] ); col.append(i)
             data.append( tx*np.exp(1j*qx*Lx) )
 
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
-"""
-descritizing k-x squared operator
-"""
+"""Descritized k-x squared operator"""
 def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
@@ -58,11 +54,11 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
             row.append( NN[i,2] ); col.append(i)
             data.append( -tx )
 
-        if NNb is not None and NNb[i,0] != -1:
+        if NNb is not None and NNb[i, 0] != -1:
             row.append( NNb[i,0] ); col.append(i)
             data.append( -tx*np.exp(-1j*qx*Lx) )
 
-        if NNb is not None and NNb[i,2] != -1:
+        if NNb is not None and NNb[i, 2] != -1:
             row.append( NNb[i,2] ); col.append(i)
             data.append( -tx*np.exp(1j*qx*Lx) )
 
@@ -71,9 +67,7 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
 
 ############ Descritizing ky operators ##############
 
-"""
-descritizing k-y operator
-"""
+"""Descritized k-y operator"""
 def ky(coor, ax, ay, NN, NNb = None, qy = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
@@ -92,20 +86,18 @@ def ky(coor, ax, ay, NN, NNb = None, qy = 0):
             row.append( NN[i,3] ); col.append(i)
             data.append( ty )
 
-        if NNb is not None and NNb[i,1] != -1:
+        if NNb is not None and NNb[i, 1] != -1:
             row.append( NNb[i,1] ); col.append(i)
             data.append( -ty*np.exp(-1j*qy*Ly) )
 
-        if NNb is not None and NNb[i,3] != -1:
+        if NNb is not None and NNb[i, 3] != -1:
             row.append(NNb[i,3]); col.append(i)
             data.append( ty*np.exp(1j*qy*Ly) )
 
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
-"""
-descritizing k-y squared operator
-"""
+"""Descritized k-y squared operator"""
 def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
     row = []; col = []; data = []
     N = coor.shape[0]
@@ -136,18 +128,17 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
     ksq = sparse.csc_matrix((data, (row,col)), shape= (N,N), dtype = 'complex')
     return ksq
 
-##########################################################
+########################################################
 
-"""
-Delta particle hole coupling Matrix
-"""
+"""Delta Matrix: Particle hole coupling"""
 def Delta(
     coor, Wsc, Wj,
     delta = 0, phi = 0,
     Sx = 0, Sy = 0, cutx = 0, cuty = 0
     ):
     N = coor.shape[0]
-    row = []; col = []; data = []#; data10 = []
+    row = []; col = []; data = []
+    #data01 = []; data10 = []
 
     for i in range(N):
         y = coor[i, 1]
@@ -155,28 +146,42 @@ def Delta(
 
         if y <= Wsc:
             row.append(i); col.append(i)
-            #data10.append( -delta*np.exp(-1j*phi/2 ) )
-            data.append( delta*np.exp(-1j*phi/2 ) )
+            #data10.append(-delta*np.exp(-1j*phi/2))
+            #data01.append(delta*np.exp(-1j*phi/2))
+            data.append(delta*np.exp(-1j*phi/2) )
 
         if y > Wsc and y <= (Wsc+Wj):
             row.append(i); col.append(i)
             #data10.append(0)
+            #data01.append(0)
             data.append(0)
 
         if y > (Wsc+Wj):
             row.append(i); col.append(i)
-            #data10.append( -delta*np.exp( 1j*phi/2 ) )
+            #data10.append(-delta*np.exp(1j*phi/2))
+            #data01.append(delta*np.exp(1j*phi/2))
             data.append( delta*np.exp( 1j*phi/2 ) )
 
-    D = sparse.csc_matrix((data01, (row, col)), shape = (N,N), dtype = 'complex')
+    D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype = 'complex')
 
     delta = sparse.bmat([[None, D], [-D, None]], format='csc')
     return delta
 
+"""
+This is the Hamiltonian with Spin Orbit Coupling and nearest neighbor hopping and no Superconductivity.
+
+The parameter PERIODIC determines whether the function calls a construction of k-operators with or without
+boundary conditions in x and y directions.
+
+Basis: Two states per lattice site for spin up and down. Rows/Columns 1 ->
+N correspond to spin up, rows/columns n -> 2N correspond to spin down
+"""
+
 def H0(
     coor, ax, ay, NN, NNb = None,
     V=0, mu=0,
-    gammax=0, gammay=0, gammaz=0, alpha=0,
+    gammax=0, gammay=0, gammaz=0,
+    alpha=0,
     qx=0, qy=0,
     periodicX = False, periodicY = False
     ):  # Hamiltonian with SOC
@@ -184,8 +189,6 @@ def H0(
     N = coor.shape[0]
     I = sparse.identity(N)
 
-    """ Two conditionals to allow selective periodicity in x and y directions. If the periodic parameters are False in either direction, then we do not pass through NNb array for that direction's k operators, which has the consequence of the k operators not considering neighboring lattice sites. If you follow the path NNb takes when called by a Hamilonian this will be clear.
-    """
     if periodicX:
         k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
         k_x2 = kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
@@ -249,7 +252,7 @@ def EBDG(
     Energy, States = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
     return Energy
-    
+
 #Energy Eignencalues for SOC Hamiltonain, or H0
 def ESOC(
     coor, ax, ay, NN, NNb = None,
