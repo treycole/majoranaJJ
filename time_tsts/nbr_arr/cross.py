@@ -1,16 +1,18 @@
 import time
 
 import majoranaJJ.lattice.shapes as shp
-import majoranaJJ.etc.neighbors as nb2
+import majoranaJJ.junk.lattice.neighbors as nb2
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.plots as plot
 
 print("")
-R = 30
-r = 5
+x1 = 20
+x2 = 20
+y1 = 20
+y2 = 20
 
 #Making square lattice, nothing has changed with this method
-coor = shp.donut(R, r)
+coor = shp.cross(x1, x2, y1, y2)
 print("size: ", coor.shape[0])
 print("")
 
@@ -20,19 +22,20 @@ print("")
 start = time.time()
 NN_old = nb2.NN_Arr(coor)
 end = time.time()
-print("time for original method = ", end-start)
+print("time for original neighbor array = ", end-start)
 print(NN_old)
 
 idx = 0
 plot.neyb(idx, coor, NN = NN_old)
 print(" ")
 
+
 ###############################################################################
 
 start = time.time()
 NN_new = nb.NN_Arr(coor)
 end = time.time()
-print("time for new method = {} [s]".format(end-start))
+print("time for new implementation of neighbor array = {} [s]".format(end-start))
 print(NN_new)
 
 idx = 0

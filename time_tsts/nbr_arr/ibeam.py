@@ -1,18 +1,19 @@
 import time
+import matplotlib.pyplot as plt
 
 import majoranaJJ.lattice.shapes as shp
-import majoranaJJ.etc.neighbors as nb2
+import majoranaJJ.junk.lattice.neighbors as nb2
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.plots as plot
 
 print("")
-x1 = 20
-x2 = 20
-y1 = 20
-y2 = 20
+xbase = 40
+xcut = 5
+y1 = 10
+y2 = 10
 
 #Making square lattice, nothing has changed with this method
-coor = shp.cross(x1, x2, y1, y2)
+coor = shp.ibeam(xbase, xcut, y1, y2)
 print("size: ", coor.shape[0])
 print("")
 
@@ -41,6 +42,7 @@ print(NN_new)
 idx = 0
 plot.neyb(idx, coor, NN = NN_new)
 print(" ")
+
 
 ###############################################################################
 

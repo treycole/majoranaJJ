@@ -1,19 +1,14 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from numpy import linalg as LA
-import matplotlib.lines as mlines
-from scipy import interpolate
-
-import majoranas.modules.constants as const
-import majoranas.modules.lattice as lat
-import majoranas.modules.operators as op
+import majoranaJJ.etc.constants as const
+import majoranaJJ.lattice.shapes as shps
+import majoranaJJ.lattice.neighbors as nb
+import majoranaJJ.etc.plots as plots
 
 R = 25
 r = 10
 
-coor = lat.donut(R, r) #donut coordinate array
-NN = lat.NN_Arr(coor) #nearest neighbor array for donut
-NNk = lat.NN_Bound(NN, coor) #nerest neighbor boundary
+coor = shps.donut(R, r) #donut coordinate array
+NN = nb.NN_Arr(coor)
+NNk = nb.Bound_Arr(coor)
 
 idx = 1
 plots.lattice(idx, coor, NN = NN)

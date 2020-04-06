@@ -35,44 +35,48 @@ def NN_Arr(coor):
     return NN
 
 #Periodic Boundary conditions
+"""if statements:
+if the x-coordinate of the ith lattice site is the minimum value, it must be on the edge of the unit cell and therefore has a nearest neighbor in the neighboring unit cell.
+Ex: To find the lattice site that corresponds to the neighbor to the left in the neighboring unit cell, we know it will be at most the (i + xmax)th site. If we are given a perfect square, it is the (i+ xmax)th site. In the case of the donut, this is not the case, so we until we find the site that is at the same height as the ith site, and has an x-coordinate that is the maximum value. The other statements follow similar logic for other neighbors.
+"""
 def Bound_Arr(coor):
-    xmin = int(min(coor[:, 0])) #1
-    ymin = int(min(coor[:, 1])) #29
+    xmin = int(min(coor[:, 0]))
+    ymin = int(min(coor[:, 1]))
     xmax = int(max(coor[:, 0]))
     ymax = int(max(coor[:, 1]))
 
     N = coor.shape[0]
-    NNb = -1*ones((N,4), dtype = 'int') #stores the values of the coordinates of each periodic neighbor
+    NNb = -1*ones((N,4), dtype = 'int') #stores the values of the coordinates of each periodic neighbor, -1 means no neighbor
 
-    #if statements:
-    #if the x-coordinate of the ith lattice site is the minimum value, it must be on the edge of the unit cell and therefore has a nearest neighbor in the neighboring unit cell. To find the lattice site that corresponds to this neighbor, we know it will be at most the (i + xmax)th site, if we are given a perfect square. In the case of the donut, this is not the case, so we iterate backwards until we find the site that is at the same height as the ith site, and has an x-coordinate that is the maximum value. The other statements follow similar logic.
     for i in range(N):
-        if coor[i, 0] == xmin:
-            for j in range(xmax, 0, -1):
-                y = coor[i+j, 1]
-                x = coor[i+j, 0]
-                if y == coor[i,1] and x == xmax:
-                    NNb[i, 0] = i+j
+        x_index = coor[i, 0]
+        y_index = coor[i, 1]
+        if x_index == xmin:
+            for j in range(i, N):
+                y = coor[j, 1]
+                x = coor[j, 0]
+                if y == y_index and x == xmax:
+                    NNb[i, 0] = j
                     break
-        if coor[i, 1] == ymax:
-            for j in range(0, xmax+1):
+        if y_index == ymax:
+            for j in range(0, int(coor[i, 0]) + 1):
                 x = coor[j, 0]
                 y = coor[j, 1]
-                if x == coor[i,0] and y == ymin:
+                if x == x_index and y == ymin:
                     NNb[i, 1] = j
                     break
-        if coor[i, 0] == xmax:
-            for j in range(xmax+1, 0, -1):
-                x = coor[i-j, 0]
-                y = coor[i-j, 1]
-                if y == coor[i,1] and x == xmin:
-                    NNb[i, 2] = i-j
+        if x_index == xmax:
+            for j in range(i, -1, -1):
+                x = coor[j, 0]
+                y = coor[j, 1]
+                if y == y_index and x == xmin:
+                    NNb[i, 2] = j
                     break
-        if coor[i, 1] == ymin:
-            for j in range(xmax+1, 0, -1):
-                x = coor[N-j, 0]
-                y = coor[N-j, 1]
-                if x == coor[i,0] and y == ymax:
-                    NNb[i, 3] = N-j
+        if y_index == ymin:
+            for j in range(N-1, int(coor[i, 0]), -1):
+                x = coor[j, 0]
+                y = coor[j, 1]
+                if x == x_index and y == ymax:
+                    NNb[i, 3] = j
                     break
     return NNb

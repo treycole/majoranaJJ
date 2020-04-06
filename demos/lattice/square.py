@@ -1,7 +1,5 @@
-import matplotlib.pyplot as plt
-
 import majoranaJJ.etc.constants as const
-import majoranaJJ.lattice.shapes as shp
+import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.etc.plots as plots
 

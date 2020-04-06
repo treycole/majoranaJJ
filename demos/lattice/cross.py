@@ -1,21 +1,16 @@
-import numpy as np
-import matplotlib.pyplot as plt
-from numpy import linalg as LA
-import matplotlib.lines as mlines
-from scipy import interpolate
-
-import majoranas.modules.constants as const
-import majoranas.modules.lattice as lat
-import majoranas.modules.operators as op
+import majoranaJJ.etc.constants as const
+import majoranaJJ.lattice.shapes as shps
+import majoranaJJ.lattice.neighbors as nb
+import majoranaJJ.etc.plots as plots
 
 x1 = 10
 x2 = 10
 y1 = 10
 y2 = 10
 
-coor = lat.cross(x1, x2, y1, y2)
-NN = lat.NN_Arr(coor)
-NNk = lat.NN_Bound(NN, coor)
+coor = shps.cross(x1, x2, y1, y2)
+NN = nb.NN_Arr(coor)
+NNb = nb.Bound_Arr(coor)
 
 idx = 1
 plots.lattice(idx, coor, NN = NN)
