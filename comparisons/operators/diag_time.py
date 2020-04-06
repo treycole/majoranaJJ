@@ -1,15 +1,18 @@
 import time
-import majoranaJJ.operators.sparsOP as spop
+import numpy as np
+from numpy import linalg as LA
+import scipy.sparse.linalg as spLA
+
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.etc.plots as plots
 
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.sparse.linalg as spLA
+#Compared packages
+import majoranaJJ.operators.sparsOP as spop #sparse operators
+import majoranaJJ.operators.densOP as dpop #dense operators
 
-Nx = 100
-Ny = 105
+Nx = 50
+Ny = 100
 ax = 2
 ay = 2
 
@@ -17,27 +20,26 @@ coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
 NNb = nb.Bound_Arr(coor)
 
-Wsc = Ny #Width of Superconductor
-Wj = 0 #Width of Junction
-Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
-Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
+H_sparse = spop.H0(coor, ax, ay, NN)
+H_dense = dpop.H0(coor, ax, ay, NN)
 
-alpha = 0.0   #Spin-Orbit Coupling constant: [eV*A]
-gammaz = 0.0000001  #Zeeman field energy contribution: [T]
-delta = 0.01 #Superconducting Gap: [eV]
-V0 = 0.0 #Amplitude of potential : [eV]
-mu = 0 #Chemical Potential: [eV]
+start = time.time()
 
-H = spop.HBDG(coor, ax, ay, NN, Wsc, Wj, mu = mu, delta = delta, gammaz = gammaz, NNb = NNb)
-print("H shape: ", H.shape)
+eigs, vecs = LA.eigh(H_dense)
+
+end = time.time()
+t_dense = end-start
+print("DENSE time for diagonalization for Hamiltonian of size {} = ".format(H_dense.shape), t_dense, "[s]")
+
+print("----------")
+
+start = time.time()
 
 num = 20 # This is the number of eigenvalues and eigenvectors you want
 sigma = 0 # This is the eigenvalue we search around
 which = 'LM'
-
-start = time.time()
-
-eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
+spLA.eigsh(H_sparse, k = num, sigma = sigma, which = which)
 
 end = time.time()
-print("Time for diagonalization for Hamiltonian of size {} = ".format(H.shape), end-start, "[s]")
+t_sparse = end-start
+print("SPARSE time for diagonalization for Hamiltonian of size {} = ".format(H_sparse.shape), t_sparse, "[s]")

@@ -14,8 +14,8 @@ These neighbor arrays are implemented in such a way as to avoid double looping. 
 def NN_Arr(coor):
     N = coor.shape[0]
     NN = -1*ones((N,4), dtype = 'int')
-    xmax = max(coor[:,0])
-    ymax = max(coor[:,1])
+    xmax = max(coor[:, 0])
+    ymax = max(coor[:, 1])
     Lx = xmax + 1
     Ly = ymax + 1
 
