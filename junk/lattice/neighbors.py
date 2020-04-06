@@ -29,7 +29,7 @@ def NN_Arr(coor):
     return NN
 
 #Periodic Boundary conditions
-def NN_Bound(NN, coor):
+def Bound_Arr(NN, coor):
     xmin = min(coor[:, 0])
     ymin = min(coor[:, 1])
     xmax = max(coor[:, 0])
