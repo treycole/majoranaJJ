@@ -1,34 +1,29 @@
-import time
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.sparse.linalg as spLA
+
 import majoranaJJ.operators.sparsOP as spop
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.etc.plots as plots
 
-import numpy as np
-import matplotlib.pyplot as plt
-import scipy.sparse.linalg as spLA
-
-Nx = 12
-Ny = 12
-ax = 2
-ay = 2
+Nx = 30
+Ny = 30
+ax = 10 #[A]
+ay = 10 #[A]
 
 coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
 NNb = nb.Bound_Arr(coor)
+print("lattice size", coor.shape[0])
 
-Wsc = Ny #Width of Superconductor
-Wj = 0 #Width of Junction
-Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
-Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
-
-alpha = 0.0   #Spin-Orbit Coupling constant: [eV*A]
-gammaz = 0.0000001  #Zeeman field energy contribution: [T]
-delta = 0.01 #Superconducting Gap: [eV]
+alpha = 0   #Spin-Orbit Coupling constant: [eV*A]
+gammaz = 0  #Zeeman field energy contribution: [T]
+delta = 0 #Superconducting Gap: [eV]
 V0 = 0.0 #Amplitude of potential : [eV]
 mu = 0 #Chemical Potential: [eV]
 
-H = spop.HBDG(coor, ax, ay, NN, Wsc, Wj, mu = mu, delta = delta, gammaz = gammaz, NNb = NNb)
+H = spop.H_BDG(coor, ax, ay, NN, Wsc=Ny, Wj=0)
 print("H shape: ", H.shape)
 
 num = 20 # This is the number of eigenvalues and eigenvectors you want
