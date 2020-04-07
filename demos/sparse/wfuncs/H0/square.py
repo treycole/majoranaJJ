@@ -32,4 +32,4 @@ eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
 plots.state_cmap(coor, eigs, vecs, n = 0, title = 'SPARSE Free Particle Ground State')
 n = 4
-plots.state_cmap(coor, eigs, vecs, n = n, title = 'DENSE: State # {}'.format(n))
+plots.state_cmap(coor, eigs, vecs, n = n, title = 'SPARSE: State # {}'.format(n))
