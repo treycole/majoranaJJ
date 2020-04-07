@@ -7,8 +7,8 @@ import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.etc.plots as plots
 
-Nx = 50
-Ny = 50
+Nx = 150
+Ny = 150
 ax = 10 #[A]
 ay = 10 #[A]
 
@@ -30,4 +30,6 @@ sigma = 0 # This is the eigenvalue we search around
 which = 'LM'
 eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
-plots.state_cmap(coor, eigs, vecs, n = num-1,cmap='bone', title = 'SPARSE Free Particle Ground State')
+plots.state_cmap(coor, eigs, vecs, n = 0, title = 'SPARSE Free Particle Ground State')
+n = 4
+plots.state_cmap(coor, eigs, vecs, n = n, title = 'DENSE: State # {}'.format(n))

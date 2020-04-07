@@ -30,4 +30,6 @@ sigma = 0 # This is the eigenvalue we search around
 which = 'LM'
 eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
-plots.state_cmap(coor, eigs, vecs, n = num-1,cmap='pink', title = 'SPARSE Free Particle Ground State')
+plots.state_cmap(coor, eigs, vecs, n = 0, cmap = 'pink', title = 'SPARSE Free Particle Ground State')
+n = 4
+plots.state_cmap(coor, energy, states, n = n, title = 'DENSE: State # {}'.format(n))
