@@ -12,7 +12,11 @@ In the [operators folder](operators) there are two modules that use different me
 
 In the [demos folder](demos) tests for a variety of physical systems can be found, including the plots of their wavefunctions, band diagrams, and phase diagrams. These reveal the operation of the interconnected methods as well as give relevant physical results for the system we are studying. The demos are separated into sparse and dense folders, which tests whether sparse and dense matrix construction works equivalently. In the [lattice sub-folder](demos/lattice) there are tests to plot the lattice and show that the modules to find the index of neighboring lattice sites are working correctly. Here is an image demonstrating the probability density of the ground state projected on a square lattice. 
 
-![](https://github.com/tbcole/majoranaJJ/blob/master/demos/sparse/wfuncs/H0/sq_gs.png) 
+![](https://github.com/tbcole/majoranaJJ/blob/master/demos/sparse/wfuncs/H0/sq_gs.png)
+
+Also, here is an image demonstrating the probability density of the 4th excited state projected on a square lattice. 
+
+![](https://github.com/tbcole/majoranaJJ/blob/master/demos/sparse/wfuncs/H0/sq_s4.png)
 
 In the [comparisons folder](comparisons) contains tests to compare the time efficiency of new and old methods. Old methods are found in the [junk folder](junk).  
 
