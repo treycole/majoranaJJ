@@ -7,8 +7,8 @@ import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.etc.plots as plots
 
-Nx = 150
-Ny = 150
+Nx = 50
+Ny = 50
 ax = 10 #[A]
 ay = 10 #[A]
 
