@@ -241,13 +241,14 @@ def EBDG(
     coor, ax, ay, NN, Wsc, Wj, NNb = None,
     Sx = 0, Sy = 0, cutx = 0, cuty = 0,
     V = 0, mu = 0,
-    gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0, phi = 0,
+    gammax = 0, gammay = 0, gammaz = 0,
+    alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
     num = 5, sigma = 0, which = 'LM'
     ):
 
-    H = 1000*HBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, V = V, mu = mu, alpha = alpha, delta = delta, gammax = gammax, gammay = gammay, gammaz = gammaz, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+    H = 1000*HBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, V = V, mu = mu, alpha = alpha, delta = delta, phi = phi, gammax = gammax, gammay = gammay, gammaz = gammaz, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
 
     Energy, States = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
@@ -263,7 +264,7 @@ def ESOC(
     num = 5, sigma = 0, which = 'LM'
     ):
 
-    H = 1000*HBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, V = V, mu = mu, alpha = alpha, delta = delta, gammax = gammax, gammay = gammay, gammaz = gammaz, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+    H = 1000*HBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, V = V, mu = mu, alpha = alpha, gammax = gammax, gammay = gammay, gammaz = gammaz, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
 
     Energy, States = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 

@@ -16,8 +16,8 @@ coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_Arr(coor)
 NNb = nb.Bound_Arr(coor)
 
-Wsc = Ny - 5 #Superconducting region
-Wj = 5  #Junction region
+Wsc = Ny #Superconducting region
+Wj = 0  #Junction region
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
@@ -39,14 +39,14 @@ mu = 0.0 #Chemical Potential: [eV]
 
 eig_arr = np.zeros((steps, 2))
 for i in range(steps):
-    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, delta = delta, gammaz = 0, phi = phi[i], periodicX = 'yes', periodicY = 'yes', num = num)
+    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, delta = delta, phi = phi[i], periodicX = True, periodicY = False, num = num)
     energy = np.sort(energy)
     eig_arr[i, :] = energy[int(num/2)]
 
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
 bands = np.zeros((steps, 12))
 for i in range(steps):
-    Energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb=NNb, mu=mu, V=V0, alpha=alpha, delta=delta, phi = 0, qx=qx[i], qy=0, periodicX=True, periodicY=True, num=12)
+    Energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb=NNb, mu=mu, V=V0, alpha=alpha, delta=delta, phi = 0, qx=qx[i], qy=0, periodicX=True, periodicY=False, num=12)
 
     bands[i,:] = np.sort(Energy)
 

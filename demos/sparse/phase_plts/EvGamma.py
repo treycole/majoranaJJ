@@ -37,14 +37,14 @@ mu = 0.0 #Chemical Potential: [eV]
 
 eig_arr = np.zeros((steps, 2))
 for i in range(steps):
-    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, alpha = alpha, delta = delta, gammaz = gammaz[i], phi = 0, periodicX = 'yes', periodicY = 'yes', num = num)
+    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, alpha = alpha, delta = delta, gammaz = gammaz[i], phi = 0, periodicX = True, periodicY = False, num = num)
     energy = np.sort(energy)
     eig_arr[i, :] = energy[int(num/2)]
 
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
 bands = np.zeros((steps, 12))
 for i in range(steps):
-    Energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb=NNb, mu=mu, V=V0, alpha=alpha, delta=delta, gammaz=0, qx=qx[i], qy=0, periodicX=True, periodicY=True, num=12)
+    Energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb=NNb, mu=mu, V=V0, alpha=alpha, delta=delta, gammaz=0, qx=qx[i], qy=0, periodicX=True, periodicY=False, num=12)
 
     bands[i,:] = np.sort(Energy)
 
