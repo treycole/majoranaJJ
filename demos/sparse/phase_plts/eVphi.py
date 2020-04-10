@@ -39,7 +39,7 @@ mu = 0.0 #Chemical Potential: [eV]
 
 eig_arr = np.zeros((steps, 2))
 for i in range(steps):
-    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, delta = delta, phi = phi[i], periodicX = True, periodicY = False, num = num)
+    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, delta=delta, phi=phi[i], periodicX = True, periodicY = False, num = num)
     energy = np.sort(energy)
     eig_arr[i, :] = energy[int(num/2)]
 

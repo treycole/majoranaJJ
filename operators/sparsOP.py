@@ -199,7 +199,7 @@ def H0(
         k_x = kx2(coor, ax, ay, NN)
         k_x2 = kx2(coor, ax, ay, NN)
     if not periodicY:
-        k_y = ky(coor, ax, ay, NN,)
+        k_y = ky(coor, ax, ay, NN)
         k_y2 = ky2(coor, ax, ay, NN)
 
     H00 = (const.xi/2)*(k_x2 + k_y2) + V + gammaz*I - mu*I
