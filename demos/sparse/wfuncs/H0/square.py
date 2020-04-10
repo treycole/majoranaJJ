@@ -7,8 +7,8 @@ import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.etc.plots as plots
 
-Nx = 50
-Ny = 50
+Nx = 100
+Ny = 100
 ax = 10 #[A]
 ay = 10 #[A]
 
@@ -31,5 +31,5 @@ which = 'LM'
 eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
 plots.state_cmap(coor, eigs, vecs, n = 0, title = 'SPARSE Free Particle Ground State')
-n = 4
+n = 15
 plots.state_cmap(coor, eigs, vecs, n = n, title = 'SPARSE: State # {}'.format(n))

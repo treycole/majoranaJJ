@@ -7,8 +7,8 @@ import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
 import majoranaJJ.etc.plots as plots
 
-R = 25
-r = 10
+R = 50
+r = 15
 ax = 10 #[A]
 ay = 10 #[A]
 
@@ -25,11 +25,11 @@ mu = 0 #Chemical Potential: [eV]
 H = spop.H0(coor, ax, ay, NN)
 print("H shape: ", H.shape)
 
-num = 12 # This is the number of eigenvalues and eigenvectors you want
+num = 75 # This is the number of eigenvalues and eigenvectors you want
 sigma = 0 # This is the eigenvalue we search around
 which = 'LM'
 eigs, vecs = spLA.eigsh(H, k = num, sigma = sigma, which = which)
 
 plots.state_cmap(coor, eigs, vecs, n = 0, title = 'SPARSE Free Particle Ground State')
-n = 4
-plots.state_cmap(coor, eigs, vecs, n = n, title = 'DENSE: State # {}'.format(n))
+n = 39
+plots.state_cmap(coor, eigs, vecs, n = n, title = 'SPARSE: Excited State # {}'.format(n))

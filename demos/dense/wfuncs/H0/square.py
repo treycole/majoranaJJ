@@ -29,4 +29,5 @@ print("H shape: ", H_dense.shape)
 
 energy_dense, states_dense = LA.eigh(H_dense)
 n = 0
-plot.state_cmap(coor, energy_dense, states_dense, n = n, title = 'DENSE Free Particle Ground State')
+plot.state_cmap(coor, energy_dense, states_dense, n = 0, title = 'DENSE Free Particle Ground State')
+plot.state_cmap(coor, energy_dense, states_dense, n = n, title = 'DENSE: State # {}'.format(n))
