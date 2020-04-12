@@ -35,15 +35,14 @@ def lattice(idx, coor, NN = None, NNb = None):
 """
 Plots band diagrams
 """
-def bands(eigarr, q, Lx, Ly, direction = 'x', title = 'Band Structure'):
+def bands(eigarr, q, direction = 'x', units = '[eV]', title = 'Band Structure'):
     for i in range(eigarr.shape[1]):
-        plt.plot(q, eigarr[:, i], c ='b')
+        plt.plot(q, eigarr[:, i], c ='b', linestyle = 'solid')
         #plt.scatter(q, eigarr[:, i], c ='b')
-    x = np.linspace( -np.pi/Lx, np.pi/Lx + 0.1*(np.pi/Lx) )
-    plt.plot(x, 0*x, c = 'k', linestyle='solid', lw=1)
-    plt.xticks(np.arange(-np.pi/Lx, np.pi/Lx + 0.1*(np.pi/Lx), (np.pi/Lx)), ('-π/Lx', '0', 'π/Lx'))
+    plt.plot(q, 0*q, c = 'k', linestyle='solid', lw=1)
+    plt.xticks(np.linspace(min(q), max(q), 3), ('-π/Lx', '0', 'π/Lx'))
     plt.xlabel('k{} [1/A]'.format(direction))
-    plt.ylabel('Energy [meV]')
+    plt.ylabel('Energy {}'.format(units))
     plt.title(title)
     plt.show()
 
@@ -51,7 +50,8 @@ def bands(eigarr, q, Lx, Ly, direction = 'x', title = 'Band Structure'):
 Plots a phase diagram of y vs x
 """
 def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
-    plt.plot(x, y, c = 'b')
+    for i in range(y.shape[1]):
+        plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
     zeroLine = np.linspace(0, max(x))
     plt.plot(zeroLine , 0*zeroLine, color = 'k', linestyle = 'solid', lw = 1)
     plt.xlabel(xlabel)

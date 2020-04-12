@@ -1,6 +1,5 @@
 from numpy import linalg as LA
 
-import majoranaJJ.operators.sparsOP as spop
 import majoranaJJ.operators.densOP as dop
 import majoranaJJ.lattice.neighbors as nb
 import majoranaJJ.lattice.shapes as shps
