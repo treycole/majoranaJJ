@@ -267,7 +267,7 @@ def EBDG(
     delta = 0, phi = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
-    neigs = 8, sigma = 0, which = 'LM', tol = 1e-5, maxiter = 1000
+    neigs = 8, sigma = 0, which = 'LM', tol = 0, maxiter = None
     ):
 
     H = HBDG(coor, ax, ay, NN, Wj = Wj, NNb = NNb, Sx = Sx, cutx = cutx, cuty = cuty, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, delta = delta, phi = phi, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)

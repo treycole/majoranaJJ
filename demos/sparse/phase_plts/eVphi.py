@@ -35,7 +35,7 @@ neigs = 2 # This is the number of eigenvalues and eigenvectors you want
 eig_arr = np.zeros((steps, neigs))
 for i in range(steps):
     print(steps - i)
-    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, gammaz=gammaz, delta=delta, phi=phi[i], periodicX=True, periodicY=True, neigs=neigs, which = 'LM', tol=1e-3, maxiter = 800)
+    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, gammaz=gammaz, delta=delta, phi=phi[i], periodicX=True, periodicY=True, neigs=neigs, tol=1e-3, maxiter = 800)
 
     eig_arr[i, :] = 1000*energy
 
