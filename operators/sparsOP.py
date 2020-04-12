@@ -267,13 +267,16 @@ def EBDG(
     delta = 0, phi = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
-    neigs = 8, sigma = 0, which = 'LM'
+    neigs = 8, sigma = 0, which = 'LM', tol = 1e-5, maxiter = 1000
     ):
 
-    H = 1000*HBDG(coor, ax, ay, NN, Wj = Wj, NNb = NNb, Sx = Sx, cutx = cutx, cuty = cuty, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, delta = delta, phi = phi, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+    H = HBDG(coor, ax, ay, NN, Wj = Wj, NNb = NNb, Sx = Sx, cutx = cutx, cuty = cuty, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, delta = delta, phi = phi, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
 
-    Energy, States = spLA.eigsh(H, k = neigs, sigma = sigma, which = which)
-    return np.sort(Energy)
+    eigs, vecs = spLA.eigsh(H, k = neigs, sigma = sigma, which = which, tol=tol, maxiter = maxiter)
+    idx_sort = np.argsort(eigs)
+    eigs = eigs[idx_sort]
+
+    return np.sort(eigs)
 
 #Energy Eignencalues for SOC Hamiltonain, or H0
 def ESOC(
@@ -282,10 +285,11 @@ def ESOC(
     gammax = 0, gammay = 0, gammaz = 0, alpha = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
-    neigs = 4, sigma = 0, which = 'LM'
+    neigs = 4, sigma = 0, which = 'LM', tol = 1e-5, maxiter = 1000
     ):
 
-    H = 1000*H0(coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+    eigs, vecs = spLA.eigsh(H, k = neigs, sigma = sigma, which = which, tol=tol, maxiter = maxiter)
+    idx_sort = np.argsort(eigs)
+    eigs = eigs[idx_sort]
 
-    Energy, States = spLA.eigsh(H, k = neigs, sigma = sigma, which = which)
-    return np.sort(Energy)
+    return np.sort(eigs)

@@ -49,6 +49,17 @@ def bands(eigarr, q, direction = 'x', units = '[eV]', title = 'Band Structure'):
 """
 Plots a phase diagram of y vs x
 """
+def phi_phase(x, y, xlabel = 'Phi (SC Phase Difference)', ylabel = ' ', title = 'Phase Diagram'):
+    for i in range(y.shape[1]):
+        plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
+    zeroLine = np.linspace(0, max(x))
+    plt.plot(zeroLine , 0*zeroLine, color = 'k', linestyle = 'solid', lw = 1)
+    plt.xticks(np.arange(0, 2*np.pi+1, np.pi/2), ('0', 'π/2', 'π', '3π/2', '2π'))
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.show()
+
 def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
     for i in range(y.shape[1]):
         plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
