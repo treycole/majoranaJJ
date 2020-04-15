@@ -23,7 +23,7 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
 steps = 50 #Number of phi values that are evaluated
 
-Wj = 5  #Junction region
+Wj = 0  #Junction region
 alpha = 0*3e-4   #Spin-Orbit Coupling constant: [eV*A]
 gammaz = 0   #Zeeman field energy contribution: [T]
 phi = np.linspace(0, 2*np.pi, steps)
@@ -35,7 +35,7 @@ neigs = 2 # This is the number of eigenvalues and eigenvectors you want
 eig_arr = np.zeros((steps, neigs))
 for i in range(steps):
     print(steps - i)
-    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, gammaz=gammaz, delta=delta, phi=phi[i], periodicX=True, periodicY=True, neigs=neigs, tol=1e-3, maxiter = 800)
+    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, gammaz=gammaz, delta=delta, phi=phi[i], periodicX=True, periodicY=False, neigs=neigs, tol=1e-3, maxiter=800)
 
     eig_arr[i, :] = 1000*energy
 

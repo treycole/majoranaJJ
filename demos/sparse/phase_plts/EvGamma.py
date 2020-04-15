@@ -5,48 +5,52 @@ import majoranaJJ.operators.sparsOP as spop #sparse operators
 import majoranaJJ.lattice.neighbors as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.etc.plots as plots #plotting functions
-from majoranaJJ.etc.mu_finder import mu_finder as mufinder
+from majoranaJJ.etc.mufinder import mufinder
 
-Nx = 15 #Number of lattice sites allong x-direction
-Ny = 15 #Number of lattice sites along y-direction
-ax = 2 #lattice spacing in x-direction: [A]
-ay = 2 #lattice spacing in y-direction: [A]
+Nx = 3 #Number of lattice sites allong x-direction
+Ny = 5 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
 
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_Arr(coor)
 NNb = nb.Bound_Arr(coor)
 
-Wsc = Ny - 5 #Superconducting region
-Wj = 5  #Junction region
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
 #Hamiltonian for size test
-H = spop.HBDG(coor, ax, ay, NN, Wsc, Wj)
+H = spop.HBDG(coor, ax, ay, NN)
 print("H shape: ", H.shape)
 
-num = 2 # This is the number of eigenvalues and eigenvectors you want
-steps = 30 #Number of kx and ky values that are evaluated
+steps = 100 #Number of gammaZ values that are evaluated
 
-alpha = 0.0   #Spin-Orbit Coupling constant: [eV*A]
-gammaz = np.linspace(0, 30e-2, steps)   #Zeeman field energy contribution: [T]
+Wj = 0  #Junction region
+alpha = 3e-4 #Spin-Orbit Coupling constant: [eV*A]
+gammaz = np.linspace(0, 1e-3, steps)  #Zeeman field energy contribution: [eV T]
 phi = 0
-delta = 3e-2 #Superconducting Gap: [eV]
+delta = 3e-4 #Superconducting Gap: [eV]
 V0 = 0.0 #Amplitude of potential : [eV]
-mu = 0.0 #Chemical Potential: [eV]
+mu  = 40.2e-3 #Chemical Potential: [eV]
 
+neigs = 2 # This is the number of eigenvalues and eigenvectors you want
 eig_arr = np.zeros((steps, 2))
 for i in range(steps):
-    energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb = NNb, mu = mu, alpha = alpha, delta = delta, gammaz = gammaz[i], phi = 0, periodicX = True, periodicY = False, num = num)
-    energy = np.sort(energy)
-    eig_arr[i, :] = energy[int(num/2)]
+    print(steps - i)
+    energy = spop.EBDG(coor, ax, ay, NN, Wj=Wj, NNb = NNb, mu = mu, alpha=alpha, delta=delta, gammaz = gammaz[i], qx = (1/50)*(np.pi/Lx), periodicX = True, periodicY = False, neigs=neigs, tol=1e-5, maxiter=1000, which = 'LM')
 
+    eig_arr[i, :] = 1000*energy
+
+steps = 501
+neigs = 24
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
-bands = np.zeros((steps, 12))
+qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
+bands = np.zeros((steps, neigs))
 for i in range(steps):
-    Energy = spop.EBDG(coor, ax, ay, NN, Wsc, Wj, NNb=NNb, mu=mu, V=V0, alpha=alpha, delta=delta, gammaz=0, qx=qx[i], qy=0, periodicX=True, periodicY=False, num=12)
+    print(steps - i)
+    energy = spop.EBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, alpha=alpha, delta=delta, mu=mu, qx=qx[i], gammaz = 8e-4, periodicX=True, periodicY=False, neigs=neigs)
 
-    bands[i,:] = np.sort(Energy)
+    bands[i, :] = 1000*energy
 
-plots.bands(bands, qx, Lx, Ly, title="Band structure of system with GammaZ = 0")
-plots.phase(gammaz, eig_arr, xlabel = 'GammaZ', ylabel = 'Energy', title = "Energy vs GammaZ at kx = 0")
+plots.bands(bands, qx, units = "[meV]")
+plots.phase(1000*gammaz, eig_arr, xlabel = 'GammaZ [meV]', ylabel = 'Energy [meV]', title = "Energy vs GammaZ at phi = 0")

@@ -5,7 +5,7 @@ import majoranaJJ.lattice.neighbors as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.etc.plots as plots #plotting functions
 
-Nx = 1 #Number of lattice sites allong x-direction
+Nx = 20 #Number of lattice sites allong x-direction
 Ny = 20 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
