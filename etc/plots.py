@@ -4,7 +4,10 @@ import matplotlib.pyplot as plt
 """
 Plotting the lattice neighbors and boundary neighbors
 """
-def lattice(idx, coor, NN = None, NNb = None):
+def lattice(
+    idx, coor, NN = None, NNb = None
+    ):
+
     plt.scatter(coor[:, 0], coor[:, 1] , c = 'b')
     plt.scatter(coor[idx, 0], coor[idx, 1], c = 'r')
 
@@ -33,47 +36,14 @@ def lattice(idx, coor, NN = None, NNb = None):
     return
 
 """
-Plots band diagrams
-"""
-def bands(eigarr, q, direction = 'x', units = '[eV]', title = 'Band Structure'):
-    for i in range(eigarr.shape[1]):
-        plt.plot(q, eigarr[:, i], c ='b', linestyle = 'solid')
-        #plt.scatter(q, eigarr[:, i], c ='b')
-    plt.plot(q, 0*q, c = 'k', linestyle='solid', lw=1)
-    plt.xticks(np.linspace(min(q), max(q), 3), ('-π/Lx', '0', 'π/Lx'))
-    plt.xlabel('k{} [1/A]'.format(direction))
-    plt.ylabel('Energy {}'.format(units))
-    plt.title(title)
-    plt.show()
-
-"""
-Plots a phase diagram of y vs x
-"""
-def phi_phase(x, y, xlabel = 'Phi (SC Phase Difference)', ylabel = ' ', title = 'Phase Diagram'):
-    for i in range(y.shape[1]):
-        plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
-    zeroLine = np.linspace(0, max(x))
-    plt.plot(zeroLine , 0*zeroLine, color = 'k', linestyle = 'solid', lw = 1)
-    plt.xticks(np.arange(0, 2*np.pi+1, np.pi/2), ('0', 'π/2', 'π', '3π/2', '2π'))
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
-    plt.show()
-
-def phase(x, y, xlabel = ' ', ylabel = ' ', title = 'Phase Diagram'):
-    for i in range(y.shape[1]):
-        plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
-    zeroLine = np.linspace(0, max(x))
-    plt.plot(zeroLine , 0*zeroLine, color = 'k', linestyle = 'solid', lw = 1)
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-    plt.title(title)
-    plt.show()
-
-"""
 Plotting the probability density
 """
-def state_cmap(coor, eigs, states, n = 1,  cmap = 'hot', title = 'Probability Density Map'):
+def state_cmap(
+    coor, eigs, states,
+    n = 1, cmap = 'hot',
+    title = r'$|\psi|^2$'
+    ):
+
     N = coor.shape[0]
     num_div = int(states.shape[0]/N)
     idx_sort = np.argsort(eigs)
@@ -91,4 +61,75 @@ def state_cmap(coor, eigs, states, n = 1,  cmap = 'hot', title = 'Probability De
     plt.xlim(0, max(coor[:, 0]))
     plt.ylim(0, max(coor[:, 1]))
     plt.colorbar()
+    plt.show()
+
+"""
+Plots band diagrams
+"""
+def bands(
+    eigarr, k,
+    direction = 'x', units = 'meV',
+    title = 'Bands',
+    xlim = None, ylim = None
+    ):
+
+    for i in range(eigarr.shape[1]):
+        plt.plot(k, eigarr[:, i], c ='b', linestyle = 'solid')
+        #plt.scatter(q, eigarr[:, i], c ='b')
+    plt.plot(k, 0*k, c = 'k', linestyle='solid', lw=1)
+    plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
+    plt.xlabel('k{} (1/A)'.format(direction))
+    plt.ylabel('Energy ({})'.format(units))
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.title(title)
+    plt.show()
+
+"""
+Plots a phase diagram of y vs x
+"""
+def phase(
+    x, y,
+    xlabel = ' ', ylabel = ' ',
+    title = 'Phase Diagram',
+    xlabels = None, xticks = None,
+    xlim = None, ylim = None
+    ):
+
+    for i in range(y.shape[1]):
+        plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
+    #zeroLine = np.linspace(0, max(x))
+    plt.xticks(xticks, xlabels)
+    plt.plot(x , 0*x, color = 'grey', linestyle = 'solid', lw = 1)
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.title(title)
+    plt.show()
+
+def phi_phase(
+    phi, energy,
+    Ez = 0,
+    xlim = None, ylim = None
+    ):
+
+    N = energy.shape[1]
+    red_band = energy[:, int(N/2)-1: int(N/2)+1]
+    blue_band = np.array(energy)
+    blue_band[:, int(N/2)-1: int(N/2)+1] = None
+
+    for i in range(red_band.shape[1]):
+        plt.plot(phi, red_band[:,i], c = 'red', ls = 'solid')
+    for i in range(blue_band.shape[1]):
+        plt.plot(phi, blue_band[:, i], c = 'blue', ls = 'solid')
+
+    plt.plot(phi, 0*phi, color = 'grey', ls = 'solid', lw = 1)
+
+    plt.xticks(np.arange(0, 2*np.pi+1e-10, np.pi/2), ('0', r'$\pi/2$', r'$\pi$', r'$3\pi/2$', r'$2\pi$'))
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.xlabel(r'$\phi$')
+    plt.ylabel('Energy (meV)')
+    plt.title(r'$E_z$ = {} (meV)'.format(Ez))
     plt.show()

@@ -13,7 +13,7 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
     Lx = (xmax - xmin + 1)*ax
-    tx = 1j/2*ax
+    tx = 1j/(2*ax)
 
     for i in range(N):
         if NN[i,0] != -1:
@@ -43,7 +43,7 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = 0):
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
     Lx = (xmax - xmin + 1)*ax
-    tx = 1/ax**2
+    tx = 1/(ax**2)
 
     for i in range(N):
         row.append(i); col.append(i); data.append(2*tx)
@@ -76,24 +76,24 @@ def ky(coor, ax, ay, NN, NNb = None, qy = 0):
     ymax = max(coor[:, 1])
     ymin = min(coor[:, 1])
     Ly = (ymax - ymin + 1)*ay
-    ty = 1j/2*ay
+    ty = 1j/(2*ay)
 
     for i in range(N):
         if NN[i,1] != -1:
             row.append( NN[i,1] ); col.append(i)
-            data.append( -ty )
+            data.append( ty )
 
         if NN[i,3] != -1:
             row.append( NN[i,3] ); col.append(i)
-            data.append( ty )
+            data.append( -ty )
 
         if NNb is not None and NNb[i, 1] != -1:
             row.append( NNb[i,1] ); col.append(i)
-            data.append( -ty*np.exp(-1j*qy*Ly) )
+            data.append( ty*np.exp(1j*qy*Ly) )
 
         if NNb is not None and NNb[i, 3] != -1:
             row.append(NNb[i,3]); col.append(i)
-            data.append( ty*np.exp(1j*qy*Ly) )
+            data.append( -ty*np.exp(-1j*qy*Ly) )
 
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
@@ -120,11 +120,11 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
 
         if NNb is not None and NNb[i,1] != -1:
             row.append( NNb[i,1] ); col.append(i)
-            data.append( -ty*np.exp(-1j*qy*Ly) )
+            data.append( -ty*np.exp(1j*qy*Ly) )
 
         if NNb is not None and NNb[i,3] != -1:
             row.append( NNb[i,3] ); col.append(i)
-            data.append( -ty*np.exp(1j*qy*Ly) )
+            data.append( -ty*np.exp(-1j*qy*Ly) )
 
     ksq = sparse.csc_matrix((data, (row,col)), shape= (N,N), dtype = 'complex')
     return ksq
@@ -209,7 +209,6 @@ def H0(
     ):  # Hamiltonian with SOC
 
     N = coor.shape[0]
-    I = sparse.identity(N)
 
     if periodicX:
         k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
@@ -224,6 +223,8 @@ def H0(
         k_y = ky(coor, ax, ay, NN)
         k_y2 = ky2(coor, ax, ay, NN)
 
+    I = sparse.identity(N)
+
     H00 = (const.xi/2)*(k_x2 + k_y2) + V + gammaz*I - mu*I
     H11 = (const.xi/2)*(k_x2 + k_y2) + V - gammaz*I - mu*I
     H10 = alpha*(1j*k_x - k_y) + gammax*I + 1j*gammay*I
@@ -236,7 +237,8 @@ def HBDG(
     coor, ax, ay, NN, NNb = None, Wj = 0,
     Sx = None, cutx = None, cuty = None,
     V = 0, mu = 0,
-    gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0, phi = 0,
+    gammax = 0, gammay = 0, gammaz = 0,
+    alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False
     ): #BDG Hamiltonian for superconductivity and SOC
@@ -263,16 +265,16 @@ def EBDG(
     coor, ax, ay, NN, NNb = None, Wj = 0,
     Sx = None, cutx = None, cuty = None,
     V = 0, mu = 0,
-    gammax = 0, gammay = 0, gammaz = 0, alpha = 0,
-    delta = 0, phi = 0,
+    gammax = 0, gammay = 0, gammaz = 0,
+    alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
-    neigs = 8, sigma = 0, which = 'LM', tol = 0, maxiter = None
+    k = 8, sigma = 0, which = 'LM', tol = 0, maxiter = None
     ):
 
-    H = HBDG(coor, ax, ay, NN, Wj = Wj, NNb = NNb, Sx = Sx, cutx = cutx, cuty = cuty, V = V, mu = mu, gammax = gammax, gammay = gammay, gammaz = gammaz, alpha = alpha, delta = delta, phi = phi, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+    H = HBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, Sx=Sx, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
 
-    eigs, vecs = spLA.eigsh(H, k = neigs, sigma = sigma, which = which, tol=tol, maxiter = maxiter)
+    eigs, vecs = spLA.eigsh(H, k=k, sigma=sigma, which=which, tol=tol, maxiter=maxiter)
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
 
@@ -285,10 +287,12 @@ def ESOC(
     gammax = 0, gammay = 0, gammaz = 0, alpha = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
-    neigs = 4, sigma = 0, which = 'LM', tol = 1e-5, maxiter = 1000
+    k = 4, sigma = 0, which = 'LM', tol = 0, maxiter = None
     ):
 
-    eigs, vecs = spLA.eigsh(H, k = neigs, sigma = sigma, which = which, tol=tol, maxiter = maxiter)
+    H = H0(coor, ax, ay, NN, NNb=NNb,V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz,alpha=alpha,qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
+
+    eigs, vecs = spLA.eigsh(H, k=k, sigma=sigma, which=which, tol=tol, maxiter=maxiter)
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
 

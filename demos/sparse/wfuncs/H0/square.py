@@ -16,8 +16,8 @@ coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
 print("lattice size", coor.shape[0])
 
-alpha = 0   #Spin-Orbit Coupling constant: [eV*A]
-gammaz = 0  #Zeeman field energy contribution: [T]
+alpha = 0 #Spin-Orbit Coupling constant: [eV*A]
+gammaz = 0 #Zeeman field energy contribution: [T]
 delta = 0 #Superconducting Gap: [eV]
 V0 = 0.0 #Amplitude of potential : [eV]
 mu = 0 #Chemical Potential: [eV]
