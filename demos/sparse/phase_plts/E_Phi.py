@@ -7,7 +7,7 @@ import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.etc.plots as plots #plotting functions
 from majoranaJJ.etc.mufinder import mufinder
 
-Nx = 160 #Number of lattice sites allong x-direction
+Nx = 160 #Number of lattice sites along x-direction
 Ny = 40 #Number of lattice sites along y-direction
 ax = 100 #lattice spacing in x-direction: [A]
 ay = 100 #lattice spacing in y-direction: [A]
@@ -33,9 +33,9 @@ alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gammaz = 0 #Zeeman field energy contribution: [meV]
 gammax = 0
 phi = np.linspace(0, 2*np.pi, phi_steps) #SC phase difference
-delta = 0.3 #Superconducting Gap: [meV]
+delta = 0.15 #Superconducting Gap: [meV]
 V0 = 0.0 #Amplitude of potential : [meV]
-mu = 79.1#0.0689 #Chemical Potential: [meV]
+mu = 79.1 #Chemical Potential: [meV]
 
 #neigs = 24
 #bands = np.zeros((k_steps, neigs))
@@ -45,7 +45,7 @@ mu = 79.1#0.0689 #Chemical Potential: [meV]
 
 #    bands[i, :] = energy
 
-neigs = 4
+neigs = 12
 eig_arr = np.zeros((phi_steps, neigs))
 for i in range(phi_steps):
     print(phi_steps - i)

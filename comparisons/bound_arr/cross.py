@@ -30,6 +30,8 @@ plot.lattice(idx, coor, NNb = NNb2)
 print(" ")
 
 ###################################
+
+#Using new method, only one loop
 start = time.time()
 NNb = nb.Bound_Arr(coor)
 end = time.time()

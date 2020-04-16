@@ -106,7 +106,7 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = 0):
     ymax = max(coor[:, 1])
     ymin = min(coor[:, 1])
     Ly = (ymax - ymin + 1)*ay
-    ty = 1/ay**2
+    ty = 1/(ay**2)
 
     for i in range(N):
         row.append(i); col.append(i); data.append(2*ty)

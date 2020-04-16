@@ -31,6 +31,7 @@ print(" ")
 
 ###########################################
 
+#Using new method, only one loop
 start = time.time()
 NN_new = nb.NN_Arr(coor)
 end = time.time()

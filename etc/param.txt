@@ -1,0 +1,33 @@
+Title: Evidence of topological superconductivity in planar Josephson junctions
+Author: Fornieri et.al
+Date: 9 Sep 2018
+
+Topological Phase Diagrams ():
+Wj = 80 (nm)
+Wsc = 160 (nm)
+Lx = infinite (periodic)
+Delta = .150 (meV)
+alpha = 100 (meV A)
+
+E vs phi Diagram:
+Wj = same
+Wsc = same
+Lx =  1.6 (micro m) = 1600 (nm)
+Delta = same
+alpha = same
+mu = 79.1 (meV)
+gammax = [0, 0.18, 0.2, 0.26, 0.28] (meV)
+
+Corresponding Parameters in Our Code:
+Nx = 160 #Number of lattice sites along x-direction
+Ny = 40 #Number of lattice sites along y-direction
+ax = 100 #lattice spacing in x-direction: [A]
+ay = 100 #lattice spacing in y-direction: [A]
+Wj = 8  #Junction region
+alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
+gammaz = 0 #Zeeman field energy contribution: [meV]
+gammax = 0
+phi = np.linspace(0, 2*np.pi, phi_steps) #SC phase difference
+delta = 0.15 #Superconducting Gap: [meV]
+V0 = 0.0 #Amplitude of potential : [meV]
+mu = 79.1#0.0689 #Chemical Potential: [meV]
