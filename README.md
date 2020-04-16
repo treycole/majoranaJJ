@@ -14,9 +14,9 @@ In the [demos folder](demos) tests for a variety of physical systems can be foun
 
 ![](https://github.com/tbcole/majoranaJJ/blob/master/demos/images/sparse/wfs/sq_gs.png)
 
-Here is an image demonstrating the probability density of the 4th excited state projected on a square lattice. 
+Here is an image demonstrating the probability density of the 39th excited state projected on a donut shaped lattice. 
 
-![](https://github.com/tbcole/majoranaJJ/blob/master/demos/images/sparse/wfs/sq_s4.png)
+![](https://github.com/tbcole/majoranaJJ/blob/master/demos/images/sparse/wfs/donut_fp39.png)
 
 In the [comparisons folder](comparisons) contains tests to compare the time efficiency of new and old methods. Old methods are found in the [junk folder](junk).  
 
