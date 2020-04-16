@@ -48,7 +48,7 @@ qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
 bands = np.zeros((steps, neigs))
 for i in range(steps):
     print(steps - i)
-    energy = spop.EBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, alpha=alpha, delta=delta, mu=mu, qx=qx[i], gammaz = 8e-4, periodicX=True, periodicY=False, neigs=neigs)
+    energy = spop.EBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, alpha=alpha, delta=delta, mu=mu, qx=qx[i], gammaz = 0, periodicX=True, periodicY=False, neigs=neigs)
 
     bands[i, :] = 1000*energy
 
