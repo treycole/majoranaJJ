@@ -2,21 +2,21 @@ Title: Evidence of topological superconductivity in planar Josephson junctions
 Author: Fornieri et.al
 Date: 9 Sep 2018
 
-Topological Phase Diagrams ():
-Wj = 80 (nm)
-Wsc = 160 (nm)
+Topological Phase Diagrams:
+Wj = 80 [nm]
+Wsc = 160 [nm]
 Lx = infinite (periodic)
-Delta = .150 (meV)
-alpha = 100 (meV A)
+Delta = .150 [meV]
+alpha = 100 [meV A]
 
 E vs phi Diagram:
 Wj = same
 Wsc = same
-Lx =  1.6 (micro m) = 1600 (nm)
+Lx =  1.6 (micro m) = 1600 [nm]
 Delta = same
 alpha = same
-mu = 79.1 (meV)
-gammax = [0, 0.18, 0.2, 0.26, 0.28] (meV)
+mu = 79.1 [meV]
+gammax = [0, 0.18, 0.2, 0.26, 0.28] [meV]
 
 Corresponding Parameters in Our Code:
 Nx = 160 #Number of lattice sites along x-direction
@@ -31,3 +31,10 @@ phi = np.linspace(0, 2*np.pi, phi_steps) #SC phase difference
 delta = 0.15 #Superconducting Gap: [meV]
 V0 = 0.0 #Amplitude of potential : [meV]
 mu = 79.1#0.0689 #Chemical Potential: [meV]
+
+
+###############################################################################
+Indium Arsenide:
+lattice structure = Zinc Blende
+lattice constant (a) = 6.0583 [A]
+interatomic distance = (a*(3)**(1/2))/4
