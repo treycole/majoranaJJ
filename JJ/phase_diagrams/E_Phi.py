@@ -7,13 +7,14 @@ import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.etc.plots as plots #plotting functions
 from majoranaJJ.etc.mufinder import mufinder
 
-Nx = 160 #Number of lattice sites along x-direction
-Ny = 40 #Number of lattice sites along y-direction
-ax = 100 #lattice spacing in x-direction: [A]
-ay = 100 #lattice spacing in y-direction: [A]
-Wj = 8  #Junction region
+Nx = 320 #Number of lattice sites allong x-direction
+Ny = 80 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
+Wj = 16  #Junction region
 print("Junction Width = ", Wj*ay*.10, "(nm)")
 print("Supercondicting Lead Width = ", ((Ny - Wj)*ay*.10)/2, "(nm)")
+print("L1 parallel to Junction Length = " (Nx*ax)*.1, "(nm)")
 
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_Arr(coor)
@@ -24,7 +25,7 @@ print("Lattice Size: ", lat_size)
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
-phi_steps = 101 #Number of phi values that are evaluated
+phi_steps = 41 #Number of phi values that are evaluated
 k_steps = 201
 
 kx = np.linspace(-np.pi/Lx, np.pi/Lx, k_steps) #kx in the first Brillouin zone
@@ -49,7 +50,7 @@ neigs = 12
 eig_arr = np.zeros((phi_steps, neigs))
 for i in range(phi_steps):
     print(phi_steps - i)
-    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, gammaz=gammaz, alpha=alpha, delta=delta, phi=phi[i], periodicX=False, k=neigs)
+    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, delta=delta, phi=phi[i], periodicX=False, k=neigs)
 
     eig_arr[i, :] = energy
 

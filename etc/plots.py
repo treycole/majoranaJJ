@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 Plotting the lattice neighbors and boundary neighbors
 """
 def lattice(
-    idx, coor, NN = None, NNb = None
+    idx, coor, NN = None, NNb = None,
+    savenm = None
     ):
 
     plt.scatter(coor[:, 0], coor[:, 1] , c = 'b')
@@ -32,8 +33,9 @@ def lattice(
             plt.scatter(coor[NNb[idx,3], 0], coor[NNb[idx, 3], 1], c = 'cyan')
 
     plt.xlim(-1, max(coor[:,0])+1)
+    if savenm is not None:
+        plt.savefig(savenm)
     plt.show()
-    return
 
 """
 Plotting the probability density
@@ -41,7 +43,8 @@ Plotting the probability density
 def state_cmap(
     coor, eigs, states,
     n = 1, cmap = 'hot',
-    title = r'$|\psi|^2$'
+    title = r'$|\psi|^2$',
+    savenm = None
     ):
 
     N = coor.shape[0]
@@ -61,16 +64,19 @@ def state_cmap(
     plt.xlim(0, max(coor[:, 0]))
     plt.ylim(0, max(coor[:, 1]))
     plt.colorbar()
+    if savenm is not None:
+        plt.savefig(savenm)
     plt.show()
 
 """
 Plots band diagrams
 """
 def bands(
-    eigarr, k,
+    k, eigarr,
     direction = 'x', units = 'meV',
     title = 'Bands',
-    xlim = None, ylim = None
+    xlim = None, ylim = None,
+    savenm = None
     ):
 
     for i in range(eigarr.shape[1]):
@@ -83,7 +89,10 @@ def bands(
     plt.xlim(xlim)
     plt.ylim(ylim)
     plt.title(title)
+    if savenm is not None:
+        plt.savefig(savenm)
     plt.show()
+
 
 """
 Plots a phase diagram of y vs x
@@ -93,7 +102,8 @@ def phase(
     xlabel = ' ', ylabel = ' ',
     title = 'Phase Diagram',
     xlabels = None, xticks = None,
-    xlim = None, ylim = None
+    xlim = None, ylim = None,
+    savenm = None
     ):
 
     for i in range(y.shape[1]):
@@ -106,12 +116,15 @@ def phase(
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title)
+    if savenm is not None:
+        plt.savefig(savenm)
     plt.show()
 
 def phi_phase(
     phi, energy,
     Ez = 0,
-    xlim = None, ylim = None
+    xlim = None, ylim = None,
+    savenm = None
     ):
 
     N = energy.shape[1]
@@ -132,4 +145,6 @@ def phi_phase(
     plt.xlabel(r'$\phi$')
     plt.ylabel('Energy (meV)')
     plt.title(r'$E_z$ = {} (meV)'.format(Ez))
+    if savenm is not None:
+        plt.savefig(savenm)
     plt.show()
