@@ -2,13 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.sparse.linalg as spLA
 
-import majoranaJJ.operators.sparsOP as spop
-import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.lattice.shapes as shps
-import majoranaJJ.etc.plots as plots
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.lattice.shapes as shps #lattice shapes
+import majoranaJJ.modules.plots as plots #plotting functions
 
-Nx = 30
-Ny = 30
+Nx = 50
+Ny = 50
 ax = 10 #[A]
 ay = 10 #[A]
 
@@ -23,7 +23,7 @@ delta = 0 #Superconducting Gap: [eV]
 V0 = 0.0 #Amplitude of potential : [eV]
 mu = 0 #Chemical Potential: [eV]
 
-H = spop.H_BDG(coor, ax, ay, NN, Wsc=Ny, Wj=0)
+H = spop.HBDG(coor, ax, ay, NN, Wj=0)
 print("H shape: ", H.shape)
 
 num = 20 # This is the number of eigenvalues and eigenvectors you want

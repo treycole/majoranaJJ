@@ -3,16 +3,16 @@ import numpy as np
 from numpy import linalg as LA
 import scipy.sparse.linalg as spLA
 
-import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.lattice.shapes as shps
-import majoranaJJ.etc.plots as plots
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.lattice.shapes as shps #lattice shapes
+import majoranaJJ.modules.plots as plots #plotting functions
 
 #Compared packages
-import majoranaJJ.operators.sparsOP as spop #sparse operators
-import majoranaJJ.operators.densOP as dpop #dense operators
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.operators.dense.qmdops as dpop #dense operators
 
 Nx = 50
-Ny = 100
+Ny = 50
 ax = 2
 ay = 2
 

@@ -80,10 +80,10 @@ def bands(
     ):
 
     for i in range(eigarr.shape[1]):
-        plt.plot(k, eigarr[:, i], c ='b', linestyle = 'solid')
+        plt.plot(k, eigarr[:, i], c ='mediumblue', linestyle = 'solid')
         #plt.scatter(q, eigarr[:, i], c ='b')
     plt.plot(k, 0*k, c = 'k', linestyle='solid', lw=1)
-    plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
+    #plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
     plt.xlabel('k{} (1/A)'.format(direction))
     plt.ylabel('Energy ({})'.format(units))
     plt.xlim(xlim)
@@ -107,7 +107,7 @@ def phase(
     ):
 
     for i in range(y.shape[1]):
-        plt.plot(x, y[:, i], c = 'b', linestyle = 'solid')
+        plt.plot(x, y[:, i], c = 'mediumblue', linestyle = 'solid')
     #zeroLine = np.linspace(0, max(x))
     plt.xticks(xticks, xlabels)
     plt.plot(x , 0*x, color = 'grey', linestyle = 'solid', lw = 1)
@@ -135,7 +135,7 @@ def phi_phase(
     for i in range(red_band.shape[1]):
         plt.plot(phi, red_band[:,i], c = 'red', ls = 'solid')
     for i in range(blue_band.shape[1]):
-        plt.plot(phi, blue_band[:, i], c = 'blue', ls = 'solid')
+        plt.plot(phi, blue_band[:, i], c = 'mediumblue', ls = 'solid')
 
     plt.plot(phi, 0*phi, color = 'grey', ls = 'solid', lw = 1)
 

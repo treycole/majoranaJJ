@@ -3,7 +3,7 @@ import scipy.sparse.linalg as spLA
 from numpy import linalg as npLA
 import numpy as np
 
-import majoranaJJ.etc.constants as const
+import majoranaJJ.modules.constants as const
 
 """Descritized k-x operator"""
 def kx(coor, ax, ay, NN, NNb = None, qx = 0):

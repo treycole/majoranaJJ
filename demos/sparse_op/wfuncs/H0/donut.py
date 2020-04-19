@@ -2,10 +2,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.sparse.linalg as spLA
 
-import majoranaJJ.operators.sparsOP as spop
-import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.lattice.shapes as shps
-import majoranaJJ.etc.plots as plots
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.lattice.shapes as shps #lattice shapes
+import majoranaJJ.modules.plots as plots #plotting functions
 
 R = 50
 r = 15

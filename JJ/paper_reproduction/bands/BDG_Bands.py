@@ -1,9 +1,9 @@
 import numpy as np
 
-import majoranaJJ.operators.sparsOP as spop #sparse operators
-import majoranaJJ.lattice.neighbors as nb #neighbor arrays
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
-import majoranaJJ.etc.plots as plots #plotting functions
+import majoranaJJ.modules.plots as plots #plotting functions
 
 Nx = 4 #Number of lattice sites allong x-direction
 Ny = 80 #Number of lattice sites along y-direction
@@ -32,8 +32,8 @@ V0 = 0.0 #Amplitude of potential : [meV]
 mu = 0.327 #Chemical Potential: [meV]
 
 num = 24 # This is the number of eigenvalues and eigenvectors you want
-steps = 201 #Number of kx and ky values that are evaluated
-qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
+steps = 51 #Number of kx and ky values that are evaluated
+qx = np.linspace(-0.1*np.pi/Lx, 0.1*np.pi/Lx, steps) #kx in the first Brillouin zone
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
 
 bands = np.zeros((steps, num))
@@ -42,4 +42,4 @@ for i in range(steps):
     energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, alpha=alpha, delta=delta, phi = phi, gammax=gammax, gammaz=gammaz, mu=mu, qx=qx[i], periodicX=True, periodicY=False, k=num)
 
     bands[i, :] = energy
-plots.bands(bands, qx, units = "[meV]", ylim = [-5, 5])
+plots.bands(qx, bands, units = "[meV]", ylim = [-1.5, 1.5], savenm = 'bands_ex.png')

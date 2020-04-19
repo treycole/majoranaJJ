@@ -1,17 +1,17 @@
 import time
 import numpy as np
 
-import majoranaJJ.lattice.neighbors as nb #neighbor arrays
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
-import majoranaJJ.etc.plots as plots #plotting functions
+import majoranaJJ.modules.plots as plots #plotting functions
 
 #Compared packages
-import majoranaJJ.operators.sparsOP as spop #sparse operators
-import majoranaJJ.operators.densOP as dpop #dense operators
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.operators.dense.qmdops as dpop #dense operators
 print(" ")
 
-Nx = 100 #Number of lattice sites allong x-direction
-Ny = 100 #Number of lattice sites along y-direction
+Nx = 50 #Number of lattice sites allong x-direction
+Ny = 50 #Number of lattice sites along y-direction
 ax = 2 #lattice spacing in x-direction: [A]
 ay = 2 #lattice spacing in y-direction: [A]
 

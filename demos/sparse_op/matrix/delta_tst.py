@@ -1,16 +1,16 @@
-import majoranaJJ.operators.sparsOP as spop
-import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.lattice.shapes as shps
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.lattice.shapes as shps #lattice shapes
+import majoranaJJ.modules.plots as plots #plotting functions
 
 Nx = 2
 Ny = 2
 coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
-NNb = nb.NN_Bound(coor)
+NNb = nb.Bound_Arr(coor)
 
 delta = 0.3 #[eV]
-Wsc = 2
 Wj = 0
 
-D = spop.Delta(coor, delta, Wsc, Wj).toarray()
+D = spop.Delta(coor, delta = delta).toarray()
 print(D)

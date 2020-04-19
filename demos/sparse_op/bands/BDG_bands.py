@@ -3,13 +3,13 @@ Goal here is to see an energy band splitting the size of the superconducting
 gap
 '''
 import numpy as np
-import majoranaJJ.operators.sparsOP as spop #sparse operators
-import majoranaJJ.lattice.neighbors as nb #neighbor arrays
+import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
-import majoranaJJ.etc.plots as plots #plotting functions
+import majoranaJJ.modules.plots as plots #plotting functions
 
-Nx = 10 #Number of lattice sites allong x-direction
-Ny = 10 #Number of lattice sites along y-direction
+Nx = 20 #Number of lattice sites allong x-direction
+Ny = 20 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 
@@ -39,4 +39,4 @@ for i in range(k_steps):
 
     bands[i, :] = energy
 
-plots.bands(kx, bands, title = "delta = {} (nm)".format(delta), savenm = 'gap_tst.png', ylim = [0.5, -0.5])
+plots.bands(kx, bands, title = "delta = {} (nm)".format(delta), savenm = 'gap_tst.png', ylim = [-0.5, 0.5])

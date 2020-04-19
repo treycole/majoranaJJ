@@ -1,9 +1,9 @@
 import time
 
-import majoranaJJ.lattice.shapes as shp
+import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.junk.lattice.neighbors as nb2
-import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.etc.plots as plot
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.modules.plots as plots #plotting functions
 
 print(" ")
 R = 30
@@ -11,7 +11,7 @@ r = 5
 
 #Making square lattice, nothing has changed with this method
 #Finding neighbor array in the unit cell for the old method to find boundary array.
-coor = shp.donut(R, r)
+coor = shps.donut(R, r)
 NN = nb.NN_Arr(coor)
 print("size: ", coor.shape[0])
 print("")
@@ -26,7 +26,7 @@ print("time for original method = ", end-start)
 print(NNb2[0:5, :])
 
 idx = 0
-plot.lattice(idx, coor, NNb = NNb2)
+plots.lattice(idx, coor, NNb = NNb2)
 print(" ")
 
 ###########################################
@@ -39,7 +39,7 @@ print("Time to create Bound_Arr with revised method = {} [s]".format( end-start)
 print(NNb[0:5, :])
 
 idx = 0
-plot.lattice(idx, coor, NNb = NNb)
+plots.lattice(idx, coor, NNb = NNb)
 print(" ")
 
 ##########################################

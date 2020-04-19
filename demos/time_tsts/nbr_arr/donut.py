@@ -1,16 +1,16 @@
 import time
 
-import majoranaJJ.lattice.shapes as shp
+import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.junk.lattice.neighbors as nb2
-import majoranaJJ.lattice.neighbors as nb
-import majoranaJJ.etc.plots as plot
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.modules.plots as plots #plotting functions
 
 print("")
 R = 30
 r = 5
 
 #Making square lattice, nothing has changed with this method
-coor = shp.donut(R, r)
+coor = shps.donut(R, r)
 print("size: ", coor.shape[0])
 print("")
 
@@ -24,7 +24,7 @@ print("Time to create Nbr_Arr with original method = {} [s]".format(end-start))
 print(NN_old[0:5, :])
 
 idx = 0
-plot.lattice(idx, coor, NN = NN_old)
+plots.lattice(idx, coor, NN = NN_old)
 print(" ")
 
 ###########################################
@@ -36,7 +36,7 @@ print("Time to create Nbr_Arr with revised method = {} [s]".format(end-start))
 print(NN_new[0:5, :])
 
 idx = 0
-plot.lattice(idx, coor, NN = NN_new)
+plots.lattice(idx, coor, NN = NN_new)
 print(" ")
 
 ###########################################

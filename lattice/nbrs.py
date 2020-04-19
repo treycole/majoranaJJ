@@ -17,22 +17,49 @@ def NN_Arr(coor):
     NN = -1*ones((N,4), dtype = 'int')
     xmax = max(coor[:, 0])
     ymax = max(coor[:, 1])
-    Lx = xmax + 1
-    Ly = ymax + 1
+    Lx = int(xmax + 1)
+    Ly = int(ymax + 1)
 
     for i in range(N):
         xi = coor[i, 0]
         yi = coor[i, 1]
 
-        if (i-1) >= 0 and abs(xi - 1) >= 0 and abs(xi - coor[i-1, 0]) == 1 and abs(yi - coor[i-1, 1]) == 0:
-            NN[i, 0] = i - 1
-        if (i+1) < N and abs(xi + 1) <= xmax and abs(xi - coor[i+1, 0]) == 1 and abs(yi - coor[i+1, 1]) == 0:
-            NN[i, 2] = i + 1
-        for j in range(0, int(Lx)+1):
-            if (i + j) < N and abs(yi + 1) <= ymax and abs(yi - coor[int(i + j), 1]) == 1 and abs(xi - coor[int(i + j), 0]) == 0:
-                NN[i, 1] = i + j
-            if (i - j) >= 0 and abs(yi - 1) >= 0 and abs(yi - coor[int(i - j), 1]) == 1 and abs(xi - coor[int(i - j), 0]) == 0:
-                NN[i, 3]= i - j
+        if (i-1) >= 0:
+             if (xi - coor[i-1, 0]) == 1 and (yi - coor[i-1, 1]) == 0:
+                 NN[i, 0] = i-1
+        if (i+1) < N:
+            if (xi - coor[i+1, 0]) == -1 and (yi - coor[i+1, 1]) == 0:
+                NN[i, 2] = i+1
+        for j in range(0, Lx+1):
+            if (i+j) < N:
+                 if (yi - coor[i+j, 1]) == -1 and (xi - coor[i+j, 0]) == 0:
+                     NN[i, 1] = i+j
+            if (i-j) >= 0:
+                 if (yi - coor[i-j, 1]) == 1 and (xi - coor[i-j, 0]) == 0:
+                     NN[i, 3]= i-j
+    return NN
+
+def NN_sqr(coor):
+    N = coor.shape[0]
+    NN = -1*ones((N,4), dtype = 'int')
+    xmax = max(coor[:, 0])
+    ymax = max(coor[:, 1])
+    Lx = int(xmax + 1)
+    Ly = int(ymax + 1)
+
+    for i in range(N):
+        xi = coor[i, 0]
+        yi = coor[i, 1]
+
+        if (i-1) >= 0 and (xi - coor[i-1, 0]) == 1:
+            NN[i, 0] = i-1
+        if (i+Lx) < N and (yi - coor[i+Lx, 1]) == -1:
+            NN[i, 1] = i+Lx
+        if (i+1) < N and (xi - coor[i+1, 0]) == -1:
+            NN[i, 2] = i+1
+        if (i-Lx) >= 0 and (yi - coor[i-Lx, 1]) == 1:
+            NN[i, 3] = i-Lx
+
     return NN
 
 """ Periodic Boundary conditions
