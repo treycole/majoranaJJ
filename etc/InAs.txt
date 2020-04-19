@@ -1,0 +1,4 @@
+Indium Arsenide:
+lattice structure = Zinc Blende
+lattice constant (a) = 6.0583 [A]
+interatomic distance = (a*(3)**(1/2))/4

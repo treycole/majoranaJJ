@@ -1,16 +1,17 @@
 from numpy import ones
 
-"""
+""" Neighbor Arrays:
 These neighbor arrays are implemented in such a way as to avoid double looping. This saves a significant ammount of time in large unit cells, as can be tested in the majoranaJJ/time_tsts/[bound_arr, nbr_arr]
+
+Defining nearest neighbor array
+NN_arr is Nx4, the columns store the index of the 4 nearest neighbors for each
+lattice site
+Left: NN[n,0] = n-1
+Above: NN[n,1] = n+Nx
+Right: NN[n, 2] = n+1
+Down NN[n, 3] = n-Nx
+if there is no lattice site in nearest neighbor spot, value is -1
 """
-#Defining nearest neighbor array
-#NN_arr is Nx4, the columns store the index of the 4 nearest neighbors for each
-#lattice site
-#Left: NN[n,0] = n-1
-#Above: NN[n,1] = n+Nx
-#Right: NN[n, 2] = n+1
-#Down NN[n, 3] = n-Nx
-#if there is no lattice site in nearest neighbor spot, value is -1
 def NN_Arr(coor):
     N = coor.shape[0]
     NN = -1*ones((N,4), dtype = 'int')
@@ -34,8 +35,8 @@ def NN_Arr(coor):
                 NN[i, 3]= i - j
     return NN
 
-#Periodic Boundary conditions
-"""if statements:
+""" Periodic Boundary conditions
+if statements:
 if the x-coordinate of the ith lattice site is the minimum value, it must be on the edge of the unit cell and therefore has a nearest neighbor in the neighboring unit cell.
 Ex: To find the lattice site that corresponds to the neighbor to the left in the neighboring unit cell, we know it will be at most the (i + xmax)th site. If we are given a perfect square, it is the (i+ xmax)th site. In the case of the donut, this is not the case, so we until we find the site that is at the same height as the ith site, and has an x-coordinate that is the maximum value. The other statements follow similar logic for other neighbors.
 """

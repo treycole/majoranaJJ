@@ -7,7 +7,7 @@ import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.etc.plots as plots #plotting functions
 from majoranaJJ.etc.mufinder import mufinder
 
-Nx = 320 #Number of lattice sites allong x-direction
+Nx = 320 #Number of lattice sites along x-direction
 Ny = 80 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
