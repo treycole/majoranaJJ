@@ -103,11 +103,12 @@ def phase(
     title = 'Phase Diagram',
     xlabels = None, xticks = None,
     xlim = None, ylim = None,
+    label = None,
     savenm = None
     ):
 
     for i in range(y.shape[1]):
-        plt.plot(x, y[:, i], c = 'mediumblue', linestyle = 'solid')
+        plt.plot(x, y[:, i], c = 'mediumblue', linestyle = 'solid', label = label)
     #zeroLine = np.linspace(0, max(x))
     plt.xticks(xticks, xlabels)
     plt.plot(x , 0*x, color = 'grey', linestyle = 'solid', lw = 1)
@@ -118,6 +119,7 @@ def phase(
     plt.title(title)
     if savenm is not None:
         plt.savefig(savenm)
+    plt.legend()
     plt.show()
 
 def phi_phase(
