@@ -53,12 +53,15 @@ for i in range(steps):
 
 mu_arr, gamx_0, gamx_pi = np.array(mu_arr), np.array(gamx_0), np.array(gamx_pi)
 
-plt.plot(gamx_0, mu_arr, c='r', ls='solid', label = r'$\phi = 0$')
-plt.plot(gamx_pi, mu_arr, c='k', ls='solid', label = r'$\phi = \pi$')
+plt.plot(gamx_0, mu_arr, c='k', ls='solid', label = r'$\phi = 0$')
+plt.plot(gamx_pi, mu_arr, c='r', ls='solid', label = r'$\phi = \pi$')
 
 plt.xlabel(r'$E_z$ (meV)')
 plt.ylabel(r'$\mu$ (meV)')
 
-plt.savefig('mu_arr_gx.png')
+plt.xlim(0, 0.35)
+plt.ylim(78, 80.1)
+
 plt.legend()
+plt.savefig('mu_gx.png')
 plt.show()

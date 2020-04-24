@@ -1,7 +1,7 @@
 import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
 
 def gamfinder(
-    coor, ax, ay, NN, mu, NNb = None, Wj = 0, Sx = 0, cutx = 0, cuty = 0, V = 0, gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0 , phi = 0, qx = 0, qy = 0, periodicX = False, periodicY = False,
+    coor, ax, ay, NN, mu, NNb = None, Wj = 0, Sx = None, cutx = None, cuty = None, V = 0, gammax = 0, gammay = 0, gammaz = 0, alpha = 0, delta = 0 , phi = 0, qx = 0, qy = 0, periodicX = False, periodicY = False,
     k = 2, sigma = 0, which = 'LM', tol = 0, maxiter = None
     ):
 

@@ -171,7 +171,13 @@ def Delta(
 
         if y >= Wsc and y < (Wsc+Wj):
             if Sx is not None: #if there is a cut present
-                if (x > Sx and x <= (Sx + cutx)) and (y <= (Wsc + cuty) or y >= ((Wsc + Wj) - cuty)): #if in range of cut
+                if (2*Sx + cutx) != (max(coor[:, 0]) + 1):
+                    print("Dimensions of nodule do not add up to lattice size along x direction")
+                    return
+                if (2*cuty) >= Wj:
+                    print("Nodule extends across junction")
+                    return
+                if (x >= Sx and x < (Sx + cutx)) and (y < (Wsc + cuty) or y >= ((Wsc + Wj) - cuty)): #if in range of cut
                     row.append(i); col.append(i)
                     data.append(delta*np.exp(-1j*phi/2) )
             else: #lattice site is in junction
