@@ -180,6 +180,9 @@ def Delta(
                 if (x >= Sx and x < (Sx + cutx)) and (y < (Wsc + cuty) or y >= ((Wsc + Wj) - cuty)): #if in range of cut
                     row.append(i); col.append(i)
                     data.append(delta*np.exp(-1j*phi/2) )
+                else: #lattice site is in junction
+                    row.append(i); col.append(i)
+                    data.append(0)
             else: #lattice site is in junction
                 row.append(i); col.append(i)
                 data.append(0)

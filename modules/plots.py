@@ -75,7 +75,7 @@ def state_cmap(
     for i in range(num_div):
         map[:] = map[:] + probdens[i*N : (i+1)*N]
 
-    print(sum(map))
+    print("Sum of prob density", sum(map))
     plt.scatter(coor[:, 0], coor[:, 1], c = map, cmap = cmap)
     plt.title(title)
     plt.xlim(0, max(coor[:, 0]))
@@ -83,6 +83,7 @@ def state_cmap(
     plt.colorbar()
     if savenm is not None:
         plt.savefig(savenm)
+    print("Energy Value of State", eigs[n])    
     plt.show()
 
 """

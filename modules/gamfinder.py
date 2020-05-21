@@ -19,7 +19,7 @@ def gamfinder(
         )[int(k/2):][::2]
     #print(Ei)
 
-    deltaG = 0.0001
+    deltaG = 0.00001
     gammanew = gammax + deltaG
 
     #saving the particle energies, all energies above E=0
