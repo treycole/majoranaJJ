@@ -37,7 +37,7 @@ def lattice(
         plt.savefig(savenm)
     plt.show()
 
-def nodule(coor, delta, savenm = None):
+def junction(coor, delta, title = None, savenm = None):
     plt.scatter(coor[:, 0], coor[:, 1] , c = 'b')
 
     delta = delta.toarray()
@@ -49,8 +49,10 @@ def nodule(coor, delta, savenm = None):
             plt.scatter(coor[i, 0], coor[i, 1], c = 'r')
 
     plt.xlim(-1, max(coor[:,0])+1)
+    plt.title(title)
     if savenm is not None:
         plt.savefig(savenm)
+
     plt.show()
 
 
@@ -83,7 +85,7 @@ def state_cmap(
     plt.colorbar()
     if savenm is not None:
         plt.savefig(savenm)
-    print("Energy Value of State", eigs[n])    
+    print("Energy Value of State", eigs[n])
     plt.show()
 
 """
