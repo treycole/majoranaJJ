@@ -55,6 +55,9 @@ def junction(coor, delta, title = None, savenm = None):
 
     plt.show()
 
+def potential_profile(V):
+    VV = sparse.bmat([[None, V], [-V, None]], format='csc', dtype='complex')
+    junction(coor, VV, title = 'Potential Profile', savenm = 'potential_profile.jpg')
 
 """
 Plotting the probability density
@@ -78,11 +81,17 @@ def state_cmap(
         map[:] = map[:] + probdens[i*N : (i+1)*N]
 
     print("Sum of prob density", sum(map))
-    plt.scatter(coor[:, 0], coor[:, 1], c = map, cmap = cmap)
-    plt.title(title)
-    plt.xlim(0, max(coor[:, 0]))
-    plt.ylim(0, max(coor[:, 1]))
-    plt.colorbar()
+    #plt.scatter(coor[:, 0], coor[:, 1], c = map, cmap = cmap)
+    #plt.title(title)
+    #plt.xlim(0, max(coor[:, 0]))
+    #plt.ylim(0, max(coor[:, 1]))
+    #plt.colorbar()
+    fig = plt.figure()
+    axx = fig.add_subplot(1,1,1)
+
+    tc = axx.tricontourf(coor[:,0], coor[:,1], map, 1000)
+    axx.set_aspect(1.0)
+    axx.set_title(title)
     if savenm is not None:
         plt.savefig(savenm)
     print("Energy Value of State", eigs[n])
@@ -101,8 +110,10 @@ def bands(
 
     for i in range(eigarr.shape[1]):
         plt.plot(k, eigarr[:, i], c ='mediumblue', linestyle = 'solid')
+        plt.plot(-k, eigarr[:, i], c ='mediumblue', linestyle = 'solid')
         #plt.scatter(q, eigarr[:, i], c ='b')
     plt.plot(k, 0*k, c = 'k', linestyle='solid', lw=1)
+    plt.plot(-k, 0*k, c = 'k', linestyle='solid', lw=1)
     #plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
     plt.xlabel('k{} (1/A)'.format(direction))
     plt.ylabel('Energy ({})'.format(units))

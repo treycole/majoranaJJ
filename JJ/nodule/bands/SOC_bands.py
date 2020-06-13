@@ -13,13 +13,13 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #params similar to Fornieri
 #Defining System
-Nx = 12 #Number of lattice sites along x-direction
+Nx = 24 #Number of lattice sites along x-direction
 Ny = 80 #Number of lattice sites along y-direction
-ax = 50 #lattice spacing in x-direction: [A]
-ay = 50 #lattice spacing in y-direction: [A]
-Wj = 16 #Junction region
-cutx = 3 #(Nx - 2*Sx) #width of nodule
-cuty = 3 #0 #height of nodule
+ax = 25#50 #lattice spacing in x-direction: [A]
+ay = 25#50 #lattice spacing in y-direction: [A]
+Wj = 8 #16 #Junction region
+cutx = 2 #(Nx - 2*Sx) #width of nodule
+cuty = 2 #0 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -45,12 +45,12 @@ gx = 0 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
 phi = np.pi #SC phase difference
 delta = 0 #Superconducting Gap: [meV]
-V0 = 20 #Amplitude of potential : [meV]
+V0 = 60 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
 mu = 0 #Chemical Potential: [meV], 20
 
-k = 12 #This is the number of eigenvalues and eigenvectors you want
-steps = 301 #Number of kx and ky values that are evaluated
+k = 24 #This is the number of eigenvalues and eigenvectors you want
+steps = 101 #Number of kx and ky values that are evaluated
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
 

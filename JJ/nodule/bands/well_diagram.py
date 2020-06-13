@@ -35,5 +35,5 @@ V0 = 20 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
 mu = 0 #Chemical Potential: [meV], 20
 
-V = delta = sparse.bmat([[None, V], [-V, None]], format='csc', dtype='complex')
+V  = sparse.bmat([[None, V], [-V, None]], format='csc', dtype='complex')
 plots.junction(coor, V, title = 'Potential Profile', savenm = 'potential_profile.jpg')
