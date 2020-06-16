@@ -11,7 +11,6 @@ import majoranaJJ.modules.plots as plots #plotting functions
 
 from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
-#params similar to Fornieri
 #Defining System
 Nx = 24 #Number of lattice sites along x-direction
 Ny = 80 #Number of lattice sites along y-direction
@@ -43,13 +42,11 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = 0 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
-phi = np.pi #SC phase difference
-delta = 0 #Superconducting Gap: [meV]
 V0 = 60 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
 mu = 0 #Chemical Potential: [meV], 20
 
-k = 24 #This is the number of eigenvalues and eigenvectors you want
+k = 48 #This is the number of eigenvalues and eigenvectors you want
 steps = 101 #Number of kx and ky values that are evaluated
 qx = np.linspace(-np.pi/Lx, np.pi/Lx, steps) #kx in the first Brillouin zone
 qy = np.linspace(-np.pi/Ly, np.pi/Ly, steps) #ky in the first Brillouin zone
