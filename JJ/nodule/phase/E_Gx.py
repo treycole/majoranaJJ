@@ -14,11 +14,11 @@ from majoranaJJ.modules.gamfinder import gamfinder_lowE as gfLE
 from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #Defining System
-Nx = 12 #Number of lattice sites along x-direction
-Ny = 160 #Number of lattice sites along y-direction
+Nx = 3 #Number of lattice sites along x-direction
+Ny = 80 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
-ay = 25 #50 #lattice spacing in y-direction: [A]
-Wj = 8 #16 #Junction region
+ay = 50 #lattice spacing in y-direction: [A]
+Wj = 4 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 
@@ -50,7 +50,7 @@ phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-MU = np.linspace(0, 20, steps) #Chemical Potential: [meV], 20
+MU = 154.0 #Chemical Potential: [meV] 0.054
 
 ###################################################
 
@@ -60,7 +60,6 @@ MU = np.linspace(0, 20, steps) #Chemical Potential: [meV], 20
 #D_test = spop.Delta(coor, Wj = Wj, delta = 1, cutx = cutx, cuty = cuty)
 #plots.junction(coor, D_test)
 
-MU = 153.0 #fixed mu value
 k = 100 #number of perturbation energy eigs
 
 H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, qx=0.0001*(np.pi/Lx), periodicX=True)

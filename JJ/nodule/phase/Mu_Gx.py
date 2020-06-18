@@ -21,8 +21,8 @@ Ny = 80 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 4 #Junction region
-cutx = 1 #width of nodule
-cuty = 1 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -48,8 +48,8 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
 #Defining Hamiltonian parameters
 res = 0.013
-mu_i = 50
-mu_f = 70
+mu_i = 151
+mu_f = 155
 delta_mu = mu_f - mu_i
 
 steps = int(delta_mu/res)
