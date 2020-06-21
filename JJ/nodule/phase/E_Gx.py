@@ -99,7 +99,7 @@ for i in range(gx.shape[0]):
 
 for i in range(k):
    #plt.plot(gx, eig_arr[:, i], c = 'b')
-   plt.plot(gx, eig_arr_NB[:, i], c = 'r', ls = 'dashed')
+   plt.plot(gx, eig_arr_NB[:, i], c = 'b')
 
 plt.xlabel(r'$E_z$ (meV)')
 plt.ylabel("Energy (meV)")
