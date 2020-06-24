@@ -60,7 +60,7 @@ mu = 150  #Chemical Potential: [meV]
 #####################################
 
 k = 24 #This is the number of eigenvalues and eigenvectors you want
-steps = 101 #Number of kx and ky values that are evaluated
+steps = 101 #Number of kx values that are evaluated
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))

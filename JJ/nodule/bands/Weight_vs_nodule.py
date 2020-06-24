@@ -64,29 +64,28 @@ steps = 51 #Number of kx values that are evaluated
 
 cut_sizes = np.array([2, 4, 6, 8, 10])
 first_crossing = np.zeros((cut_sizes.shape[0]))
-for i in range(cut_sizes.shape[0]):
-    #cutx = cut_sizes[i]
-    V = V_BL(coor, Wj = Wj, cutx = cutx, cuty = cuty, V0 = V0)
-    H = spop.H0(coor, ax, ay, NN, NNb=NNb, alpha=alpha, V=V, gammax=gx, gammaz=gz, mu=mu, qx=0, periodicX=True)
-    eigs, vecs = spLA.eigsh(H, k=num_eigs, sigma=0, which='LM')
-    idx_sort = np.argsort(eigs)
-    eigs = eigs[idx_sort]
-    vecs = vecs[:, idx_sort]
 
-    E_crossing = eigs[0] + (2*xi*np.pi**2)/(Lx**2)
-    for i in range(eigs.shape[0]):
-        if abs(eigs[i] - E_crossing) < 0.01:
-            idx_first_crossing = i
+V = V_BL(coor, Wj = Wj, cutx = cutx, cuty = cuty, V0 = V0)
+H = spop.H0(coor, ax, ay, NN, NNb=NNb, alpha=alpha, V=V, gammax=gx, gammaz=gz, mu=mu, qx=0, periodicX=True)
+eigs, vecs = spLA.eigsh(H, k=num_eigs, sigma=0, which='LM')
+idx_sort = np.argsort(eigs)
+eigs = eigs[idx_sort]
+vecs = vecs[:, idx_sort]
 
-    print(E_crossing, "meV")
-    print(eigs)
+E_crossing = eigs[0] + (2*xi*np.pi**2)/(Lx**2)
+for i in range(eigs.shape[0]):
+    if abs(eigs[i] - E_crossing) < 0.01:
+        idx_first_crossing = i
 
-    qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
-    wt = np.zeros(num_eigs)
+print(E_crossing, "meV")
+print(eigs)
 
-    num_div = int(vecs.shape[0]/N)
+qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
+wt = np.zeros(num_eigs)
 
-    for j in range(vecs.shape[1]):
+num_div = int(vecs.shape[0]/N)
+
+for j in range(vecs.shape[1]):
         probdens = np.square(abs(vecs[:, j]))
         PD_UP = probdens[0: int(probdens.shape[0]/2)]
         PD_DOWN = probdens[int(probdens.shape[0]/2):]
