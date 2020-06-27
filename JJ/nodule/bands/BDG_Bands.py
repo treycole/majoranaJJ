@@ -15,12 +15,12 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
-Ny = 160 #Number of lattice sites along y-direction
+Ny = 400 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
-ay = 25 #50 #lattice spacing in y-direction: [A]
-Wj = 8 #16 #Junction region
-cutx = 1 #width of nodule
-cuty = 2 #height of nodule
+ay = 50 #lattice spacing in y-direction: [A]
+Wj = 8 #Junction region
+cutx = 0 #width of nodule
+cuty = 3 #height of nodule
 
 nod_bool = True
 if cutx == 0 and cuty == 0:
@@ -53,20 +53,20 @@ gx = 0 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
 phi = 0*np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-V0 = [200, 100, 50, 25] #Amplitude of potential: [meV]
+V0 = 50 #Amplitude of potential: [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-mu = 150  #Chemical Potential: [meV]
+mu = 56.6  #Chemical Potential: [meV]
 
 #####################################
 
-k = 24 #This is the number of eigenvalues and eigenvectors you want
+k = 12 #This is the number of eigenvalues and eigenvectors you want
 steps = 101 #Number of kx values that are evaluated
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))
 for i in range(steps):
     print(steps - i)
-    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, alpha=alpha, delta=delta, phi = 0, V=V, gammax=gx, gammaz=gz, mu=mu, qx=qx[i], periodicX=True, k=k)
+    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, alpha=alpha, delta=delta, phi = phi, V=V, gammax=gx, gammaz=gz, mu=mu, qx=qx[i], periodicX=True, k=k)
 
     bands[i, :] = energy
 

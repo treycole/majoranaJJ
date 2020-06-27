@@ -18,22 +18,22 @@ import parameters as par
 np.set_printoptions(linewidth = 500)
 
 ### parameters ###
-Lx = 50. * 10.    # Length of supercell in the x-direction (in Angstroms)
-W_sc = 500. * 10.  # how wide the superconductor regions are in the y-direction
+Lx = 60. * 10.    # Length of supercell in the x-direction (in Angstroms)
+W_sc = 980. * 10.  # how wide the superconductor regions are in the y-direction
 W_j = 40. * 10.    # the width of the junction regino in the y-direction
-W_c1 = 13. * 10.    # The width of the bottom cut of the nodule in the y-direction
-W_c2 = 7. * 10.    # The width of the top cut of the nodule in the y-direction
-L_c = 25. * 10.     # Length of the nodule in the x-direction
+W_c1 = 15. * 10.    # The width of the bottom cut of the nodule in the y-direction
+W_c2 = 15. * 10.    # The width of the top cut of the nodule in the y-direction
+L_c = 30. * 10.     # Length of the nodule in the x-direction
 m_eff = 0.023      # effective mass
-alpha = 250.       # Rashba spin-orbit coupling strength in meV * Angstrom
+alpha = 100.       # Rashba spin-orbit coupling strength in meV * Angstrom
 
 a_SC = 2. * 10.    # target mesh spacing in the y-direction near the junction and x-direction throughout the entire device
 a_J = 1. * 10.     # target mesh spacing in the y-direction
 W_sc_buffer = 10. * 10.  # width of buffer region of the superconductor where the mesh spacing is a_sc
-ay_extended_targ = 10. * 10. # mesh spacing in the y-direction outside of the buffer region
+ay_extended_targ = 20. * 10. # mesh spacing in the y-direction outside of the buffer region
 
 V_j = 0.        # potential in the junction region
-V_sc = 100.    # potential in the SC regions (in meV)
+V_sc = 50.    # potential in the SC regions (in meV)
 mu = 0.         # chemical potential (in meV), which shifts the spectrum uniformly throughout the entire device
 Gam = 1.e-4     # Zeeman energy for a magnetic field oriented along the length of the junction (x-direction)
 
@@ -43,7 +43,7 @@ system.MESH.PLOT.plot_elements2() # Plots the mesh elements
 
 ### Create a low-energy subband space for the normal state Hamiltonian
 qx_knot = .01 * np.pi/Lx            # small qx value that we use to generate low-energy subspace (to avoid any degeneracy issues)
-num = 400                            # number of states to include in the low-energy subspace
+num = 200                            # number of states to include in the low-energy subspace
 lNRG = system.HAM.generate_lNRG_subspace(qx_knot,V_j,V_sc,num)  # generating the low-energy subspace
 
 ### Looping through qx values to obtain spectrum from low-energy basis
@@ -60,7 +60,7 @@ fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
 for i in range(num):
     if i == 0:
-        ax.plot(qx,eig_arrL[:,i],c = 'k',label = 'Low-energy basis')
+        ax.plot(qx,eig_arrL[:,i], c = 'k',label = 'Low-energy basis')
     else:
         ax.plot(qx,eig_arrL[:,i],c = 'k')
     ax.plot(-qx,eig_arrL[:,i],c = 'k')

@@ -16,13 +16,14 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 ###################################################
 
 #Defining System
-Nx = 3 #Number of lattice sites along x-direction
-Ny = 80 #Number of lattice sites along y-direction
+Nx = 12 #Number of lattice sites along x-direction
+Ny = 400 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 4 #Junction region
+Wj = 8 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
+
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -47,16 +48,16 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 
 #Defining Hamiltonian parameters
-res = 0.013
-mu_i = 151
-mu_f = 155
+res = 0.005
+mu_i = 55
+mu_f = 57.5
 delta_mu = mu_f - mu_i
 
 steps = int(delta_mu/res)
 
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
-delta = 0.15 #Superconducting Gap: [meV]
+phi = 0 #SC phase difference
+delta = 1 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
@@ -66,43 +67,34 @@ mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 #phase diagram mu vs gamx
 num_bound = 3
 
-gamx_pi = np.zeros((steps, num_bound))
-gamx_0 = np.zeros((steps, num_bound))
+gamx_crit = np.zeros((steps, num_bound))
 gi = 0
-gf = 1.2
-n_steps = 1000
-
+gf = 1.3
+n_steps = 100
 step_sze = (gf-gi)/n_steps
-gi -= 2*step_sze
+print(step_sze)
 
 for i in range(steps):
     print(steps-i)
 
-    gxpi = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = 0, gf = gf, alpha = alpha, delta = delta, phi = np.pi, tol = 0.001, steps = n_steps)
-
-    #gx0 = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = 0, gf = gf, alpha = alpha, delta = delta, phi = 0, tol = 0.001, steps = n_steps)
-
-    print(gxpi)
+    gx = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = gi, gf = gf, alpha = alpha, delta = delta, phi = phi, tol = 0.005, steps = n_steps, k = 36)
 
     for j in range(num_bound):
-        #if j >= gx0.size:
-            #gamx_0[i, j] = None
-        #if j < gx0.size:
-            #gamx_0[i, j] = gx0[j]
-        if j >= gxpi.size:
-            gamx_pi[i, j] = None
-        if j < gxpi.size:
-            gamx_pi[i, j] = gxpi[j]
+        if j >= gx.size:
+            gamx_crit[i, j] = None
+        if j < gx.size:
+            gamx_crit[i, j] = gx[j]
 
-gamx_pi, gamx_0 = np.array(gamx_pi), np.array(gamx_0)
-plt.plot(gamx_pi, mu, c='r')
-#plt.plot(gamx_0, mu, c='k')
+gamx_crit = np.array(gamx_crit)
+plt.plot(gamx_crit, mu, c='r')
 
 plt.xlabel(r'$E_z$ (meV)')
 plt.ylabel(r'$\mu$ (meV)')
 
+plt.xlim(gi, gf)
+
 plt.title('Low-Energy Basis Calculated')
-plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} #.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy ))
+plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi))
 plt.show()
 
 sys.exit()

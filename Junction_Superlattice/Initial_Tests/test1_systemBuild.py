@@ -40,8 +40,6 @@ system.MESH.PLOT.plot_elements2()
 #system.MESH.PLOT.plot_mesh2()
 #sys.exit()
 
-
-
 ### Calculating spectrum
 V_j = 0.; V_sc = 85.; mu = 0.; Gam = 1.e-2
 

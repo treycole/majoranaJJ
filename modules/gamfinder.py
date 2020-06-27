@@ -62,13 +62,13 @@ def gamfinder_lowE(
     V = 0, gammax = 0,  gammay = 0, gammaz = 0,
     alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0, periodicX = True, periodicY = False,
-    k = 20, tol = 0.01, steps=2000
+    k = 20, tol = 0.01, steps=2000, n_bounds = 2
     ):
 
     MU = mu #fixed mu value
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 
-    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=0.0001*(np.pi/Lx), qy=qy, periodicX=periodicX, periodicY=periodicY) #gives low energy basis
+    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-5*(np.pi/Lx), qy=qy, periodicX=periodicX, periodicY=periodicY) #gives low energy basis
 
     eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
@@ -85,59 +85,54 @@ def gamfinder_lowE(
     gx = np.linspace(gi, gf, steps)
     eig_arr = np.zeros((gx.shape[0]))
 
+    G_crit = []
     for i in range(gx.shape[0]):
-        #H = H_G0 + gx[i]*HG
         H_DB = HG0_DB + gx[i]*HG_DB
-        #H_DB = np.dot(vecs_0_hc, H.dot(vecs_0))
         eigs_DB, U_DB = LA.eigh(H_DB)
 
         eig_arr[i] = eigs_DB[int(k/2)]
 
+    if eig_arr[0] < tol:
+        G_crit.append(gx[0]) #checking edge cases
+
     eig_min_idx = np.array(argrelextrema(eig_arr, np.less)[0]) #local minima indices
+    eigs_min = eig_arr[eig_min_idx] #eigenvalues at local min
 
-    G_crit = gx[eig_min_idx[:]]
-    return G_crit
+    ZEC_idx = [] #not all local min are zero energy crossings
+    for i in range(len(eig_min_idx)):
+        if eigs_min[i] < tol:
+            ZEC_idx.append(eig_min_idx[i]) #only append indices that have local min below tolerance
+    eigs_min = eig_arr[ZEC_idx] #eigenvalues under tolerance
 
-"""
-    G_crit = []
-    for j in range(eig_min_idx.size):
-        gx_c = gx[eig_min_idx[j]] #gamma value at local minima, first approx
-        gx_c_lower = gx[eig_min_idx[j]-1] #gamma value one step behind minima
-        gx_c_higher = gx[eig_min_idx[j]+1] #gamma value one step in front of minima
-        gx_finer = np.linspace(gx_c_lower, gx_c_higher, steps) #refined gamma range
+    print(eigs_min.size, "Number of low res crossings")
+    if len(ZEC_idx) < n_bounds:
+        i_final = len(ZEC_idx) #only want n_bounds number of crossings
+    else:
+        i_final = n_bounds
+    print(i_final, "Number of crossings to be refined")
 
-        eig_arr_finer = np.zeros(gx_finer.size) #new eigen value array that is higher resolution around local minima in first approximation
-        for i in range(gx_finer.shape[0]):
-            #H = H_G0 + gx[i]*H_G1 #Hamiltonian
-            H_DB = HG0_DB + gx_finer[i]*HG_DB
-            #H_DB = np.dot(vecs_0_hc, H.dot(vecs_0)) #change of basis, diff basis
+    tol = 0.001
+    for i in range(0, i_final):
+        gx_c = gx[ZEC_idx[i]] #first approx g_critical
+        gx_lower = gx[ZEC_idx[i]-1] #one step back
+        gx_higher = gx[ZEC_idx[i]+1] #one step forward
+        delta = (gx_higher - gx_lower)
+        n_steps = int((delta/(0.5*tol))+1)
+        
+        gx_finer = np.linspace(gx_lower, gx_higher, n_steps) #high res gammax
+        eig_arr_finer = np.zeros((gx_finer.size)) #new eigenvalue array
+        for j in range(gx_finer.shape[0]):
+            H_DB = HG0_DB + gx_finer[j]*HG_DB
             eigs_DB, U_DB = LA.eigh(H_DB)
-
-            eig_arr_finer[i] = eigs_DB[int(k/2)] #k/2 -> lowest postive energy state
+            eig_arr_finer[j] = eigs_DB[int(k/2)] #k/2 -> lowest postive energy state
 
         eig_min_idx_finer = np.array(argrelextrema(eig_arr_finer, np.less)[0]) #new local minima indices
-        eigs_local_min_finer = eig_arr_finer[eig_min_idx_finer] #isolating local minima
-        #G_crit = np.ones((n_boundry, eigs_local_min_finder.size))
-        for k in range(eigs_local_min_finer.size):
-            if eigs_local_min_finer[k] < tol: #if effectively zero crossing
-                G_crit.append(gx_finer[eig_min_idx_finer[k]]) #append critical gamma
-                #print(gx_finer[eig_min_idx_finer[k]])
+        eigs_min_finer = eig_arr_finer[eig_min_idx_finer] #isolating local minima
+
+        if min(eigs_min_finer) < tol: #if effectively zero crossing
+            ZEC_idx_HR = np.where(eigs_min_finer == np.amin(eigs_min_finer)) #where is the absolute minimum around approximate minumum, don't want more than one
+            G_crit.append(gx_finer[ZEC_idx_HR[0][0]]) #append critical gamma
+            print("crossing found at gx = ", gx_finer[ZEC_idx_HR[0][0]])
 
     G_crit = np.array(G_crit)
-
-    #eigs_local_min = eig_arr[eig_min_idx]
-
-    #G_crit = [] #np.empty((num_bound), dtype = 'object')
-
-    #for j in range(eigs_local_min.size):
-    #    if eigs_local_min[j] < tol:
-    #        G_crit.append(gx[eig_min_idx[j]])
-
-    #for i in range(eig_arr.shape[0]):
-    #    if eig_arr[i] < tol:
-    #        G_crit[idx] = gx[i]
-    #        idx += 1
-
-    #G_crit = np.array(G_crit)
     return G_crit
-"""

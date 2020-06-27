@@ -18,8 +18,8 @@ Ny = 400 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 3 #width of nodule
+cuty = 3 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -48,12 +48,12 @@ gx = 0 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
 V0 = 50 #Amplitude of potential: [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-mu = 0  #Chemical Potential: [meV]
+mu = 50  #Chemical Potential: [meV]
 
 ###################################################
 
 k = 100 #This is the number of eigenvalues and eigenvectors you want
-steps = 51 #Number of kx and ky values that are evaluated
+steps = 101 #Number of kx and ky values that are evaluated
 
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 bands = np.zeros((steps, k))

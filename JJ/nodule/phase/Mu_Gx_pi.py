@@ -13,6 +13,8 @@ from majoranaJJ.modules.gamfinder import gamfinder as gf
 from majoranaJJ.modules.gamfinder import gamfinder_lowE as gfLE
 from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
+###################################################
+
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
 Ny = 400 #Number of lattice sites along y-direction
@@ -22,6 +24,7 @@ Wj = 8 #Junction region
 cutx = 2 #width of nodule
 cuty = 3 #height of nodule
 
+
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
 Nod_widthx = cutx*ax*.1 #nm
@@ -30,6 +33,8 @@ print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
 print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 print("Supercondicting Lead Width = ", SC_width, "(nm)")
+
+###################################################
 
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_sqr(coor)
@@ -43,67 +48,67 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 
 #Defining Hamiltonian parameters
-steps = 100
+res = 0.01
+mu_i = 56
+mu_f = 64
+delta_mu = mu_f - mu_i
+
+steps = int(delta_mu/res)
 
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-gx = np.linspace(0, 0.6, 400)
 phi = np.pi #SC phase difference
-delta = 1.0 #Superconducting Gap: [meV]
+delta = 1 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-MU = 62.5 #Chemical Potential: [meV] 0.054
+mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 
 ###################################################
 
-#Energy plot vs Zeeman energy in x-direction
+#phase diagram mu vs gamx
+num_bound = 3
 
-#seeing the junction layout
-#D_test = spop.Delta(coor, Wj = Wj, delta = 1, cutx = cutx, cuty = cuty)
-#plots.junction(coor, D_test)
+gamx_crit = np.zeros((steps, num_bound))
+gi = 0
+gf = 1.3
+n_steps = 200
+step_sze = (gf-gi)/n_steps
 
-k = 12 #number of perturbation energy eigs
+for i in range(steps):
+    print(steps-i)
 
-H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, qx=0.0001*(np.pi/Lx), periodicX=True)
+    gx = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = gi, gf = gf, alpha = alpha, delta = delta, phi = phi, tol = 0.001, steps = n_steps, k = 36)
 
-eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma = 0,  which='LM')
-idx_sort = np.argsort(eigs_0)
-print(eigs_0[idx_sort][int(k/2):])
+    print(gx)
 
-vecs_0_hc = np.conjugate(np.transpose(vecs_0))
+    for j in range(num_bound):
+        if j >= gx.size:
+            gamx_crit[i, j] = None
+        if j < gx.size:
+            gamx_crit[i, j] = gx[j]
 
-eig_arr = np.zeros((gx.shape[0], k))
-eig_arr_NB = np.zeros((gx.shape[0], k))
-
-H_G0 =  spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 0, alpha = alpha, delta = delta, phi = phi, qx = 0, periodicX = True)
-
-H_G1 = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 1, alpha = alpha, delta = delta, phi = phi, qx = 0, periodicX = True)
-
-HG = H_G1 - H_G0
-
-for i in range(gx.shape[0]):
-    print(gx.shape[0] - i, gx[i])
-
-    H = H_G0 + gx[i]*HG
-    #eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
-
-    H_DB = np.dot(vecs_0_hc, H.dot(vecs_0)) # H' = U^dagger H U
-    eigs_DB, U_DB = LA.eigh(H_DB)
-
-    #idx_sort = np.argsort(eigs)
-    #eigs = eigs[idx_sort]
-    #eig_arr[i, :] = eigs
-
-    idx_sort = np.argsort(eigs_DB)
-    eigs_DB = eigs_DB[idx_sort]
-    eig_arr_NB[i, :] = eigs_DB
-
-for i in range(k):
-    if i % 2 == 0:
-        plt.plot(gx, eig_arr_NB[:, i], c = 'r')
-    else:
-        plt.plot(gx, eig_arr_NB[:, i], c = 'b', ls = '--')
+gamx_crit = np.array(gamx_crit)
+plt.plot(gamx_crit, mu, c='r')
 
 plt.xlabel(r'$E_z$ (meV)')
-plt.ylabel("Energy (meV)")
-plt.savefig("EvsGamx.png")
+plt.ylabel(r'$\mu$ (meV)')
+
+plt.title('Low-Energy Basis Calculated')
+plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi))
 plt.show()
+
+sys.exit()
+
+##############################################################
+
+#state plot
+MU = 2
+GX = 0.75
+
+H = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, V = V, mu = MU, gammax = GX, alpha = alpha, delta = delta, phi = np.pi, qx= 0,periodicX = True, periodicY = False)
+
+eigs, states = spLA.eigsh(H, k=8, sigma=0, which='LM')
+idx_sort = np.argsort(eigs)
+print(eigs[idx_sort])
+plots.state_cmap(coor, eigs, states, n=4, savenm='prob_density_nodule_n=4.png')
+plots.state_cmap(coor, eigs, states, n=5, savenm='prob_density_nodule_n=5.png')
+plots.state_cmap(coor, eigs, states, n=6, savenm='prob_density_nodule_n=6.png')
