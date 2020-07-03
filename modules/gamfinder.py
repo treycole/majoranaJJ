@@ -62,13 +62,13 @@ def gamfinder_lowE(
     V = 0, gammax = 0,  gammay = 0, gammaz = 0,
     alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0, periodicX = True, periodicY = False,
-    k = 20, tol = 0.01, steps=2000, n_bounds = 2
+    k = 20, tol = 0.005, n_bounds = 2
     ):
 
     MU = mu #fixed mu value
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 
-    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-5*(np.pi/Lx), qy=qy, periodicX=periodicX, periodicY=periodicY) #gives low energy basis
+    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-4*(np.pi/Lx), qy=qy, periodicX=periodicX, periodicY=periodicY) #gives low energy basis
 
     eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
@@ -82,6 +82,8 @@ def gamfinder_lowE(
     HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
     HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
 
+    delta = abs(gf - gi)
+    steps = int((delta/(0.5*tol))+1)
     gx = np.linspace(gi, gf, steps)
     eig_arr = np.zeros((gx.shape[0]))
 
@@ -104,22 +106,22 @@ def gamfinder_lowE(
             ZEC_idx.append(eig_min_idx[i]) #only append indices that have local min below tolerance
     eigs_min = eig_arr[ZEC_idx] #eigenvalues under tolerance
 
-    print(eigs_min.size, "Number of low res crossings")
-    if len(ZEC_idx) < n_bounds:
-        i_final = len(ZEC_idx) #only want n_bounds number of crossings
-    else:
-        i_final = n_bounds
-    print(i_final, "Number of crossings to be refined")
+    #plt.plot(gx, eig_arr, c='b')
+    #plt.scatter(gx[ZEC_idx], eig_arr[ZEC_idx], c='r', marker = 'X')
+    #plt.show()
 
-    tol = 0.001
-    for i in range(0, i_final):
+    print(eigs_min.size, "local minima below tolerance")
+
+    tol = 0.0005
+    for i in range(0, eigs_min.size):
         gx_c = gx[ZEC_idx[i]] #first approx g_critical
         gx_lower = gx[ZEC_idx[i]-1] #one step back
         gx_higher = gx[ZEC_idx[i]+1] #one step forward
+
         delta = (gx_higher - gx_lower)
-        n_steps = int((delta/(0.5*tol))+1)
-        
+        n_steps = int((delta/(0.5*tol))) + 1 
         gx_finer = np.linspace(gx_lower, gx_higher, n_steps) #high res gammax
+
         eig_arr_finer = np.zeros((gx_finer.size)) #new eigenvalue array
         for j in range(gx_finer.shape[0]):
             H_DB = HG0_DB + gx_finer[j]*HG_DB
@@ -128,11 +130,18 @@ def gamfinder_lowE(
 
         eig_min_idx_finer = np.array(argrelextrema(eig_arr_finer, np.less)[0]) #new local minima indices
         eigs_min_finer = eig_arr_finer[eig_min_idx_finer] #isolating local minima
+        for m in range(eigs_min_finer.shape[0]):
+            if eigs_min_finer[m] < tol:
+                ZEC_idx_HR = np.where(eig_arr_finer == eigs_min_finer[m])
+                G_crit.append(gx_finer[ZEC_idx_HR[0][0]]) #append critical gamma
+                print("crossing found at gx = ", gx_finer[ZEC_idx_HR[0][0]])
+        #if min(eigs_min_finer) < tol: #if effectively zero crossing
+        #    ZEC_idx_HR = np.where(eig_arr_finer == min(eigs_min_finer)) #where is the absolute minimum around approximate minumum, don't want more than one
+        #    G_crit.append(gx_finer[ZEC_idx_HR[0][0]]) #append critical gamma
+        #    print("crossing found at gx = ", gx_finer[ZEC_idx_HR[0][0]])
 
-        if min(eigs_min_finer) < tol: #if effectively zero crossing
-            ZEC_idx_HR = np.where(eigs_min_finer == np.amin(eigs_min_finer)) #where is the absolute minimum around approximate minumum, don't want more than one
-            G_crit.append(gx_finer[ZEC_idx_HR[0][0]]) #append critical gamma
-            print("crossing found at gx = ", gx_finer[ZEC_idx_HR[0][0]])
-
+            #plt.plot(gx_finer, eig_arr_finer, c = 'b')
+            #plt.scatter(gx_finer[ZEC_idx_HR[0][0]], eig_arr_finer[ZEC_idx_HR[0][0]])
+            #plt.show()
     G_crit = np.array(G_crit)
     return G_crit

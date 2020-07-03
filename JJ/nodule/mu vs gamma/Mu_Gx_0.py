@@ -1,5 +1,8 @@
 import sys
+import os
+dir = os.getcwd()
 import numpy as np
+import gc
 import matplotlib.pyplot as plt
 import scipy.sparse as sparse
 import scipy.linalg as LA
@@ -17,11 +20,11 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
-Ny = 400 #Number of lattice sites along y-direction
+Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 2 #width of nodule
+cutx = 6 #width of nodule
 cuty = 3 #height of nodule
 
 
@@ -48,15 +51,15 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 
 #Defining Hamiltonian parameters
-res = 0.01
-mu_i = 56
-mu_f = 64
+res = 0.05
+mu_i = 80
+mu_f = 90
 delta_mu = mu_f - mu_i
 
 steps = int(delta_mu/res)
 
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0 #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
@@ -65,38 +68,57 @@ mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 ###################################################
 
 #phase diagram mu vs gamx
-num_bound = 3
+num_bound = 5
 
-gamx_crit = np.zeros((steps, num_bound))
 gi = 0
 gf = 1.3
-n_steps = 200
-step_sze = (gf-gi)/n_steps
 
-for i in range(steps):
-    print(steps-i)
+gamx_crit = np.zeros((steps, num_bound))
+dirS = 'phase_data'
+if not os.path.exists(dirS):
+    os.makedirs(dirS)
 
-    gx = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = gi, gf = gf, alpha = alpha, delta = delta, phi = phi, tol = 0.001, steps = n_steps, k = 36)
+try:
+    PLOT = str(sys.argv[1])
+except:
+    PLOT = 'F'
+if PLOT != 'P':
+    for i in range(steps):
+        print(steps-i, "| mu =", mu[i])
 
-    print(gx)
+        gx = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = gi, gf = gf, alpha = alpha, delta = delta, phi = phi, k = 40)
 
-    for j in range(num_bound):
-        if j >= gx.size:
-            gamx_crit[i, j] = None
-        if j < gx.size:
-            gamx_crit[i, j] = gx[j]
+        for j in range(num_bound):
+            if j >= gx.size:
+                gamx_crit[i, j] = None
+            else:
+                gamx_crit[i, j] = gx[j]
 
-gamx_crit = np.array(gamx_crit)
-plt.plot(gamx_crit, mu, c='r')
+    gamx_crit = np.array(gamx_crit)
 
-plt.xlabel(r'$E_z$ (meV)')
-plt.ylabel(r'$\mu$ (meV)')
+    np.save("%s/gamxcrit Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi), gamx_crit)
+    np.save("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi), mu)
+    gc.collect()
 
-plt.title('Low-Energy Basis Calculated')
-plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi))
-plt.show()
+    sys.exit()
+else:
+    gamx_crit = np.load("%s/gamxcrit Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi))
+    mu = np.load("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi))
 
-sys.exit()
+    for i in range(gamx_crit.shape[1]):
+        plt.scatter(gamx_crit[:, i], mu, c='r', s = 2)
+
+    plt.xlabel(r'$E_z$ (meV)')
+    plt.ylabel(r'$\mu$ (meV)')
+
+    plt.xlim(gi, gf)
+
+    title = r"$L_x =$ {} nm, $L_y =$ {} nm, SC width = {} nm, $W_j =$ {} nm, $nodule_x = ${} nm, $nodule_y = ${} nm, $\alpha = $ {} meV*A, $\phi =$ {} ".format(Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, alpha, phi)
+    plt.title(title, wrap = True)
+    plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi))
+    plt.show()
+
+    sys.exit()
 
 ##############################################################
 

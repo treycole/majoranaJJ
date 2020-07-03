@@ -19,7 +19,7 @@ Ny = 400 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 0 #width of nodule
+cutx = 3 #width of nodule
 cuty = 3 #height of nodule
 
 nod_bool = True
@@ -51,11 +51,11 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = 0 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
-phi = 0*np.pi #SC phase difference
+phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential: [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-mu = 56.6  #Chemical Potential: [meV]
+mu = 57.8  #Chemical Potential: [meV]
 
 #####################################
 

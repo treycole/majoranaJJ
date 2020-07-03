@@ -48,9 +48,9 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 
 #Defining Hamiltonian parameters
-res = 0.005
-mu_i = 55
-mu_f = 57.5
+res = 0.01
+mu_i = 54
+mu_f = 58
 delta_mu = mu_f - mu_i
 
 steps = int(delta_mu/res)
@@ -65,19 +65,18 @@ mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 ###################################################
 
 #phase diagram mu vs gamx
-num_bound = 3
+num_bound = 5
 
 gamx_crit = np.zeros((steps, num_bound))
 gi = 0
 gf = 1.3
-n_steps = 100
+n_steps = 200
 step_sze = (gf-gi)/n_steps
-print(step_sze)
 
 for i in range(steps):
-    print(steps-i)
+    print(steps-i, "| mu =", mu[i])
 
-    gx = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = gi, gf = gf, alpha = alpha, delta = delta, phi = phi, tol = 0.005, steps = n_steps, k = 36)
+    gx = gfLE(coor, ax, ay, NN, cutx = cutx, cuty = cuty, NNb = NNb, Wj = Wj, V = V, mu = mu[i], gi = gi, gf = gf, alpha = alpha, delta = delta, phi = phi, k = 36)
 
     for j in range(num_bound):
         if j >= gx.size:

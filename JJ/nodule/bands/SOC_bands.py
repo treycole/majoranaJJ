@@ -14,11 +14,11 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
-Ny = 400 #Number of lattice sites along y-direction
+Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 3 #width of nodule
+cutx = 6 #width of nodule
 cuty = 3 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
@@ -53,14 +53,15 @@ mu = 50  #Chemical Potential: [meV]
 ###################################################
 
 k = 100 #This is the number of eigenvalues and eigenvectors you want
-steps = 101 #Number of kx and ky values that are evaluated
+steps = 201 #Number of kx and ky values that are evaluated
 
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 bands = np.zeros((steps, k))
 for i in range(steps):
     print(steps - i)
-    energy = spop.ESOC(coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, gammax = gx, alpha = alpha, qx = qx[i], periodicX = True, k = k)
+    energy = spop.ESOC(coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, gammax = gx, alpha = alpha, qx = qx[i], periodicX = True, k = k, sigma = 0)
 
     bands[i, :] = energy
 
-plots.bands(qx, bands, units = "meV", savenm = 'bands_ex.png')
+title = r"$L_x = %d$ , $L_y = %d$ , $W_{SC} = %.1f, $W_j = %.1f$ , $nodule_x = %.1f$, $nodule_y = %.1f$, $\alpha = %d$, $\mu = %d$" % (Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, alpha, mu)
+plots.bands(qx, bands, units = "meV", savenm = 'nodx={}nm_nody={}nm_Wj={}nm_Wsc={}nm_mu={}_V0={}.png'.format(Nod_widthx, Nod_widthy, Junc_width, SC_width, mu, V0), title = title)

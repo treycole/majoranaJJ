@@ -119,7 +119,7 @@ def bands(
     plt.ylabel('Energy ({})'.format(units))
     plt.xlim(xlim)
     plt.ylim(ylim)
-    plt.title(title)
+    plt.title(title, wrap = True)
     if savenm is not None:
         plt.savefig(savenm)
     plt.show()
