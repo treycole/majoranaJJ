@@ -14,7 +14,7 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
-Ny = 20#408 #Number of lattice sites along y-direction
+Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
@@ -44,24 +44,29 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
+delta = 1 #meV
+phi = np.pi
 gx = 0 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
 V0 = 50 #Amplitude of potential: [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-mu = 70 #Chemical Potential: [meV]
+mu = 65.5 #Chemical Potential: [meV]
 
 ###################################################
 
-k = 100 #This is the number of eigenvalues and eigenvectors you want
-steps = 101 #Number of kx and ky values that are evaluated
+k = 26
+H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, alpha=alpha, delta=delta, phi = phi, V=V, gammax=gx, gammaz=gz, mu=mu, qx=0, periodicX=True, periodicY=False)
 
-qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
-bands = np.zeros((steps, k))
-for i in range(steps):
-    print(steps - i)
-    energy = spop.ESOC(coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, alpha = alpha, qx = qx[i], periodicX = True, k = k, sigma = 0)
+eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+idx_sort = np.argsort(eigs)
+eigs = eigs[idx_sort]
+vecs = vecs[:, idx_sort]
+print(eigs)
 
-    bands[i, :] = energy
+n_es = 0 #nth excited state aboce zero energy
+n = int(k/2) + n_es
+plots.state_cmap(coor, eigs, vecs, n = n, title = r'$|\psi|^2$', savenm = 'juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} State_n={}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi, n_es))
+#sys.exit()
 
-title = r"$L_x = %d nm$ , $L_y = %d nm$ , $W_{SC} = %.1f nm$, $W_j = %.1f$ , $nodule_x = %.1f$, $nodule_y = %.1f$, $\alpha = %d$, $\mu = %d$" % (Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, alpha, mu)
-plots.bands(qx, bands, units = "meV", savenm = 'nodx={}nm_nody={}nm_Wj={}nm_Wsc={}nm_mu={}_V0={}.png'.format(Nod_widthx, Nod_widthy, Junc_width, SC_width, mu, V0), title = title)
+for i in range(int(k/2), k):
+    plots.state_cmap(coor, eigs, vecs, n = i, title = r'$|\psi|^2$', savenm = 'State_k={}.png'.format(i))

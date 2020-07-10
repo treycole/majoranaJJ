@@ -24,7 +24,7 @@ Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 6 #width of nodule
+cutx = 3 #width of nodule
 cuty = 3 #height of nodule
 
 
@@ -52,8 +52,8 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 
 #Defining Hamiltonian parameters
 res = 0.05
-mu_i = 80
-mu_f = 90
+mu_i = 90
+mu_f = 98
 delta_mu = mu_f - mu_i
 
 steps = int(delta_mu/res)
@@ -104,6 +104,7 @@ if PLOT != 'P':
 else:
     gamx_crit = np.load("%s/gamxcrit Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi))
     mu = np.load("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi))
+    print(gamx_crit[:, 0])
 
     for i in range(gamx_crit.shape[1]):
         plt.scatter(gamx_crit[:, i], mu, c='r', s = 2)

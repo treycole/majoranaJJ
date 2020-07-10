@@ -16,13 +16,13 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 ###################################################
 
 #Defining System
-Nx = 24 #Number of lattice sites along x-direction
-Ny = 250 #Number of lattice sites along y-direction
-ax = 12.5 #lattice spacing in x-direction: [A]
-ay = 25 #lattice spacing in y-direction: [A]
-Wj = 6 #Junction region
-cutx = 4 #width of nodule
-cuty = 2 #height of nodule
+Nx = 12 #Number of lattice sites along x-direction
+Ny = 20 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
+Wj = 8 #Junction region
+cutx = 3 #width of nodule
+cuty = 3 #height of nodule
 
 nod_bool = True
 if cutx == 0 and cuty == 0:
@@ -62,7 +62,7 @@ mu = 0  #Chemical Potential: [meV]
 #####################################
 
 num_eigs = 100 #number of eigenvalues and eigenvectors
-steps = 251 #Number of kx values that are evaluated
+steps = 101 #Number of kx values that are evaluated
 
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 bands = np.zeros((steps, num_eigs))

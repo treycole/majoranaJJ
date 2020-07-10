@@ -119,8 +119,8 @@ def gamfinder_lowE(
         gx_higher = gx[ZEC_idx[i]+1] #one step forward
 
         delta = (gx_higher - gx_lower)
-        n_steps = int((delta/(0.5*tol))) + 1 
-        gx_finer = np.linspace(gx_lower, gx_higher, n_steps) #high res gammax
+        n_steps = int((delta/(0.5*tol))) + 1
+        gx_finer = np.linspace(gx_lower, gx_higher, n_steps*100) #high res gammax
 
         eig_arr_finer = np.zeros((gx_finer.size)) #new eigenvalue array
         for j in range(gx_finer.shape[0]):
