@@ -26,11 +26,11 @@ def kx(coor, ax, ay, NN, NNb = None, qx = 0):
 
         if NNb is not None and NNb[i, 0] != -1:
             row.append(NNb[i,0]); col.append(i)
-            data.append( -tx*np.exp(-1j*qx*Lx) )
+            data.append(-tx*np.exp(-1j*qx*Lx))
 
         if NNb is not None and NNb[i, 2] != -1:
             row.append( NNb[i,2] ); col.append(i)
-            data.append( tx*np.exp(1j*qx*Lx) )
+            data.append(tx*np.exp(1j*qx*Lx))
 
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq

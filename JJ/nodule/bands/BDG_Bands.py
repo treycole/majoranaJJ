@@ -1,4 +1,5 @@
 import sys
+import time
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.sparse as sparse
@@ -15,7 +16,7 @@ from majoranaJJ.operators.potentials.barrier_leads import V_BL
 
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
-Ny = 400 #Number of lattice sites along y-direction
+Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
@@ -49,13 +50,13 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-gx = 0 #parallel to junction: [meV]
+gx = 0.75 #parallel to junction: [meV]
 gz = 0 #normal to plane of junction: [meV]
-phi = np.pi #SC phase difference
+phi = 0 #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential: [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-mu = 57.8  #Chemical Potential: [meV]
+mu = 58  #Chemical Potential: [meV]
 
 #####################################
 
@@ -64,11 +65,16 @@ steps = 101 #Number of kx values that are evaluated
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))
+
+start = time.perf_counter()
 for i in range(steps):
     print(steps - i)
     energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, alpha=alpha, delta=delta, phi = phi, V=V, gammax=gx, gammaz=gz, mu=mu, qx=qx[i], periodicX=True, k=k)
 
     bands[i, :] = energy
+
+end = time.perf_counter()
+print("Time: ", end-start)
 
 if nod_bool:
     x = "Present"
@@ -76,7 +82,7 @@ else:
     x = "Not Present"
 
 plots.bands(qx, bands, title = r'Nodule {}: $\mu = {}$'.format(x, mu), units = "meV", savenm = 'bands_bdg.png'.format(mu, V))
-sys.exit()
+plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
 
 #####################################
 """
