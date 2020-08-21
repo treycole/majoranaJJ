@@ -63,10 +63,11 @@ eigs = eigs[idx_sort]
 vecs = vecs[:, idx_sort]
 print(eigs)
 
-n_es = 0 #nth excited state aboce zero energy
+n_es = 0 #nth excited state above zero energy
 n = int(k/2) + n_es
-plots.state_cmap(coor, eigs, vecs, n = n, title = r'$|\psi|^2$', savenm = 'juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} State_n={}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi, n_es))
-#sys.exit()
+plots.state_cmap(coor, eigs, vecs, n = n, savenm = 'juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} State_n={}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi, n_es))
+
+sys.exit()
 
 for i in range(int(k/2), k):
     plots.state_cmap(coor, eigs, vecs, n = i, title = r'$|\psi|^2$', savenm = 'State_k={}.png'.format(i))

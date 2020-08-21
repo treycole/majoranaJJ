@@ -2,6 +2,7 @@ import scipy.sparse as sparse
 import scipy.sparse.linalg as spLA
 from numpy import linalg as npLA
 import numpy as np
+import majoranaJJ.operators.sparse.potentials as potentials
 
 import majoranaJJ.modules.constants as const
 
@@ -162,7 +163,7 @@ def Delta(
     Nx = (max(coor[: , 0]) - min(coor[:, 0])) + 1 #number of lattice sites in x-direction, parallel to junction
     row = []; col = []; data = []
 
-    if Wj == 0: #If no junction, every site is superconducting, no phase diff
+    if Wj == 0: #If no junction, every site is superconducting, no phase difference
         for i in range(N):
                 row.append(i); col.append(i)
                 data.append(delta)
@@ -170,23 +171,7 @@ def Delta(
         delta = sparse.bmat([[None, D], [-D, None]], format='csc', dtype='complex')
         return delta
 
-    if (Ny-Wj)%2 != 0 and Wj != 0: #Cant have even Ny and odd Wj, the top and bottom superconductors would then be of a different size
-        if Wj - 1 > 0:
-            Wj -= 1
-        else:
-            Wj +=1
-
-    if (Nx-cutx)%2 != 0 and cutx != 0: #Sx must be equal lengths on both sides
-        if cutx - 1 > 0:
-            cutx -= 1
-        else:
-            cutx += 1
-
-    while (2*cuty) >= Wj: #height of nodule cant be bigger than junction width
-        cuty -= 1
-
-    while Wj >= Ny: #if juntion width is larger than the total size of unit cell then we must decrease it until it is smaller
-        Wj -= 1
+    Nx, Ny, cutx, cuty, Wj = potentials.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
 
     Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
     Wsc = int((Ny - Wj)/2) #width of single superconductor
@@ -197,21 +182,21 @@ def Delta(
 
         if y < Wsc: #if in bottom SC
             row.append(i); col.append(i)
-            data.append(delta*np.exp(-1j*phi/2) )
+            data.append(delta*np.exp(-1j*phi/2))
 
         if y >= (Wsc+Wj): #if in top SC
             row.append(i); col.append(i)
-            data.append( delta*np.exp( 1j*phi/2 ) )
+            data.append(delta*np.exp( 1j*phi/2 ))
 
         if y >= Wsc and y < (Wsc+Wj): #if coordinates in junction region
             if cuty != 0 and cutx !=0: #if there is a nodule present
                 if (x >= Sx and x < (Sx + cutx)): #in x range of cut
-                    if y >= ((Wsc + Wj) - cuty): #if in y range of cut along bottom interface
-                        row.append(i); col.append(i)
-                        data.append(delta*np.exp(-1j*phi/2) )
-                    if  y < (Wsc + cuty) :#if in y range of cut along top interface
+                    if y >= ((Wsc + Wj) - cuty): #if in y range of cut along top interface, in top SC
                         row.append(i); col.append(i)
                         data.append(delta*np.exp(1j*phi/2) )
+                    elif  y < (Wsc + cuty): #if in y range of cut along bottom interface, in bottom SC
+                        row.append(i); col.append(i)
+                        data.append(delta*np.exp(-1j*phi/2) )
                     else: #site is in junction, out of y range
                         row.append(i); col.append(i)
                         data.append(0)

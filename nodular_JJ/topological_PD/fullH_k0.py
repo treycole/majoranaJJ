@@ -53,8 +53,8 @@ delta = 1 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
 
-mu_i = 57
-mu_f = 59
+mu_i = 50
+mu_f = 100
 res = 0.1
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/res)
@@ -79,6 +79,7 @@ try:
     PLOT = str(sys.argv[1])
 except:
     PLOT = 'F'
+    
 if PLOT != 'P':
     LE_Bands = np.zeros((mu.shape[0], gx.shape[0]))
     gap = np.zeros((mu.shape[0], gx.shape[0]))

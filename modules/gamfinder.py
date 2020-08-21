@@ -77,7 +77,7 @@ def gamfinder_lowE(
 
     H_G1 = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 1, alpha = alpha, delta = delta, phi = phi, qx = qx, qy=qy, periodicX = periodicX, periodicY=periodicY) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
-    HG = H_G1 - H_G0    #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
+    HG = H_G1 - H_G0 #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
 
     HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
     HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))

@@ -1,6 +1,6 @@
 import sys
 import os
-dir = os.getcwd()
+
 import numpy as np
 import gc
 import matplotlib.pyplot as plt
@@ -15,23 +15,19 @@ import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 
-from majoranaJJ.operators.potentials.barrier_leads import V_BL
+from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
+dir = os.getcwd()
 ###################################################
-
 #Defining System
-Nx = 12 #Number of lattice sites along x-direction
+Nx = 11 #Number of lattice sites along x-direction
 Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 8 #Junction region
-cutx = 6 #width of nodule
+Wj = 11 #Junction region
+cutx = 3 #width of nodule
 cuty = 3 #height of nodule
 
-nod_bool = True
-if cutx == 0 and cuty == 0:
-    nod_bool = False
-
-Junc_width = Wj*ay*.10 #nm
+Junc_width = Wj*ay*.1 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
 Nod_widthx = cutx*ax*.1 #nm
 Nod_widthy = cuty*ay*.1 #nm
@@ -39,9 +35,7 @@ print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
 print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 print("Supercondicting Lead Width = ", SC_width, "(nm)")
-
 ###################################################
-
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_Arr(coor) #neighbor array
 NNb = nb.Bound_Arr(coor) #boundary array
@@ -59,11 +53,9 @@ gz = 0 #normal to plane of junction: [meV]
 phi_steps = 5
 phi = np.linspace(0, np.pi, phi_steps) #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-V0 = 50 #Amplitude of potential: [meV]
-V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
-
+Vj = -50 #Amplitude of potential: [meV]
+V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
 #####################################
-
 k = 44 #This is the number of eigenvalues and eigenvectors you want
 mu_steps = 500 #Number of kx values that are evaluated
 mu_i = 50
@@ -100,7 +92,6 @@ if PLOT != 'P':
     for i in range(phi_steps):
         print(phi_steps - i)
         phi_num = phi_steps - i
-        #mu_DB = mu[0]
         #HM0_DB, HM_DB = get_LE_basis(coor, ax, ay, NN, NNb, Wj, cutx, cuty, V, mu_DB, 0, alpha, delta, phi[i])
         for j in range(mu_steps):
             print(phi_num, mu_steps - j)
@@ -116,11 +107,11 @@ if PLOT != 'P':
 
             bands[i, j, :] = eigs
 
-            np.save("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, mu_i, mu_f), bands)
-            np.save("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, mu_i, mu_f), mu)
+            np.save("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f), bands)
+            np.save("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f), mu)
 else:
-    bands = np.load("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, mu_i, mu_f))
-    mu = np.load("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, mu_i, mu_f))
+    bands = np.load("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f))
+    mu = np.load("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f))
 
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1)

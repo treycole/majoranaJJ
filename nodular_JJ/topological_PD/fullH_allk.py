@@ -1,12 +1,13 @@
 import sys
-import os
 import time
+import os
 dir = os.getcwd()
 import numpy as np
 import gc
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import scipy.sparse as sparse
+from scipy.signal import argrelextrema
 import scipy.linalg as LA
 import scipy.sparse.linalg as spLA
 
@@ -16,18 +17,16 @@ import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 from majoranaJJ.modules.gamfinder import gamfinder as gf
 from majoranaJJ.modules.gamfinder import gamfinder_lowE as gfLE
+from majoranaJJ.modules.top_checker import boundary_check as bc
 from majoranaJJ.operators.potentials.barrier_leads import V_BL
-import majoranaJJ.operators.sparse.k_dot_p as kp
-
 ###################################################
-
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
 Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 3 #width of nodule
+cutx = 6 #width of nodule
 cuty = 3 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
@@ -38,20 +37,15 @@ print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
 print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 print("Supercondicting Lead Width = ", SC_width, "(nm)")
-
 ###################################################
-
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_sqr(coor)
 NNb = nb.Bound_Arr(coor)
 lat_size = coor.shape[0]
 print("Lattice Size: ", lat_size)
-
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
-
 ###################################################
-
 #Defining Hamiltonian parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 phi = 0*np.pi #SC phase difference
@@ -59,24 +53,25 @@ delta = 1 #Superconducting Gap: [meV]
 V0 = 50 #Amplitude of potential : [meV]
 V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
 
+mu_i = 50
+mu_f = 100
 res = 0.1
-mu_i = 60
-mu_f = 70
 delta_mu = mu_f - mu_i
-steps = int(delta_mu/res)
+steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 
 gi = 0
 gf = 1.3
-tol = 0.025
-n_steps = int(((gf - gi)/(0.5*tol))) + 1
+tol = 0.001
+n_steps = int((gf - gi)/(0.5*tol)) + 1
 gx = np.linspace(gi, gf, n_steps)
 
-steps_k = 101
-qx = np.linspace(0, np.pi/Lx, steps_k)
+q_steps = 101
+qx = np.linspace(0, np.pi/Lx, q_steps) #kx in the first Brillouin zone
 
-k = 140
+k = 100
 ###################################################
+#phase diagram mu vs gamx
 dirS = 'gap_data'
 if not os.path.exists(dirS):
     os.makedirs(dirS)
@@ -84,83 +79,64 @@ try:
     PLOT = str(sys.argv[1])
 except:
     PLOT = 'F'
-if os.path.exists("%s/gap_data Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1])):
-    PLOT = 'P'
 if PLOT != 'P':
-    #phase diagram mu vs gamx
+    LE_Bands = np.zeros((qx.shape[0], mu.shape[0], gx.shape[0]))
+    top_array = np.zeros((mu.shape), dtype='int')
+    for q in range(qx.shape[0]):
+        print(qx.shape[0]-q)
+        for i in range(mu.shape[0]):
+            if q == 0 or top_array[i] == 1:
+                H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], alpha=alpha, delta=delta, phi=phi, gammax=1e-4, qx=qx[q], periodicX=True) #gives low energy basis
+                eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
+                vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
+                H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gammax=0, alpha=alpha, delta=delta, phi=phi, qx=qx[q], periodicX=True) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction
+                H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gammax=1, alpha=alpha, delta=delta, phi=phi, qx=qx[q], periodicX=True) #Hamiltonian with ones on Zeeman energy along x-direction sites
+                HG = H_G1 - H_G0    #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
+                HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
+                HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
+                start = time.perf_counter()
+                for j in range(gx.shape[0]):
+                    print(qx.shape[0]-q, mu.shape[0]-i, gx.shape[0]-j)
+                    H_DB = HG0_DB + gx[j]*HG_DB
+                    eigs_DB, U_DB = LA.eigh(H_DB)
+                    LE_Bands[q, i, j] = eigs_DB[int(k/2)]
+                end = time.perf_counter()
+                print("Time: ", end-start)
+                if q == 0:
+                    top_array[i] = bc(LE_Bands[0, i, :], gx, max_gam = 1.0)
+                    print(top_array[i])
+                print("mu = ", mu[i])
+                print("min in gamma", min(LE_Bands[0, i, :]))
+                if (min(LE_Bands[0, i, :])) < 0:
+                    print("Negative eigenvalue minima found. Something is wrong")
+                    sys.exit()
     gap = np.zeros((mu.shape[0], gx.shape[0]))
-    #gap_k0 = np.zeros((mu.shape[0], gx.shape[0]))
-    LE_bands = np.zeros((mu.shape[0], gx.shape[0], steps_k))
-
-    H0, Hq, Hqq, DELTA, Hgam = kp.Hq(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = mu[0], alpha = alpha, delta = delta, phi = phi, periodicX = True)
-
-    H = kp.H0(H0, Hq, Hqq, Hgam, q = 1e-6, gx = gx[0])
-    eigs_0, vecs_0 = spLA.eigsh(H, k=k, sigma=0, which='LM')
-    vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
-    vecs_0_c = np.conjugate(vecs_0)
-
-    H0_DB = np.dot(vecs_0_hc, H0.dot(vecs_0))
-    Hq_DB = np.dot(vecs_0_hc, Hq.dot(vecs_0))
-    Hqq_DB = np.dot(vecs_0_hc, Hqq.dot(vecs_0))
-    DELTA_DB = np.dot(vecs_0_hc, DELTA.dot(vecs_0_c))
-    Hgam_DB = np.dot(vecs_0_hc, Hgam.dot(vecs_0))
-    MU = np.eye(H0_DB.shape[0])
-
-    mu_cp = mu[0]
-    for i in range(mu.shape[0]):
-        if (mu[i] - mu_cp > 1):
-            print("Recalculating Low Energy Basis ...")
-            mu_cp = mu[i]
-            H0, Hq, Hqq, DELTA, Hgam = kp.Hq(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = mu_cp, alpha = alpha, delta = delta, phi = phi, periodicX = True)
-
-            H = kp.H0(H0, Hq, Hqq, Hgam, q = 1e-6, gx = 0)
-            eigs_0, vecs_0 = spLA.eigsh(H, k=k, sigma=0, which='LM')
-            vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
-            vecs_0_c = np.conjugate(vecs_0)
-
-            H0_DB = np.dot(vecs_0_hc, H0.dot(vecs_0))
-            Hq_DB = np.dot(vecs_0_hc, Hq.dot(vecs_0))
-            Hqq_DB = np.dot(vecs_0_hc, Hqq.dot(vecs_0))
-            DELTA_DB = np.dot(vecs_0_hc, DELTA.dot(vecs_0_c))
-            Hgam_DB = np.dot(vecs_0_hc, Hgam.dot(vecs_0))
-            MU = np.eye(H0_DB.shape[0])
-        for j in range(gx.shape[0]):
-            start = time.perf_counter()
-            for m in range(qx.shape[0]):
-                print(mu.shape[0] - i, gx.shape[0] - j, qx.shape[0] - m)
-                H = kp.HBDG_LE(H0_DB, Hq_DB, Hqq_DB, DELTA_DB, Hgam_DB, MU, mu[i] - mu_cp, q = qx[m], gx = gx[j])
-
-                eigs_DB, U_DB = LA.eigh(H)
-                #if m == 0:
-                #    bands = np.zeros((steps_k, eigs_DB.shape[0]))
-                #bands[m, :] = eigs_DB
-                #print(eigs_DB, eigs_DB[int(k)])
-                LE_bands[i, j, m] = eigs_DB[int(k)]
-            end = time.perf_counter()
-            print("Time: ", end-start)
-            #for n in range(bands.shape[1]):
-            #    plt.plot(qx, bands[:, n], c ='mediumblue', linestyle = 'solid')
-            #    plt.plot(-qx, bands[:, n], c ='mediumblue', linestyle = 'solid')
-            #plt.title('gx = {}, mu = {}'.format(gx[j], mu[i]))
-            #plt.show()
-
-    for i in range(LE_bands.shape[0]):
-        for j in range(LE_bands.shape[1]):
-            gap[i, j] = min(LE_bands[i, j, :])
+    q_minima = []
+    for i in range(LE_Bands.shape[1]):
+        for j in range(LE_Bands.shape[2]):
+            eig_min_idx = np.array(argrelextrema(LE_Bands[:, i, j], np.less)[0])
+            q_minima.append(qx[eig_min_idx])
+            gap[i, j] = min(LE_Bands[:, i, j])
+            #index of minima
+    q_minima = np.array(q_minima)
 
     np.save("%s/gap_data Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]), gap)
+    np.save("%s/LE_Bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]), LE_Bands)
+    np.save("%s/Top_array Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]), top_array)
     np.save("%s/gx Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]), gx)
     np.save("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]), mu)
+    np.save("%s/q_minima Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]), q_minima)
     gc.collect()
 
     sys.exit()
 else:
     gap = np.load("%s/gap_data Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]))
-    #gap_k0 = np.load("%s/gap_data_k0 Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]))
     gx = np.load("%s/gx Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]))
     mu =  np.load("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]))
+    #np.load("%s/q_minima Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f V_sc = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, V0, phi, mu[0], mu[-1]))
 
     gap = gap/delta
+
     plt.contourf(gx, mu, gap, 100, vmin = 0, vmax = max(gap.flatten()), cmap = 'magma')
     cbar = plt.colorbar()
     cbar.set_label(r'$E_{gap}/\Delta$')
@@ -171,7 +147,7 @@ else:
     plt.xlim(gi, gf)
 
     title = r"$L_x =$ {} nm, $L_y =$ {} nm, SC width = {} nm, $W_j =$ {} nm, $nodule_x = ${} nm, $nodule_y = ${} nm, $\alpha = $ {} meV*A, $\phi =$ {} ".format(Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, alpha, phi)
-    plt.title(title, loc = 'center', wrap = True, fontsize = 8)
+    plt.title(title, loc = 'center', wrap = True)
     plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu_i = {} mu_f = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi, mu_i, mu_f))
     plt.show()
 

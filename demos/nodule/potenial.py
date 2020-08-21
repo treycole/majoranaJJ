@@ -1,4 +1,4 @@
-import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.operators.sparse.potentials as potentials #sparse operators
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
@@ -13,5 +13,7 @@ coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
 NNb = nb.Bound_Arr(coor)
 
-D_test = spop.Delta(coor, Wj = Wj, delta = 0.3, cutx = cutx, cuty = cuty)
-plots.junction(coor, D_test, savenm = 'nodule.jpg')
+V0 = 50
+V = potentials.Vjj(coor, Wj, Vsc = 0, Vj = V0, cutx = cutx, cuty = cuty)
+
+plots.potential_profile(coor, V)

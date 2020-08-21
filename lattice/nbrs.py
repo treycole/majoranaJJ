@@ -64,7 +64,7 @@ def NN_sqr(coor):
 
 """ Periodic Boundary conditions
 if statements:
-if the x-coordinate of the ith lattice site is the minimum value, it must be on the edge of the unit cell and therefore has a nearest neighbor in the neighboring unit cell.
+if the x-coordinate of the ith lattice site is the minimum value, it must be on the edge of the unit cell and therefore has a nearest neighbor in the neighboring unit cell to the left which is equivalent to the right most site of the same y-value.
 Ex: To find the lattice site that corresponds to the neighbor to the left in the neighboring unit cell, we know it will be at most the (i + xmax)th site. If we are given a perfect square, it is the (i+ xmax)th site. In the case of the donut, this is not the case, so we until we find the site that is at the same height as the ith site, and has an x-coordinate that is the maximum value. The other statements follow similar logic for other neighbors.
 """
 def Bound_Arr(coor):

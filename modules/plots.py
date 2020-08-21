@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.sparse as sparse
 import matplotlib.pyplot as plt
 
 """
@@ -38,14 +39,14 @@ def lattice(
     plt.show()
 
 def junction(coor, delta, title = None, savenm = None):
-    plt.scatter(coor[:, 0], coor[:, 1] , c = 'b')
+    plt.scatter(coor[:, 0], coor[:, 1] , c = 'k')
 
     delta = delta.toarray()
     N = coor.shape[0]
     D = delta[0:N, N:]
 
     for i in range(N):
-        if D[i, i] == 0:
+        if D[i, i] != 0:
             plt.scatter(coor[i, 0], coor[i, 1], c = 'r')
 
     plt.xlim(-1, max(coor[:,0])+1)
@@ -55,9 +56,9 @@ def junction(coor, delta, title = None, savenm = None):
 
     plt.show()
 
-def potential_profile(V):
-    VV = sparse.bmat([[None, V], [-V, None]], format='csc', dtype='complex')
-    junction(coor, VV, title = 'Potential Profile', savenm = 'potential_profile.jpg')
+def potential_profile(coor, V):
+    V = sparse.bmat([[None, V], [V, None]], format='csc')
+    junction(coor, V, title = 'Potential Profile')
 
 """
 Plotting the probability density
@@ -90,7 +91,7 @@ def state_cmap(
     axx = fig.add_subplot(1,1,1)
 
     tc = axx.tricontourf(coor[:,0], coor[:,1], map, 1000)
-    axx.set_aspect(1.0)
+    #axx.set_aspect(1.0)
     axx.set_title(title)
     if savenm is not None:
         plt.savefig(savenm)
