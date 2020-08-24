@@ -18,15 +18,16 @@ import majoranaJJ.modules.plots as plots #plotting functions
 from majoranaJJ.modules.gamfinder import gamfinder as gf
 from majoranaJJ.modules.gamfinder import gamfinder_lowE as gfLE
 from majoranaJJ.modules.top_checker import boundary_check as bc
-from majoranaJJ.operators.potentials.barrier_leads import V_BL
+
+from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
 ###################################################
 #Defining System
-Nx = 12 #Number of lattice sites along x-direction
+Nx = 20 #Number of lattice sites along x-direction
 Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 8 #Junction region
-cutx = 6 #width of nodule
+Wj = 11 #Junction region
+cutx = 3 #width of nodule
 cuty = 3 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
@@ -50,26 +51,26 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 phi = 0*np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
-V0 = 50 #Amplitude of potential : [meV]
-V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
+Vj = -50 #Amplitude of potential: [meV]
+V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
 
 mu_i = 50
 mu_f = 100
-res = 0.1
+res = 0.25
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 
 gi = 0
 gf = 1.3
-tol = 0.001
-n_steps = int((gf - gi)/(0.5*tol)) + 1
-gx = np.linspace(gi, gf, n_steps)
+res = 0.001
+steps = int((gf - gi)/(0.5*res)) + 1
+gx = np.linspace(gi, gf, steps)
 
 q_steps = 101
 qx = np.linspace(0, np.pi/Lx, q_steps) #kx in the first Brillouin zone
 
-k = 100
+k = 60
 ###################################################
 #phase diagram mu vs gamx
 dirS = 'gap_data'
@@ -86,7 +87,11 @@ if PLOT != 'P':
         print(qx.shape[0]-q)
         for i in range(mu.shape[0]):
             if q == 0 or top_array[i] == 1:
-                H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], alpha=alpha, delta=delta, phi=phi, gammax=1e-4, qx=qx[q], periodicX=True) #gives low energy basis
+                if q == 0:
+                    Q = 1e-4*(np.pi/Lx)
+                else:
+                    Q = qx[q]
+                H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], alpha=alpha, delta=delta, phi=phi, gammax=1e-4, qx=Q, periodicX=True) #gives low energy basis
                 eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
                 vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
                 H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gammax=0, alpha=alpha, delta=delta, phi=phi, qx=qx[q], periodicX=True) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction

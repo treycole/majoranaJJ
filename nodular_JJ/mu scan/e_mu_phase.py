@@ -107,8 +107,8 @@ if PLOT != 'P':
 
             bands[i, j, :] = eigs
 
-            np.save("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f), bands)
-            np.save("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f), mu)
+    np.save("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f), bands)
+    np.save("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f), mu)
 else:
     bands = np.load("%s/bands Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f))
     mu = np.load("%s/mu Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f alpha = %.1f delta = %.2f Vj = %.1f  mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, alpha, delta, Vj, mu_i, mu_f))
@@ -122,7 +122,8 @@ else:
 
     ax.set_xlabel(r"$\mu$ (meV)")
     ax.set_ylabel("E (meV)")
-    ax.set_title(r"Lx = {} nm, Ly = {} nm, $\Delta$ = {} meV, $\alpha$ = {} meV A, $W_sc$ = {} nm, $W_J$ = {} nm, $Nodule_x$ = {} nm, $Nodule_y$ = {} nm".format(Lx*.1, Ly*.1, delta, alpha, SC_width, Junc_width, Nod_widthx, Nod_widthy), loc = 'center', wrap=True)
+    ax.set_title(r"Lx = %.1f nm, Ly = %.1f nm, $\Delta$ = %.2f meV, $\alpha$ = %.2f meV A, $W_{sc}$ = %.1f nm, $W_J$ = %.1f nm, $Nodule_x$ = %.1f nm, $Nodule_y$ = %.1f nm" % (Lx*.1, Ly*.1, delta, alpha, SC_width, Junc_width, Nod_widthx, Nod_widthy), loc = 'center', wrap=True)
     ax.set_ylim(-1.5, 1.5)
+    plt.subplots_adjust(top=0.85)
     plt.savefig("e_mu_phase.png", bbox_inches="tight")
     plt.show()

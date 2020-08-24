@@ -11,7 +11,7 @@ import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 from majoranaJJ.modules.gamfinder import gamfinder as gf
 from majoranaJJ.modules.gamfinder import gamfinder_lowE as gfLE
-from majoranaJJ.operators.potentials.barrier_leads import V_BL
+from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
 
 #Defining System
 Nx = 12 #Number of lattice sites along x-direction
@@ -49,20 +49,16 @@ alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = np.linspace(0, 1.2, 50)
 phi = 0 #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-V0 = 50 #Amplitude of potential : [meV]
-V = V_BL(coor, Wj = Wj, cutx=cutx, cuty=cuty, V0 = V0)
+Vj = -50 #Amplitude of potential: [meV]
+V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
 MU = 55 #Chemical Potential: [meV]
 
 ###################################################
 
 #Energy plot vs Zeeman energy in x-direction
 
-#seeing the junction layout
-#D_test = spop.Delta(coor, Wj = Wj, delta = 1, cutx = cutx, cuty = cuty)
-#plots.junction(coor, D_test)
-
-k = 200 #number of perturbation energy eigs
-Q = 0.002#1e-4*(np.pi/Lx)
+k = 60 #number of perturbation energy eigs
+Q = 1e-4*(np.pi/Lx)
 
 H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, qx=Q, periodicX=True)
 
@@ -71,35 +67,29 @@ eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma = 0,  which='LM')
 #print(eigs_0[idx_sort][int(k/2):])
 vecs_0_hc = np.conjugate(np.transpose(vecs_0))
 
-eig_arr = np.zeros((gx.shape[0], k))
-eig_arr_NB = np.zeros((gx.shape[0], k))
-
-H_G0 =  spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 0, alpha = alpha, delta = delta, phi = phi, qx = Q, periodicX = True)
-
-H_G1 = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 1, alpha = alpha, delta = delta, phi = phi, qx = Q, periodicX = True)
-
+H_G0 =  spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 0, alpha = alpha, delta = delta, phi = phi, qx = 0, periodicX = True)
+H_G1 = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 1, alpha = alpha, delta = delta, phi = phi, qx = 0, periodicX = True)
 HG = H_G1 - H_G0
 HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
 HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
 
+eig_arr = np.zeros((gx.shape[0], k))
+eig_arr_NB = np.zeros((gx.shape[0], k))
 for i in range(gx.shape[0]):
     print(gx.shape[0] - i, gx[i])
     H_DB = HG0_DB + gx[i]*HG_DB
-    #H = H_G0 + gx[i]*HG
-    #eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
     eigs_DB, U_DB = LA.eigh(H_DB)
-
-    #idx_sort = np.argsort(eigs)
-    #eigs = eigs[idx_sort]
-    #eig_arr[i, :] = eigs
-
     idx_sort = np.argsort(eigs_DB)
     eigs_DB = eigs_DB[idx_sort]
     eig_arr_NB[i, :] = eigs_DB
 
+    energy = spop.EBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, alpha=alpha, delta=delta, phi = phi, V=V, gammax=gx[i], mu=MU, qx=0, periodicX=True, k=k)
+    eig_arr[i, :] = energy
+
+
 for i in range(k):
     #if i % 2 == 0:
-    #plt.plot(gx, eig_arr[:, i], c = 'r')
+    plt.plot(gx, eig_arr[:, i], c = 'r')
     #else:
     plt.plot(gx, eig_arr_NB[:, i], c = 'b', ls = '--')
 
