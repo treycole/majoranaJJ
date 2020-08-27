@@ -1,8 +1,8 @@
 import sys
 import os
+import gc
 
 import numpy as np
-import gc
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.patches as patches
@@ -19,13 +19,13 @@ from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
 dir = os.getcwd()
 ###################################################
 #Defining System
-Nx = 11 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 11 #Junction region
-cutx = 3 #width of nodule
-cuty = 3 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 
 Junc_width = Wj*ay*.1 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -53,8 +53,8 @@ gz = 0 #normal to plane of junction: [meV]
 phi_steps = 5
 phi = np.linspace(0, np.pi, phi_steps) #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-Vj = -50 #Amplitude of potential: [meV]
-V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
+Vsc = -30 #Amplitude of potential: [meV]
+V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = 0, cutx = cutx, cuty = cuty)
 #####################################
 k = 44 #This is the number of eigenvalues and eigenvectors you want
 mu_steps = 500 #Number of kx values that are evaluated
@@ -125,5 +125,5 @@ else:
     ax.set_title(r"Lx = %.1f nm, Ly = %.1f nm, $\Delta$ = %.2f meV, $\alpha$ = %.2f meV A, $W_{sc}$ = %.1f nm, $W_J$ = %.1f nm, $Nodule_x$ = %.1f nm, $Nodule_y$ = %.1f nm" % (Lx*.1, Ly*.1, delta, alpha, SC_width, Junc_width, Nod_widthx, Nod_widthy), loc = 'center', wrap=True)
     ax.set_ylim(-1.5, 1.5)
     plt.subplots_adjust(top=0.85)
-    plt.savefig("e_mu_phase.png", bbox_inches="tight")
+    plt.savefig("e_mu_phase.png")
     plt.show()
