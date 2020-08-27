@@ -57,7 +57,7 @@ MU = 55 #Chemical Potential: [meV]
 
 #Energy plot vs Zeeman energy in x-direction
 
-k = 60 #number of perturbation energy eigs
+k = 44 #number of perturbation energy eigs
 Q = 1e-4*(np.pi/Lx)
 
 H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, qx=Q, periodicX=True)

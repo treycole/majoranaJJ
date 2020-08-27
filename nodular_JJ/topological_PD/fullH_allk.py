@@ -62,15 +62,15 @@ steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 
 gi = 0
-gf = 1.3
-res = 0.001
+gf = 1.0
+res = 0.005
 steps = int((gf - gi)/(0.5*res)) + 1
 gx = np.linspace(gi, gf, steps)
 
-q_steps = 101
+q_steps = 51
 qx = np.linspace(0, np.pi/Lx, q_steps) #kx in the first Brillouin zone
 
-k = 60
+k = 44
 ###################################################
 #phase diagram mu vs gamx
 dirS = 'gap_data'
@@ -153,7 +153,7 @@ else:
 
     title = r"$L_x =$ {} nm, $L_y =$ {} nm, SC width = {} nm, $W_j =$ {} nm, $nodule_x = ${} nm, $nodule_y = ${} nm, $\alpha = $ {} meV*A, $\phi =$ {} ".format(Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, alpha, phi)
     plt.title(title, loc = 'center', wrap = True)
-    plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu_i = {} mu_f = {}.png'.format(Junc_width, SC_width, V0, Nod_widthx, Nod_widthy, delta, alpha, phi, mu_i, mu_f))
+    plt.savefig('juncwidth = {} SCwidth = {} V0 = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu_i = {} mu_f = {}.png'.format(Junc_width, SC_width, Vsc, Nod_widthx, Nod_widthy, delta, alpha, phi, mu_i, mu_f))
     plt.show()
 
     sys.exit()
