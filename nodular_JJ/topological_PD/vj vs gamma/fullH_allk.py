@@ -22,13 +22,13 @@ from majoranaJJ.modules.top_checker import boundary_check as bc
 from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
 ###################################################
 #Defining System
-Nx = 3 #Number of lattice sites along x-direction
+Nx = 24 #Number of lattice sites along x-direction
 Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 11 #Junction region
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 3 #width of nodule
+cuty = 3 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -51,8 +51,9 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 phi = 0*np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
-Vsc = -30 #Amplitude of potential: [meV]
-V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = 0, cutx = cutx, cuty = cuty)
+Vsc = -30 #Amplitude of potential in SC region: [meV]
+Vj = 0 #Amplitude of potential in junction region: [meV]
+V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
 mu_i = 50
 mu_f = 100
