@@ -62,7 +62,7 @@ def lowE(
     V = 0, gammax = 0,  gammay = 0, gammaz = 0,
     alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0, periodicX = True, periodicY = False,
-    k = 20, tol = 0.005, n_bounds = 2
+    k = 20, tol = 0.002, n_bounds = 2
     ):
 
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
@@ -98,31 +98,20 @@ def lowE(
         G_crit.append(gx[-1])
 
     local_min_idx = np.array(argrelextrema(eig_arr, np.less)[0]) #local minima indices in the E vs gamma plot
-
-    """could be used for a first approx of gamma values for zero energy crossings (below tolerance):
-    eigs_local_min = eig_arr[local_min_idx] #eigenvalues at local min
-    ZEC_idx = [] #not all local min are zero energy crossings
-    for i in range(len(local_min_idx)):
-        if eigs_local_min[i] < tol:
-            ZEC_idx.append(local_min_idx[i]) #only append indices that have local min below tolerance
-    eigs_local_min_below_tol = eig_arr[ZEC_idx] #eigenvalues under tolerance
-
+    print(local_min_idx.size, "local minima found")
     #plt.plot(gx, eig_arr, c='b')
-    #plt.scatter(gx[ZEC_idx], eig_arr[ZEC_idx], c='r', marker = 'X')
+    #plt.scatter(gx[local_min_idx], eig_arr[local_min_idx], c='r', marker = 'X')
     #plt.show()
 
-    print(eigs_min.size, "local minima")
-    """
-    print(local_min_idx.size, "local minima found")
-    tol = tol/100
+    tol = tol/1000
     for i in range(0, local_min_idx.size): #eigs_min.size
         gx_c = gx[local_min_idx[i]] #gx[ZEC_idx[i]]""" #first approx g_critical
-        print("Checking for ZEC around gamma = {}, energy = {}".format(gx_c, eig_arr[i]))
+        print("Checking for ZEC around gamma = {}, energy = {}".format(gx_c, eig_arr[local_min_idx[i]]))
         gx_lower = gx[local_min_idx[i]-1]#gx[ZEC_idx[i]-1]""" #one step back
         gx_higher = gx[local_min_idx[i]+1]#gx[ZEC_idx[i]+1]""" #one step forward
 
         delta_gam = (gx_higher - gx_lower)
-        n_steps = int((delta_gam/(0.5*tol))) + 1
+        n_steps = (int((delta_gam/(0.5*tol))) + 1)*100
         gx_finer = np.linspace(gx_lower, gx_higher, n_steps) #high res gamma around supposed zero energy crossing (local min)
         eig_arr_finer = np.zeros((gx_finer.size)) #new eigenvalue array
         for j in range(gx_finer.shape[0]):
@@ -134,19 +123,12 @@ def lowE(
         eigs_min_finer = eig_arr_finer[min_idx_finer] #isolating local minima
         for m in range(min_idx_finer.shape[0]):
             if eigs_min_finer[m] < tol:
-                crossing_gamma = gx_finer[min_idx_finer]
+                crossing_gamma = gx_finer[min_idx_finer[m]]
                 G_crit.append(crossing_gamma)
-                #ZEC_idx_HR = np.where(eig_arr_finer == eigs_min_finer[m])
-                #G_crit.append(gx_finer[ZEC_idx_HR[0][0]]) #append critical gamma
-                #print("crossing found at gx = ", gx_finer[ZEC_idx_HR[0][0]])
-                print("crossing found at gx = {} and E = {}".format(crossing_gamma, eigs_min_finer[m]))
-        #if min(eigs_min_finer) < tol: #if effectively zero crossing
-        #    ZEC_idx_HR = np.where(eig_arr_finer == min(eigs_min_finer)) #where is the absolute minimum around approximate minumum, don't want more than one
-        #    G_crit.append(gx_finer[ZEC_idx_HR[0][0]]) #append critical gamma
-        #    print("crossing found at gx = ", gx_finer[ZEC_idx_HR[0][0]])
+                print("Crossing found at Gx = {} | E = {} meV".format(crossing_gamma, eigs_min_finer[m]))
 
-            #plt.plot(gx_finer, eig_arr_finer, c = 'b')
-            #plt.scatter(gx_finer[ZEC_idx_HR[0][0]], eig_arr_finer[ZEC_idx_HR[0][0]])
-            #plt.show()
+                #plt.plot(gx_finer, eig_arr_finer, c = 'b')
+                #plt.scatter(G_crit, eigs_min_finer[m], c= 'r', marker = 'X')
+                #plt.show()
     G_crit = np.array(G_crit)
     return G_crit

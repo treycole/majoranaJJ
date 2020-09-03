@@ -21,10 +21,10 @@ from majoranaJJ.modules.top_checker import boundary_check as bc
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 408 #Number of lattice sites along y-direction
+Ny = 60 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 11 #Junction region
+Wj = 8 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 
@@ -53,9 +53,9 @@ Vsc = 0 #Amplitude of potential in SC region: [meV]
 Vj = 0 #Amplitude of potential in junction region: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-mu_i = 50
-mu_f = 100
-res = 0.25
+mu_i = 0
+mu_f = 10
+res = 0.05
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
@@ -84,18 +84,18 @@ if PLOT != 'P':
     top_array = np.zeros((mu.shape), dtype='int')
     for q in range(qx.shape[0]):
         print(qx.shape[0]-q)
+        if q == 0:
+            Q = 1e-4*(np.pi/Lx)
+        else:
+            Q = qx[q]
         for i in range(mu.shape[0]):
             if q == 0 or top_array[i] == 1:
-                if q == 0:
-                    Q = 1e-4*(np.pi/Lx)
-                else:
-                    Q = qx[q]
                 H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], alpha=alpha, delta=delta, phi=phi, gammax=1e-4, qx=Q, periodicX=True) #gives low energy basis
                 eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
                 vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
                 H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gammax=0, alpha=alpha, delta=delta, phi=phi, qx=qx[q], periodicX=True) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction
                 H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gammax=1, alpha=alpha, delta=delta, phi=phi, qx=qx[q], periodicX=True) #Hamiltonian with ones on Zeeman energy along x-direction sites
-                HG = H_G1 - H_G0    #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
+                HG = H_G1 - H_G0 #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
                 HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
                 HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
                 start = time.perf_counter()
@@ -106,6 +106,7 @@ if PLOT != 'P':
                     LE_Bands[q, i, j] = eigs_DB[int(k/2)]
                 end = time.perf_counter()
                 print("Time: ", end-start)
+                
                 if q == 0:
                     top_array[i] = bc(LE_Bands[0, i, :], gx, max_gam = 1.0)
                     print(top_array[i])

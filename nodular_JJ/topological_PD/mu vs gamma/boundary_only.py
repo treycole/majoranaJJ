@@ -13,13 +13,13 @@ from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
 
 ###################################################
 #Defining System
-Nx = 3 #Number of lattice sites along x-direction
+Nx = 20 #Number of lattice sites along x-direction
 Ny = 60 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 8 #Junction region
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 3 #width of nodule
+cuty = 3 #height of nodule
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -41,14 +41,14 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0 #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
-Vj = 0 #Junction potential: [meV]
+Vj = -50 #Junction potential: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-res = 0.05
-mu_i = -5
+res = 0.025
+mu_i = -50
 mu_f = 10
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
@@ -94,7 +94,7 @@ else:
     plt.xlabel(r'$E_z$ (meV)')
     plt.ylabel(r'$\mu$ (meV)')
     plt.xlim(gi, gf)
-    title = r"$L_x$ = %.1f nm, $L_y$ = %.1f nm, $W_{sc}$ = %.1f nm, $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $V_{SC}$ = %.1f meV, $\phi$ %.2f " % (Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, Vj, Vsc, phi)
+    title = r"$L_x$ = %.1f nm, $L_y$ = %.1f nm, $W_{sc}$ = %.1f nm, $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $V_{SC}$ = %.1f meV, $\phi$ = %.2f " % (Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, Vj, Vsc, phi)
     #title = r"$L_x =$ {} nm, $L_y =$ {} nm, SC width = {} nm, $W_j =$ {} nm, $nodule_x = ${} nm, $nodule_y = ${} nm, $\alpha = $ {} meV*A, $\phi =$ {} ".format(Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, alpha, phi)
     plt.title(title, loc = 'center', wrap = True)
     plt.subplots_adjust(top=0.85)

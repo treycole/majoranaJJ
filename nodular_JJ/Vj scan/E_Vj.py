@@ -24,8 +24,8 @@ Ny = 408 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 11 #Junction region
-cutx = 3 #width of nodule
-cuty = 3 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 
 Junc_width = Wj*ay*.1 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm

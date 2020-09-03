@@ -2,7 +2,6 @@ import scipy.sparse as sparse
 import sys
 
 def junction_geometry_check(Ny, Nx, Wj, cutx, cuty):
-
     while Wj >= Ny: #if juntion width is larger than the total size of unit cell then we must decrease it until it is smaller
         Ny -= 1
 
