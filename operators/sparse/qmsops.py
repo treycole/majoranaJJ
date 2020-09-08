@@ -269,6 +269,41 @@ def H0(
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
 
+def H0b(
+    coor, ax, ay, NN, NNb = None,
+    V = 0, mu = 0,
+    Bx = 0, By = 0, Bz = 0, g = 26,
+    alpha = 0,
+    qx = 0, qy = 0,
+    periodicX = False, periodicY = False
+    ):  # Hamiltonian with SOC and no superconductivity
+
+    N = coor.shape[0] #number of lattice sites
+
+    if periodicX: #if x-direction is periodic
+        k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
+        k_x2 = kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
+    if periodicY: #if y-direction is periodic
+        k_y = ky(coor, ax, ay, NN, NNb = NNb, qy = qy)
+        k_y2 = ky2(coor, ax, ay, NN, NNb = NNb, qy = qy)
+    if not periodicX: #else
+        k_x = kx(coor, ax, ay, NN)
+        k_x2 = kx2(coor, ax, ay, NN)
+    if not periodicY: #else
+        k_y = ky(coor, ax, ay, NN)
+        k_y2 = ky2(coor, ax, ay, NN)
+
+    I = sparse.identity(N) #identity matrix of size NxN
+
+    H00 = (const.xi/2)*(k_x2 + k_y2) + V - mu*I
+    H11 = (const.xi/2)*(k_x2 + k_y2) + V - mu*I
+    H10 = alpha*(1j*k_x - k_y) + (1/2)*(const.muB*g*Bx)*I + 1j*(1/2)*(const.muB*g*By)*I
+    H01 = alpha*(-1j*k_x - k_y) + (1/2)*(const.muB*g*Bx)*I - 1j*(1/2)*(const.muB*g*By)*I
+
+    H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
+    return H
+
+
 """BDG Hamiltonian for superconductivity and SOC"""
 def HBDG(
     coor, ax, ay, NN, NNb = None, #lattice parameters
@@ -294,6 +329,32 @@ def HBDG(
 
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
+
+def HBDGb(
+    coor, ax, ay, NN, NNb = None, #lattice parameters
+    Wj = 0, cutx = 0, cuty = 0, #junction parameters
+    V = 0, mu = 0, #onsite energies
+    Bx = 0, By = 0, Bz = 0, #zeeman contributions
+    alpha = 0, delta = 0, phi = 0, #SOC, SC, SC-phase difference
+    qx = 0, qy = 0, #periodicity factors
+    periodicX = False, periodicY = False #booleans
+    ):
+
+    N = coor.shape[0] #number of lattice sites
+
+    D = Delta(coor, Wj = Wj, delta = delta, phi = phi, cutx = cutx, cuty = cuty)
+
+    H00 = H0b( coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, Bx = Bx, By = By, Bz = Bz, alpha = alpha, qx = qx, qy = qy, periodicX = periodicX, periodicY = periodicY)
+
+    H11 = -1*H0b(coor, ax, ay, NN, NNb = NNb, V = V, mu = mu, Bx = Bx, By = By, Bz = Bz, alpha = alpha, qx = -qx, qy = -qy, periodicX = periodicX, periodicY = periodicY).conjugate()
+
+    H10 = D.conjugate().transpose()
+
+    H01 = D
+
+    H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
+    return H
+
 
 #######################################################
 
