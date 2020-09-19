@@ -1,4 +1,4 @@
-import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.operators.sparse_operators as spop #sparse operators
 import numpy as np
 import scipy.linalg as LA
 import scipy.sparse.linalg as spLA
@@ -6,7 +6,9 @@ from scipy.signal import argrelextrema
 import sys
 import matplotlib.pyplot as plt
 
-#assuming linear behavior of the E vs gamma energy dispersion
+#Assuming linear behavior of the E vs gamma energy dispersion
+#Taking the slope and the initial points in the energy vs gamma plot
+#Extrapolate to find zero energy crossing
 def linear(
     coor, ax, ay, NN, mu,
     NNb = None, Wj = 0, cutx = 0, cuty = 0, V = 0,
@@ -53,26 +55,26 @@ def linear(
     return G_crit
 
 """
-This function calculates the phase transition points. To work it needs energy eigenvalues and eigenvectors of unperturbed Hamiltonian, or a Hamiltonian without any Zeeman field. When a Zeeman field is turned on, perturbation theory can be used to calculate the new energy eigenvalues and eigenvectors.
+This function calculates the phase transition points. To work it needs energy eigenvalues and eigenvectors of unperturbed Hamiltonian, or a Hamiltonian without any Zeeman field. When a Zeeman field is turned on, perturbation theory can be used to calculate the new energy eigenvalues and eigenvectors creating a reduced subspace of the initial Hilbert space. Works in units of gamme (meV)
 """
-
 def lowE(
     coor, ax, ay, NN, mu, gi, gf,
     NNb = None, Wj = 0, cutx = 0, cuty = 0,
     V = 0, gammax = 0,  gammay = 0, gammaz = 0,
     alpha = 0, delta = 0, phi = 0,
-    qx = 0, qy = 0, periodicX = True, periodicY = False,
+    qx = 0, qy = None,
+    Tesla = False, Zeeman_in_SC = True, SOC_in_SC = True,
     k = 20, tol = 0.001, n_bounds = 2
     ):
 
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
-    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-4*(np.pi/Lx), qy=qy, periodicX=periodicX, periodicY=periodicY) #gives low energy basis
+    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-4*(np.pi/Lx), qy=qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC) #gives low energy basis
 
     eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
 
-    H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=0, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction
-    H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=1, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY) #Hamiltonian with ones on Zeeman energy along x-direction sites
+    H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=0, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, Tesla = Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction
+    H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=1, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
     HG = H_G1 - H_G0 #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
 
@@ -98,9 +100,9 @@ def lowE(
 
     local_min_idx = np.array(argrelextrema(eig_arr, np.less)[0]) #local minima indices in the E vs gamma plot
     print(local_min_idx.size, "local minima found")
-    #plt.plot(gx, eig_arr, c='b')
-    #plt.scatter(gx[local_min_idx], eig_arr[local_min_idx], c='r', marker = 'X')
-    #plt.show()
+    plt.plot(gx, eig_arr, c='b')
+    plt.scatter(gx[local_min_idx], eig_arr[local_min_idx], c='r', marker = 'X')
+    plt.show()
 
     tol = tol/1000
     for i in range(0, local_min_idx.size): #eigs_min.size
@@ -126,12 +128,14 @@ def lowE(
                 G_crit.append(crossing_gamma)
                 print("Crossing found at Gx = {} | E = {} meV".format(crossing_gamma, eigs_min_finer[m]))
 
-                #plt.plot(gx_finer, eig_arr_finer, c = 'b')
-                #plt.scatter(G_crit, eigs_min_finer[m], c= 'r', marker = 'X')
-                #plt.show()
+                plt.plot(gx_finer, eig_arr_finer, c = 'b')
+                plt.scatter(G_crit, eigs_min_finer[m], c= 'r', marker = 'X')
+                plt.show()
     G_crit = np.array(G_crit)
     return G_crit
 
+#This function is the same as the previous function, but it used B-field (T)
+#instead of gamma (meV).
 def lowEb(
     coor, ax, ay, NN, mu, Bi, Bf,
     NNb = None, Wj = 0, cutx = 0, cuty = 0,

@@ -17,7 +17,7 @@ import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
-from majoranaJJ.modules.top_checker import boundary_check as bc
+from majoranaJJ.modules.checkers import boundary_check as bc
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
@@ -106,7 +106,7 @@ if PLOT != 'P':
                     LE_Bands[q, i, j] = eigs_DB[int(k/2)]
                 end = time.perf_counter()
                 print("Time: ", end-start)
-                
+
                 if q == 0:
                     top_array[i] = bc(LE_Bands[0, i, :], gx, max_gam = 1.0)
                     print(top_array[i])

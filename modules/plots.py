@@ -39,18 +39,25 @@ def lattice(
     plt.show()
 
 def junction(coor, delta, title = None, savenm = None):
-    plt.scatter(coor[:, 0], coor[:, 1] , c = 'k')
 
     delta = delta.toarray()
     N = coor.shape[0]
     D = delta[0:N, N:]
+    fig = plt.figure()
+    axx = fig.add_subplot(1,1,1)
 
+    axx.scatter(coor[:, 0], coor[:, 1] , c = 'k')
     for i in range(N):
-        if D[i, i] != 0:
-            plt.scatter(coor[i, 0], coor[i, 1], c = 'r')
-
-    plt.xlim(-1, max(coor[:,0])+1)
-    plt.title(title)
+        if np.any(np.abs(D[i, :])) != 0:
+            if np.imag(D[i,i]) > 0:
+                axx.scatter(coor[i, 0], coor[i, 1], c = 'b')
+            if np.imag(D[i,i]) < 0:
+                axx.scatter(coor[i, 0], coor[i, 1], c = 'g')
+            if np.imag(D[i,i]) == 0:
+                axx.scatter(coor[i, 0], coor[i, 1], c = 'r')
+    axx.set_xlim(-5, max(coor[:,0])+5)
+    axx.set_title('Green is negative phase argument, Blue is positive phase argument, Red is zero phase', wrap = True)
+    axx.set_aspect(1.0)
     if savenm is not None:
         plt.savefig(savenm)
 

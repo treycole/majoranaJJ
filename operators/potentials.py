@@ -1,26 +1,6 @@
 import scipy.sparse as sparse
 import sys
-
-def junction_geometry_check(Ny, Nx, Wj, cutx, cuty):
-    while Wj >= Ny: #if juntion width is larger than the total size of unit cell then we must decrease it until it is smaller
-        Ny -= 1
-
-    if (Ny-Wj)%2 != 0: #Cant have even Ny and odd Wj, the top and bottom superconductors would then be of a different size
-        if Ny - 1 > Wj:
-            Ny -= 1
-        else:
-            Ny += 1
-
-    if (Nx-cutx)%2 != 0: #Sx must be equal lengths on both sides
-        if Nx - 1 > cutx:
-            Nx -= 1
-        else:
-            Nx += 1
-
-    while (2*cuty) >= Wj: #height of nodule cant be bigger than junction width
-        cuty -= 1
-
-    return Nx, Ny, cutx, cuty, Wj
+from majoranaJJ.modules.checkers import junction_geometry_check as jgc
 
 def Vjj(coor, Wj, Vsc, Vj, cutx = 0, cuty = 0):
 
@@ -29,7 +9,7 @@ def Vjj(coor, Wj, Vsc, Vj, cutx = 0, cuty = 0):
     Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
     row = []; col = []; data = []
 
-    Nx, Ny, cutx, cuty, Wj = junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
+    Nx, Ny, cutx, cuty, Wj = jgc(Ny, Nx, Wj, cutx, cuty)
 
     Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
     Wsc = int((Ny - Wj)/2) #width of single superconductor

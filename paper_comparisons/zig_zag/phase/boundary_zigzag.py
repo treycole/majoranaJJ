@@ -5,11 +5,13 @@ import gc
 import numpy as np
 import matplotlib.pyplot as plt
 
+import majoranaJJ.operators.sparse_operators as spop #sparse operators
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
-from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
+from majoranaJJ.operators.potentials import Vjj #potential JJ
+import majoranaJJ.modules.checkers as check
 
 ###################################################
 #Defining System
@@ -20,6 +22,7 @@ ay = 50 #lattice spacing in y-direction: [A]
 Wj = 40 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -47,7 +50,7 @@ Vsc = 0 #SC potential: [meV]
 Vj = 0 #Junction potential: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-res = 0.025
+res = 0.05
 mu_i = 0
 mu_f = 20
 delta_mu = mu_f - mu_i
@@ -58,6 +61,9 @@ Bi = 0
 Bf = 5
 num_bound = 8
 boundary = np.zeros((mu_steps, num_bound))
+
+D = spop.Delta(coor, Wj = Wj, delta = delta, phi = phi, cutx = cutx, cuty = cuty)
+plots.junction(coor, D)
 ###################################################
 #phase diagram mu vs gam
 dirS = 'boundary_data'
@@ -70,7 +76,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        bx = gamfinder.lowEb(coor, ax, ay, NN, mu[i], Bi, Bf, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi, k = 100)
+        bx = gamfinder.lowE(coor, ax, ay, NN, mu[i], Bi, Bf, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, qx = 0, alpha=alpha, delta=delta, phi=phi, Tesla=True, Zeeman_in_SC=False, SOC_in_SC=False, k=100)
         for j in range(num_bound):
             if j >= bx.size:
                 boundary[i, j] = None

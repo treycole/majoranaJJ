@@ -5,12 +5,13 @@ import scipy.sparse as sparse
 import scipy.linalg as LA
 import scipy.sparse.linalg as spLA
 
-import majoranaJJ.operators.sparse.qmsops as spop #sparse operators
+import majoranaJJ.operators.sparse_operators as spop #sparse operators
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
-from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
+from majoranaJJ.operators.potentials import Vjj #potential JJ
+import majoranaJJ.modules.checkers as check
 
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
@@ -47,7 +48,7 @@ Vj = 0 #Amplitude of potential: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
 MU = 0 #Chemical Potential: [meV]
 
-tol = 0.02
+tol = 0.001
 delta_B = abs(5 - 0)
 bsteps = int((delta_B/(0.5*tol))) + 1
 Bx = np.linspace(0, 5, bsteps)
@@ -56,16 +57,21 @@ Bx = np.linspace(0, 5, bsteps)
 
 k = 100 #number of perturbation energy eigs
 Q = 1e-4*(np.pi/Lx)
+Zeeman_in_SC = False
+SOC_in_SC = False
+Tesla = True
+mu=0
 
-H0 = spop.HBDGb(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, Bx=1e-4, alpha=alpha, delta=delta, phi=phi, qx=Q, periodicX=True)
+H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammaz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-4*(np.pi/Lx), Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC) #gives low energy basis
 
-eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma = 0,  which='LM')
-vecs_0_hc = np.conjugate(np.transpose(vecs_0))
+eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
+vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
 
-H_G0 =  spop.HBDGb(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, Bx = 0, alpha = alpha, delta = delta, phi = phi, qx = 0, periodicX = True)
-H_G1 = spop.HBDGb(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, Bx = 1, alpha = alpha, delta = delta, phi = phi, qx = 0, periodicX = True)
+H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=0, alpha=alpha, delta=delta, phi=phi, qx=0, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction
+H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=1, alpha=alpha, delta=delta, phi=phi, qx=0, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
-HG = H_G1 - H_G0
+HG = H_G1 - H_G0 #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
+
 HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
 HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
 
