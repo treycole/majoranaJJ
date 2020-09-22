@@ -10,192 +10,100 @@ import majoranaJJ.modules.checkers as check
 """Descritized k-x operator"""
 def kx(coor, ax, ay, NN, NNb = None, qx = None):
     row = []; col = []; data = []
-
     N = int(coor.shape[0])
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
     Lx = (xmax - xmin + 1)*ax
     tx = 1j/(2*ax)
-
-    if not SOC_in_SC:
-        Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
-        Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
-        Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
-        Wsc = int((Ny - Wj)/2) #width of single superconductor
-        for i in range(N):
-            y = coor[i, 1]
-            x = coor[i, 0]
-            if NN[i,0] != -1:
-                row.append( NN[i,0] ); col.append(i)
-                if check.is_in_SC(coor[NN[i,0], 0], coor[NN[i,0], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append(-tx)
-            if NN[i,2] != -1:
-                row.append( NN[i, 2] ); col.append(i)
-                if check.is_in_SC(coor[NN[i, 2], 0], coor[NN[i, 2], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append(tx)
-            if NNb is not None and qx is not None and NNb[i, 0] != -1:
-                row.append(NNb[i,0]); col.append(i)
-                if check.is_in_SC(coor[NNb[i, 0], 0], coor[NNb[i, 0], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append(-tx*np.exp(-1j*qx*Lx))
-            if NNb is not None and qx is not None and NNb[i, 2] != -1:
-                row.append( NNb[i, 2] ); col.append(i)
-                if check.is_in_SC(coor[NNb[i, 2], 0], coor[NNb[i, 2], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append(tx*np.exp(1j*qx*Lx))
-        ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
-        return ksq
-    else:
-        for i in range(N):
-            if NN[i,0] != -1:
-                row.append( NN[i,0] ); col.append(i)
-                data.append(-tx)
-
-            if NN[i,2] != -1:
-                row.append( NN[i,2] ); col.append(i)
-                data.append(tx)
-
-            if NNb is not None and qx is not None and NNb[i, 0] != -1:
-                row.append(NNb[i,0]); col.append(i)
-                data.append(-tx*np.exp(-1j*qx*Lx))
-
-            if NNb is not None and qx is not None and NNb[i, 2] != -1:
-                row.append( NNb[i,2] ); col.append(i)
-                data.append(tx*np.exp(1j*qx*Lx))
-
-        ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
-        return ksq
+    for i in range(N):
+        if NN[i,0] != -1:
+            row.append( NN[i,0] ); col.append(i)
+            data.append(-tx)
+        if NN[i,2] != -1:
+            row.append( NN[i,2] ); col.append(i)
+            data.append(tx)
+        if NNb is not None and qx is not None and NNb[i, 0] != -1:
+            row.append(NNb[i,0]); col.append(i)
+            data.append(-tx*np.exp(-1j*qx*Lx))
+        if NNb is not None and qx is not None and NNb[i, 2] != -1:
+            row.append( NNb[i,2] ); col.append(i)
+            data.append(tx*np.exp(1j*qx*Lx))
+    ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
+    return ksq
 
 """Descritized k-x squared operator"""
 def kx2(coor, ax, ay, NN, NNb = None, qx = None):
     row = []; col = []; data = []
-
     N = int(coor.shape[0])
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
     Lx = (xmax - xmin + 1)*ax
     tx = 1/(ax**2)
-
     for i in range(N):
         row.append(i); col.append(i); data.append(2*tx)
         if NN[i,0] != -1:
             row.append( NN[i,0] ); col.append(i)
             data.append( -tx )
-
         if NN[i,2] != -1:
             row.append( NN[i,2] ); col.append(i)
             data.append( -tx )
-
         if NNb is not None and qx is not None and NNb[i, 0] != -1:
             row.append( NNb[i,0] ); col.append(i)
             data.append( -tx*np.exp(-1j*qx*Lx) )
-
         if NNb is not None and qx is not None and NNb[i, 2] != -1:
             row.append( NNb[i,2] ); col.append(i)
             data.append( -tx*np.exp(1j*qx*Lx) )
-
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
 ############ Descritizing ky operators ##############
 
 """Descritized k-y operator"""
-def ky(coor, ax, ay, NN, NNb = None, qy = None, Wj = 0, cutx = 0, cuty = 0, SOC_in_SC = True):
+def ky(coor, ax, ay, NN, NNb = None, qy = None):
     row = []; col = []; data = []
-
     N = int(coor.shape[0])
     ymax = max(coor[:, 1])
     ymin = min(coor[:, 1])
     Ly = (ymax - ymin + 1)*ay
     ty = 1j/(2*ay)
-
-    if not SOC_in_SC:
-        Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
-        Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
-        Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
-        Wsc = int((Ny - Wj)/2) #width of single superconductor
-        for i in range(N):
-            if NN[i, 1] != -1:
-                row.append( NN[i, 1] ); col.append(i)
-                if check.is_in_SC(coor[NN[i, 1], 0], coor[NN[i, 1], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append(ty)
-            if NN[i, 3] != -1:
-                row.append( NN[i, 3] ); col.append(i)
-                if check.is_in_SC(coor[NN[i, 3], 0], coor[NN[i, 3], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append(-ty)
-            if NNb is not None and qy is not None and NNb[i, 1] != -1:
-                row.append(NNb[i, 1]); col.append(i)
-                if check.is_in_SC(coor[NNb[i, 1], 0], coor[NNb[i, 1], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append( ty*np.exp(1j*qy*Ly) )
-            if NNb is not None and qy is not None and NNb[i, 3] != -1:
-                row.append( NNb[i, 3] ); col.append(i)
-                if check.is_in_SC(coor[NNb[i, 3], 0], coor[NNb[i, 3], 1], Wsc, Wj, Sx, cutx, cuty)[0]:
-                    data.append(0)
-                else:
-                    data.append( -ty*np.exp(-1j*qy*Ly) )
-        ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
-        return ksq
-    else:
-        for i in range(N):
-            if NN[i, 1] != -1:
-                row.append( NN[i,1] ); col.append(i)
-                data.append( ty )
-
-            if NN[i, 3] != -1:
-                row.append( NN[i, 3] ); col.append(i)
-                data.append( -ty )
-
-            if NNb is not None and qy is not None and NNb[i, 1] != -1:
-                row.append( NNb[i, 1] ); col.append(i)
-                data.append( ty*np.exp(1j*qy*Ly) )
-
-            if NNb is not None and qy is not None and NNb[i, 3] != -1:
-                row.append(NNb[i, 3]); col.append(i)
-                data.append( -ty*np.exp(-1j*qy*Ly) )
-
-        ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
-        return ksq
+    for i in range(N):
+        if NN[i, 1] != -1:
+            row.append( NN[i,1] ); col.append(i)
+            data.append( ty )
+        if NN[i, 3] != -1:
+            row.append( NN[i, 3] ); col.append(i)
+            data.append( -ty )
+        if NNb is not None and qy is not None and NNb[i, 1] != -1:
+            row.append( NNb[i, 1] ); col.append(i)
+            data.append( ty*np.exp(1j*qy*Ly) )
+        if NNb is not None and qy is not None and NNb[i, 3] != -1:
+            row.append(NNb[i, 3]); col.append(i)
+            data.append( -ty*np.exp(-1j*qy*Ly) )
+    ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
+    return ksq
 
 """Descritized k-y squared operator"""
 def ky2(coor, ax, ay, NN, NNb = None, qy = None):
     row = []; col = []; data = []
-
     N = int(coor.shape[0])
     ymax = max(coor[:, 1])
     ymin = min(coor[:, 1])
     Ly = (ymax - ymin + 1)*ay
     ty = 1/(ay**2)
-
     for i in range(N):
         row.append(i); col.append(i); data.append(2*ty)
         if NN[i, 1] != -1:
             row.append( NN[i, 1] ); col.append(i)
             data.append(-ty)
-
         if NN[i, 3] != -1:
             row.append( NN[i, 3] ); col.append(i)
             data.append(-ty)
-
         if NNb is not None and qy is not None and NNb[i, 1] != -1:
             row.append( NNb[i, 1] ); col.append(i)
             data.append( -ty*np.exp(1j*qy*Ly) )
-
         if NNb is not None and qy is not None and NNb[i, 3] != -1:
             row.append( NNb[i, 3] ); col.append(i)
             data.append( -ty*np.exp(-1j*qy*Ly) )
-
     ksq = sparse.csc_matrix((data, (row,col)), shape= (N,N), dtype = 'complex')
     return ksq
 
@@ -280,12 +188,12 @@ def H0(
     Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
     Wsc = int((Ny - Wj)/2) #width of single superconductor
 
-    k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx, Wj = Wj, cutx = cutx, cuty = cuty)
-    k_y = ky(coor, ax, ay, NN, NNb = NNb, qy = qy, Wj = Wj, cutx = cutx, cuty = cuty)
+    k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
+    k_y = ky(coor, ax, ay, NN, NNb = NNb, qy = qy)
     k_x2 = kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
     k_y2 = ky2(coor, ax, ay, NN, NNb = NNb, qy = qy)
 
-    I = sparse.identity(N)#identity matrix of size NxN
+    I = sparse.identity(N) #identity matrix of size NxN
     if Zeeman_in_SC:
         I_Zeeman = I
     if not Zeeman_in_SC:
@@ -323,8 +231,8 @@ def H0(
     else:
         H00 = (const.xi/2)*(k_x2 + k_y2) + V + gammaz*I_Zeeman - mu*I
         H11 = (const.xi/2)*(k_x2 + k_y2) + V - gammaz*I_Zeeman - mu*I
-        H10 = alpha*(1j*k_x - k_y) + gammax*I_Zeeman + 1j*gammay*I_Zeeman
-        H01 = alpha*(-1j*k_x - k_y) + gammax*I_Zeeman - 1j*gammay*I_Zeeman
+        H10 = alpha*(1j*k_x - k_y)*I_SOC + gammax*I_Zeeman + 1j*gammay*I_Zeeman
+        H01 = alpha*(-1j*k_x - k_y)*I_SOC + gammax*I_Zeeman - 1j*gammay*I_Zeeman
 
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
@@ -347,7 +255,7 @@ def HBDG(
             H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=qx, qy=qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC)
 
             H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=-qx, qy=-qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC).conjugate()
-        if qy is None:
+        if qy is None: #Most frequently this is the case
             H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax= gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=qx, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC)
 
             H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=-qx, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC).conjugate()

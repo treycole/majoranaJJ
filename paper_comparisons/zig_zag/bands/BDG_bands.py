@@ -4,8 +4,9 @@ import gc
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy.sparse as sparse
-import scipy.sparse.linalg as spLA
+import scipy.sparse as sp
+import scipy.sparse.linalg as spla
+#import kwant
 
 import majoranaJJ.operators.sparse_operators as spop #sparse operators
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
@@ -14,7 +15,6 @@ import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
 from majoranaJJ.operators.potentials import Vjj #potential JJ
 import majoranaJJ.modules.checkers as check
-
 ###################################################
 #Defining System
 Nx = 130 #Number of lattice sites along x-direction
@@ -63,7 +63,7 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    k = 22 #This is the number of eigenvalues and eigenvectors you want
+    k = 100 #This is the number of eigenvalues and eigenvectors you want
     steps = 201 #Number of kx values that are evaluated
     qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
@@ -75,8 +75,8 @@ if PLOT != 'P':
 
         H1 = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = mu, gammax = B[1], alpha = alpha, delta = delta, phi = phi[1], qx = qx[i], Tesla = True, Zeeman_in_SC = True, SOC_in_SC = False)
 
-        eigs0, vecs0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
-        eigs1, vecs1 = spLA.eigsh(H1, k=k, sigma=0, which='LM')
+        eigs0, vecs0 = spla.eigsh(H0, k=k, sigma=0,which=  'LM')
+        eigs1, vecs1 = spla.eigsh(H1, k=k, sigma=0, which='LM')
         idx_sort0 = np.argsort(eigs0)
         idx_sort1 = np.argsort(eigs1)
         eigs0 = eigs0[idx_sort0]
@@ -85,35 +85,35 @@ if PLOT != 'P':
         bands0[i, :] = eigs0
         bands1[i, :] = eigs1
 
-    np.save("%s/bands0 SOC and Zeman in SC Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[0]), bands0)
-    np.save("%s/bands1 SOC and Zeman in SC Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[1]), bands1)
-    np.save("%s/qx SOC and Zeman in SC Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta), qx)
+    np.save("%s/bands0 Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[0]), bands0)
+    np.save("%s/bands1 Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[1]), bands1)
+    np.save("%s/qx Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta), qx)
     gc.collect()
 
     sys.exit()
 
 else:
-    bands0 = np.load("%s/bands0 SOC and Zeman in SC Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[0]))
-    bands1 = np.load("%s/bands1 SOC and Zeman in SC Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[1]))
-    qx = np.load("%s/qx SOC and Zeman in SC Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta))
+    bands0 = np.load("%s/bands0 Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[0]))
+    bands1 = np.load("%s/bands1 Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi[1]))
+    qx = np.load("%s/qx Lx = %.1f Ly = %.1f Wsc = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f.npy" % (dirS, Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta))
 
-    for i in range(bands0.shape[1]):
-        plt.plot(qx, bands0[:, i], c ='mediumblue', linestyle = 'solid')
-        plt.plot(-qx, bands0[:, i], c ='mediumblue', linestyle = 'solid')
-        plt.plot(qx, bands1[:, i], c ='orange', linestyle = 'solid')
-        plt.plot(-qx, bands1[:, i], c ='orange', linestyle = 'solid')
+    for i in range(bands1.shape[1]):
+        plt.plot(qx, bands0[:, i], c ='mediumblue', linestyle = 'solid', lw=1)
+        plt.plot(-qx, bands0[:, i], c ='mediumblue', linestyle = 'solid', lw=1)
+        plt.plot(qx, bands1[:, i], c ='orange', linestyle = 'solid', lw=1)
+        plt.plot(-qx, bands1[:, i], c ='orange', linestyle = 'solid', lw=1)
 
-        plt.scatter(qx, bands0[:, i], c ='mediumblue', s = 10)
-        plt.scatter(-qx, bands0[:, i], c ='mediumblue', s = 10)
-        plt.scatter(qx, bands1[:, i], c ='orange', s = 10)
-        plt.scatter(-qx, bands1[:, i], c ='orange', s = 10)
+        plt.scatter(qx, bands0[:, i], c ='mediumblue', s = 5)
+        plt.scatter(-qx, bands0[:, i], c ='mediumblue', s = 5)
+        plt.scatter(qx, bands1[:, i], c ='orange', s = 5)
+        plt.scatter(-qx, bands1[:, i], c ='orange', s = 5)
 
     plt.plot(qx, 0*qx, c = 'k', linestyle='solid', lw=1)
     plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
     plt.xticks(np.linspace(-max(qx), max(qx), 5), (r'$-\pi/Lx$', r'$-\pi/2Lx$', '0', r'$\pi/2Lx$', r'$\pi/Lx$'))
     plt.xlabel(r'$k_x$ (1/A)')
     plt.ylabel('Energy (meV)')
-    plt.ylim(-0.325, 0.325)
+    plt.ylim(-0.35, 0.35)
     plt.title('Band Structures', wrap = True)
 
     plt.show()

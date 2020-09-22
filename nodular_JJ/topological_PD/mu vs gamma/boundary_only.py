@@ -10,16 +10,17 @@ import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
 from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
-
+import majoranaJJ.operators.sparse_operators as spop #sparse operators
 ###################################################
 #Defining System
-Nx = 20 #Number of lattice sites along x-direction
-Ny = 60 #Number of lattice sites along y-direction
-ax = 50 #lattice spacing in x-direction: [A]
-ay = 50 #lattice spacing in y-direction: [A]
-Wj = 8 #Junction region
-cutx = 3 #width of nodule
-cuty = 3 #height of nodule
+Nx = 3 #Number of lattice sites along x-direction
+Ny = 180 #Number of lattice sites along y-direction
+ax = 100 #lattice spacing in x-direction: [A]
+ay = 100 #lattice spacing in y-direction: [A]
+Wj = 20 #Junction region
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -35,27 +36,27 @@ NN = nb.NN_sqr(coor)
 NNb = nb.Bound_Arr(coor)
 lat_size = coor.shape[0]
 print("Lattice Size: ", lat_size)
-
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
-alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0 #SC phase difference
+alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
+phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
-Vj = -50 #Junction potential: [meV]
+Vj = 0 #Junction potential: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-res = 0.025
-mu_i = -50
-mu_f = 10
+mu_i = 0
+mu_f = 20
+res = 0.05
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
 
 gi = 0
 gf = 1.0
+res = 0.01
 num_bound = 5
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################
