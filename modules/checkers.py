@@ -18,13 +18,13 @@ def junction_geometry_check(Ny, Nx, Wj, cutx, cuty):
     while Wj >= Ny: #if juntion width is larger than the total size of unit cell then we must decrease it until it is smaller
         Ny -= 1
 
-    if (Ny-Wj)%2 != 0: #Cant have even Ny and odd Wj, the top and bottom superconductors would then be of a different size
+    if (Ny-Wj)%2 != 0 and Wj!=0: #Cant have even Ny and odd Wj, the top and bottom superconductors would then be of a different size
         if Ny - 1 > Wj:
             Ny -= 1
         else:
             Ny += 1
 
-    if (Nx-cutx)%2 != 0: #Sx must be equal lengths on both sides
+    if (Nx-cutx)%2 != 0 and cutx!=0: #Sx must be equal lengths on both sides
         if Nx - 1 > cutx:
             Nx -= 1
         else:
@@ -35,13 +35,14 @@ def junction_geometry_check(Ny, Nx, Wj, cutx, cuty):
 
     return Nx, Ny, cutx, cuty, Wj
 
-def is_in_SC(x, y, Wsc, Wj, Sx, cutx, cuty):
+def is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty):
+    x = coor[i, 0]
+    y = coor[i, 1]
+
     if y < Wsc: #in bottom SC
         return [True, 'B']
-
     if y >= (Wsc+Wj): #in top SC
         return [True, 'T']
-
     if y >= Wsc and y < (Wsc+Wj): #if coordinates in junction region
         if cuty != 0 and cutx !=0: #if there is a nodule present
             if (x >= Sx and x < (Sx + cutx)): #in x range of cut

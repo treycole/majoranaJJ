@@ -39,7 +39,6 @@ def lattice(
     plt.show()
 
 def junction(coor, delta, title = None, savenm = None):
-
     delta = delta.toarray()
     N = coor.shape[0]
     D = delta[0:N, N:]
@@ -89,16 +88,10 @@ def state_cmap(
         map[:] = map[:] + probdens[i*N : (i+1)*N]
 
     print("Sum of prob density", sum(map))
-    #plt.scatter(coor[:, 0], coor[:, 1], c = map, cmap = cmap)
-    #plt.title(title)
-    #plt.xlim(0, max(coor[:, 0]))
-    #plt.ylim(0, max(coor[:, 1]))
-    #plt.colorbar()
     fig = plt.figure()
     axx = fig.add_subplot(1,1,1)
-
     tc = axx.tricontourf(coor[:,0], coor[:,1], map, 1000)
-    #axx.set_aspect(1.0)
+    fig.colorbar(tc)
     axx.set_title(title)
     if savenm is not None:
         plt.savefig(savenm)
@@ -130,6 +123,7 @@ def bands(
     plt.title(title, wrap = True)
     if savenm is not None:
         plt.savefig(savenm)
+    plt.subplots_adjust(top=0.85)
     plt.show()
 
 

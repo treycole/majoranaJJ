@@ -139,10 +139,8 @@ def Delta(
         return delta
 
     for i in range(N):
-        x = coor[i, 0]
-        y = coor[i, 1]
         row.append(i); col.append(i)
-        bool_inSC, which = check.is_in_SC(x, y, Wsc, Wj, Sx, cutx, cuty)
+        bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
         if bool_inSC:
             if which == 'T':
                 data.append(delta*np.exp(1j*phi/2))
@@ -163,26 +161,28 @@ Parameters:
 V = potential type, must be a Matrix NxN
 mu = chemical potential
 alpha = Rashba SOC
-gammax = Zeeman energy parallel to junction/superconductor interface
-gammay = Zeeman energy perpindicular to Junction
-gammaz = Zeeman energy normal to device
+gamx = Zeeman energy parallel to junction/superconductor interface
+gamy = Zeeman energy perpindicular to Junction
+gamz = Zeeman energy normal to device
 
 Basis:
 Two states per lattice site for spin up and down. Rows/Columns 1 ->
 N correspond to spin up, rows/columns n -> 2N correspond to spin down
 """
-
+def xi(meff):
+    return ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(meff)
 def H0(
     coor, ax, ay, NN, NNb = None,
     Wj = 0, cutx = 0, cuty = 0,
-    V = 0, mu = 0,
-    gammax = 0, gammay = 0, gammaz = 0, g = 26,
-    alpha = 0,
+    V = 0, mu = 0, meff_normal = 0.026*const.m0, meff_sc = 0.026*const.m0,
+    alpha = 0, gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 26,
     qx = None, qy = None,
     Tesla = False,
-    Zeeman_in_SC = True, SOC_in_SC = True
-    ):  # Hamiltonian with SOC and no superconductivity
+    diff_g_factors = True, Rfactor = 1/5, diff_alphas = False, diff_meff = False
+    ):
+    # Hamiltonian with SOC and no superconductivity
     N = coor.shape[0] #number of lattice sites
+    I = sparse.identity(N) #identity matrix of size NxN
     Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
     Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
     Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
@@ -193,84 +193,88 @@ def H0(
     k_x2 = kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
     k_y2 = ky2(coor, ax, ay, NN, NNb = NNb, qy = qy)
 
-    I = sparse.identity(N) #identity matrix of size NxN
-    if Zeeman_in_SC:
-        I_Zeeman = I
-    if not Zeeman_in_SC:
+    if diff_g_factors and Tesla:
         row = []; col = []; data = []
         for i in range(N):
-            x = coor[i, 0]
-            y = coor[i, 1]
             row.append(i); col.append(i)
-            bool_inSC, which = check.is_in_SC(x, y, Wsc, Wj, Sx, cutx, cuty)
-            if bool_inSC:
-                data.append(0)
-            else:
-                data.append(1)
-        I_Zeeman = sparse.csc_matrix((data, (row, col)), shape = (N,N))
-    if SOC_in_SC:
-        I_SOC = I
-    if not SOC_in_SC:
+            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
+            if inSC:
+                data.append(g_SC)
+            if not inSC:
+                data.append(g_normal)
+        g_factor = sparse.csc_matrix((data, (row, col)), shape = (N,N))
+    elif diff_g_factors and not Tesla:
         row = []; col = []; data = []
         for i in range(N):
-            x = coor[i, 0]
-            y = coor[i, 1]
             row.append(i); col.append(i)
-            bool_inSC, which = check.is_in_SC(x, y, Wsc, Wj, Sx, cutx, cuty)
-            if bool_inSC:
-                data.append(0)
-            else:
+            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
+            if inSC:
+                data.append(Rfactor)
+            if not inSC:
                 data.append(1)
-        I_SOC = sparse.csc_matrix((data, (row, col)), shape = (N,N))
+        R = sparse.csc_matrix((data, (row, col)), shape = (N,N))
+    elif not diff_g_factors:
+        g_factor = I*g_normal
+        R = I
+
+    if diff_meff:
+        row = []; col = []; data = []
+        for i in range(N):
+            row.append(i); col.append(i)
+            inSC_i = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)[0]
+            if inSC_i :
+                data.append(xi(meff_sc)/2)
+            else:
+                data.append(xi(meff_normal)/2)
+        meff = sparse.csc_matrix((data, (row, col)), shape = (N,N))
+    elif not diff_meff:
+        meff = xi(meff_normal)/2
 
     if Tesla:
-        H00 = (const.xi/2)*(k_x2 + k_y2) + V + (1/2)*(const.muB*g*gammaz)*I_Zeeman - mu*I
-        H11 = (const.xi/2)*(k_x2 + k_y2) + V - (1/2)*(const.muB*g*gammaz)*I_Zeeman - mu*I
-        H10 = alpha*(1j*k_x - k_y)*I_SOC + (1/2)*(const.muB*g*gammax)*I_Zeeman + 1j*(1/2)*(const.muB*g*gammay)*I
-        H01 = alpha*(-1j*k_x - k_y)*I_SOC + (1/2)*(const.muB*g*gammax)*I_Zeeman - 1j*(1/2)*(const.muB*g*gammay)*I
-    else:
-        H00 = (const.xi/2)*(k_x2 + k_y2) + V + gammaz*I_Zeeman - mu*I
-        H11 = (const.xi/2)*(k_x2 + k_y2) + V - gammaz*I_Zeeman - mu*I
-        H10 = alpha*(1j*k_x - k_y)*I_SOC + gammax*I_Zeeman + 1j*gammay*I_Zeeman
-        H01 = alpha*(-1j*k_x - k_y)*I_SOC + gammax*I_Zeeman - 1j*gammay*I_Zeeman
+        H00 = (k_x2 + k_y2).multiply(meff) + V + (1/2)*(const.muB*gamz)*g_factor - mu*I
+        H11 = (k_x2 + k_y2).multiply(meff) + V - (1/2)*(const.muB*gamz)*g_factor - mu*I
+        H10 = alpha*(1j*k_x - k_y)*I + (1/2)*(const.muB*gamx)*g_factor + 1j*(1/2)*(const.muB*gamy)*g_factor
+        H01 = alpha*(-1j*k_x - k_y)*I + (1/2)*(const.muB*gamx)*g_factor - 1j*(1/2)*(const.muB*gamy)*g_factor
+    elif not Tesla:
+        #Then gamx is in units of meV and R is "Reduction factor"
+        #R is a matrix multiplying SC sites by a fraction in proportion to
+        #the ratio of g-factors
+        H00 = (k_x2 + k_y2).multiply(meff) - mu*I + V + gamz*R
+        H01 = alpha*(-1j*k_x - k_y)*I + gamx*R - 1j*gamy*R
+        H10 = alpha*(1j*k_x - k_y)*I + gamx*R + 1j*gamy*R
+        H11 = (k_x2 + k_y2).multiply(meff) - mu*I + V - gamz*R
 
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
-
 
 """BDG Hamiltonian for superconductivity and SOC"""
 def HBDG(
     coor, ax, ay, NN, NNb = None, #lattice parameters
     Wj = 0, cutx = 0, cuty = 0, #junction parameters
-    V = 0, mu = 0, #onsite energies
-    gammax = 0, gammay = 0, gammaz = 0, g = 26, #zeeman contributions
+    V = 0, mu = 0, meff_normal = 0.026*const.m0, meff_sc = 0.026*const.m0,
+    gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 26, #zeeman contributions
     alpha = 0, delta = 0, phi = 0, #SOC, SC, SC-phase difference
     qx = None, qy = None, #periodicity factors
-    Tesla = False, Zeeman_in_SC = True, SOC_in_SC = True #booleans
+    Tesla = False, diff_g_factors = True, Rfactor = 1/5, diff_alphas = False, diff_meff = False #booleans
     ):
     N = coor.shape[0] #number of lattice sites
     D = Delta(coor, Wj=Wj, delta=delta, phi=phi, cutx=cutx, cuty=cuty)
+
+    QX11 = None
+    QY11 = None
     if qx is not None:
-        if qy is not None:
-            H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=qx, qy=qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC)
+        QX11 = -qx
+    if qy is not None:
+        QY11 = -qy
 
-            H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=-qx, qy=-qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC).conjugate()
-        if qy is None: #Most frequently this is the case
-            H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax= gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=qx, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC)
+    H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff)
 
-            H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=-qx, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC).conjugate()
-    if qx is None:
-        if qy is None:
-            H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC)
+    H01 = D
 
-            H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC).conjugate()
-        if qy is not None:
-            H00 = H0( coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qy=qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC)
-
-            H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qy=-qy, Tesla=Tesla, Zeeman_in_SC=Zeeman_in_SC, SOC_in_SC=SOC_in_SC).conjugate()
+    H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=QX11, qy=QY11, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff).conjugate()
 
     H10 = D.conjugate().transpose()
-    H01 = D
+
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
 
@@ -281,13 +285,13 @@ def EBDG(
     coor, ax, ay, NN, NNb = None, Wj = 0,
     cutx = 0, cuty = 0,
     V = 0, mu = 0,
-    gammax = 0, gammay = 0, gammaz = 0,
+    gamx = 0, gamy = 0, gamz = 0,
     alpha = 0, delta = 0, phi = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
     k = 8, sigma = 0, which = 'LM', tol = 0, maxiter = None
     ):
-    H = HBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, cutx=cutx, cuty=cuty, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
+    H = HBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, cutx=cutx, cuty=cuty, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
 
     eigs, vecs = spLA.eigsh(H, k=k, sigma=sigma, which=which, tol=tol, maxiter=maxiter)
     idx_sort = np.argsort(eigs)
@@ -298,12 +302,12 @@ def EBDG(
 def ESOC(
     coor, ax, ay, NN, NNb = None,
     V = 0, mu = 0,
-    gammax = 0, gammay = 0, gammaz = 0, alpha = 0,
+    gamx = 0, gamy = 0, gamz = 0, alpha = 0,
     qx = 0, qy = 0,
     periodicX = False, periodicY = False,
     k = 4, sigma = 0, which = 'LM', tol = 0, maxiter = None
     ):
-    H = H0(coor, ax, ay, NN, NNb=NNb, V=V, mu=mu, gammax=gammax, gammay=gammay, gammaz=gammaz, alpha=alpha, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
+    H = H0(coor, ax, ay, NN, NNb=NNb, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
 
     eigs, vecs = spLA.eigsh(H, k=k, sigma=sigma, which=which, tol=tol, maxiter=maxiter)
     idx_sort = np.argsort(eigs)

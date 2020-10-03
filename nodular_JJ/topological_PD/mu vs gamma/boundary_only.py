@@ -9,18 +9,18 @@ import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
-from majoranaJJ.operators.sparse.potentials import Vjj #potential JJ
+from majoranaJJ.operators.potentials import Vjj #potential JJ
 import majoranaJJ.operators.sparse_operators as spop #sparse operators
+import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 180 #Number of lattice sites along y-direction
-ax = 100 #lattice spacing in x-direction: [A]
-ay = 100 #lattice spacing in y-direction: [A]
+Ny = 500 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
 Wj = 20 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
-Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -35,12 +35,12 @@ coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_sqr(coor)
 NNb = nb.Bound_Arr(coor)
 lat_size = coor.shape[0]
-print("Lattice Size: ", lat_size)
+
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
-alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
+alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
@@ -49,14 +49,14 @@ V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
 mu_i = 0
 mu_f = 20
-res = 0.05
+res = 0.1
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
+dmu = -0.01475
 
 gi = 0
-gf = 1.0
-res = 0.01
+gf = 10.0
 num_bound = 5
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################
@@ -71,7 +71,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = gamfinder.lowE(coor, ax, ay, NN, mu[i], gi, gf, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi)
+        gx = gamfinder.lowE(coor, NN, NNb, ax, ay, mu[i]+dmu, gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi, k = 50)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None
