@@ -178,7 +178,7 @@ def H0(
     alpha = 0, gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 26,
     qx = None, qy = None,
     Tesla = False,
-    diff_g_factors = True, Rfactor = 1/5, diff_alphas = False, diff_meff = False
+    diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False
     ):
     # Hamiltonian with SOC and no superconductivity
     N = coor.shape[0] #number of lattice sites

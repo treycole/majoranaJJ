@@ -44,10 +44,11 @@ alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
-Vj = 0 #Junction potential: [meV]
+Vj = -5 #Junction potential: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
+plots.potential_profile(coor, V)
 
-mu_i = 0
+mu_i = -7
 mu_f = 20
 res = 0.1
 delta_mu = mu_f - mu_i
@@ -71,7 +72,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = gamfinder.lowE(coor, NN, NNb, ax, ay, mu[i]+dmu, gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi, k = 50)
+        gx = gamfinder.lowE(coor, NN, NNb, ax, ay, mu[i]+dmu, gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi, k = 164)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None

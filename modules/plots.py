@@ -1,6 +1,7 @@
 import numpy as np
 import scipy.sparse as sparse
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 """
 Plotting the lattice neighbors and boundary neighbors
@@ -64,7 +65,26 @@ def junction(coor, delta, title = None, savenm = None):
 
 def potential_profile(coor, V):
     V = sparse.bmat([[None, V], [V, None]], format='csc')
-    junction(coor, V, title = 'Potential Profile')
+    V = V.toarray()
+    N = coor.shape[0]
+    V = V[0:N, N:]
+    fig = plt.figure()
+    axx = fig.add_subplot(1,1,1)
+
+    axx.scatter(coor[:, 0], coor[:, 1] , c = 'k')
+    for i in range(N):
+        if np.any(np.abs(V[i, :])) != 0:
+            if V[i, i] < 0:
+                axx.scatter(coor[i, 0], coor[i, 1], c = 'b', label = 'Blue')
+            if V[i, i] > 0:
+                axx.scatter(coor[i, 0], coor[i, 1], c = 'red', label = 'Red')
+    blue_patch = mpatches.Patch(color='b', label='Negative potential')
+    red_patch = mpatches.Patch(color='r', label='Positive potential')
+    plt.legend(handles=[blue_patch,red_patch])
+    axx.set_xlim(-5, max(coor[:,0])+5)
+    axx.set_title('Potential Profile', wrap = True)
+    axx.set_aspect(1.0)
+    plt.show()
 
 """
 Plotting the probability density
