@@ -21,14 +21,14 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 50 #Number of lattice sites along y-direction
-ax = 100 #lattice spacing in x-direction: [A]
-ay = 100 #lattice spacing in y-direction: [A]
+Ny = 100 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
 Wj = 10 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
-Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
-print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Ny, Nx, Wj, cutx, cuty))
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
+print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -51,12 +51,12 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = 0.9 #parallel to junction: [meV]
-phi = 0 #SC phase difference
+phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
 mu = 10  #Chemical Potential: [meV]
 #####################################
-k = 24 #This is the number of eigenvalues and eigenvectors you want
-steps = 51 #Number of kx values that are evaluated
+k = 12 #This is the number of eigenvalues and eigenvectors you want
+steps = 501 #Number of kx values that are evaluated
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))

@@ -73,7 +73,7 @@ def lowE(
     V = 0, meff_normal = 0.026*const.m0, meff_sc = 0.026*const.m0,
     g_normal = 26, g_sc = 26,
     alpha = 0, delta = 0, phi = 0,
-    Tesla = False, diff_g_factors = True,  Rfactor = 1/5, diff_alphas = False, diff_meff = False,
+    Tesla = False, diff_g_factors = True,  Rfactor = 0, diff_alphas = False, diff_meff = False,
     k = 20, tol = 0.005
     ):
 

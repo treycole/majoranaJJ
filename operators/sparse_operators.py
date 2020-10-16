@@ -255,7 +255,7 @@ def HBDG(
     gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 26, #zeeman contributions
     alpha = 0, delta = 0, phi = 0, #SOC, SC, SC-phase difference
     qx = None, qy = None, #periodicity factors
-    Tesla = False, diff_g_factors = True, Rfactor = 1/5, diff_alphas = False, diff_meff = False #booleans
+    Tesla = False, diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False #booleans
     ):
     N = coor.shape[0] #number of lattice sites
     D = Delta(coor, Wj=Wj, delta=delta, phi=phi, cutx=cutx, cuty=cuty)

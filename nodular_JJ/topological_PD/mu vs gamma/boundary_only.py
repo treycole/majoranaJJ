@@ -15,12 +15,14 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 500 #Number of lattice sites along y-direction
+Ny = 290 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 20 #Junction region
+Wj = 40 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
+print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -48,17 +50,17 @@ Vj = -5 #Junction potential: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 plots.potential_profile(coor, V)
 
-mu_i = -7
-mu_f = 20
+mu_i = -5
+mu_f = 10
 res = 0.1
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
-dmu = -0.01475
+dmu = -0.010347
 
 gi = 0
-gf = 10.0
-num_bound = 5
+gf = 8.0
+num_bound = 6
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################
 #phase diagram mu vs gam
@@ -72,7 +74,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = gamfinder.lowE(coor, NN, NNb, ax, ay, mu[i]+dmu, gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi, k = 164)
+        gx = gamfinder.lowE(coor, NN, NNb, ax, ay, mu[i]+dmu, gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi, k = 200)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None

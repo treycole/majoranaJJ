@@ -21,14 +21,14 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 50 #Number of lattice sites along y-direction
-ax = 100 #lattice spacing in x-direction: [A]
-ay = 100 #lattice spacing in y-direction: [A]
-Wj = 10 #Junction region
+Ny = 290 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
+Wj = 40 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
-Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
-print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Ny, Nx, Wj, cutx, cuty))
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
+print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -49,21 +49,22 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0 #SC phase difference
+phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #Amplitude of potential in SC region: [meV]
-Vj = 0 #Amplitude of potential in junction region: [meV]
+Vj = -5 #Amplitude of potential in junction region: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-mu_i = 0
-mu_f = 20
+mu_i = -5
+mu_f = 10.0
 res = 0.1
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
+dmu = -0.010347
 
-gi = 0
-gf = 1.0
+gi = 1
+gf = 1
 res = 0.025
 steps = int((gf - gi)/(0.5*res)) + 1
 gx = np.linspace(gi, gf, steps)
@@ -71,7 +72,7 @@ gx = np.linspace(gi, gf, steps)
 q_steps = 51
 qx = np.linspace(0, np.pi/Lx, q_steps) #kx in the first Brillouin zone
 
-k = 64
+k = 200
 ###################################################
 #phase diagram mu vs gamx
 dirS = 'gap_data'
@@ -89,14 +90,15 @@ if PLOT != 'P':
         if q == 0:
             Qx = 1e-5*(np.pi/Lx)
         for i in range(mu.shape[0]):
+            MU = mu[i] + dmu
             start = time.perf_counter()
             #if q == 0 or top_array[i] == 1:
-            H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], alpha=alpha, delta=delta, phi=phi, gamx=1e-4, qx=Qx) #gives low energy basis
+            H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, gamx=1e-4, qx=Qx)
             eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
-            vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
-            H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gamx=0, alpha=alpha, delta=delta, phi=phi, qx=qx[q]) #Matrix that consists of everything in the Hamiltonian except for the Zeeman energy in the x-direction
-            H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu[i], gamx=1, alpha=alpha, delta=delta, phi=phi, qx=qx[q]) #Hamiltonian with ones on Zeeman energy along x-direction sites
-            HG = H_G1 - H_G0 #the proporitonality matrix for gamma-x, it is ones along the sites that have a gamma value
+            vecs_0_hc = np.conjugate(np.transpose(vecs_0))
+            H_G0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gamx=0, alpha=alpha, delta=delta, phi=phi, qx=qx[q])
+            H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gamx=1, alpha=alpha, delta=delta, phi=phi, qx=qx[q])
+            HG = H_G1 - H_G0
             HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
             HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
             for j in range(gx.shape[0]):
@@ -141,6 +143,11 @@ else:
 
     gap = gap/delta
 
+    MU = mu[0]
+    plt.plot(gx, gap[0, :])
+    plt.title(r'Gap Size at $\mu$ = {} meV'.format(MU), wrap=True)
+    plt.show()
+    sys.exit()
     plt.contourf(gx, mu, gap, 100, vmin = 0, vmax = max(gap.flatten()), cmap = 'magma')
     cbar = plt.colorbar()
     cbar.set_label(r'$E_{gap}/\Delta$')

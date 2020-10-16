@@ -21,12 +21,13 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 500 #Number of lattice sites along y-direction
+Ny = 100 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 20 #Junction region
+Wj = 10 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -46,14 +47,11 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-delta = 1 #meV
-phi = 0
-gx = 0.0 #parallel to junction: [meV]
-gz = 0 #normal to plane of junction: [meV]
-mu = -0.01475 #Chemical Potential: [meV]
+gx = 0 #parallel to junction: [meV]
+mu = 0.04 #Chemical Potential: [meV]
 ###################################################
 #phase diagram mu vs gamx
-k = 100 #This is the number of eigenvalues and eigenvectors you want
+k = 22 #This is the number of eigenvalues and eigenvectors you want
 steps = 51 #Number of kx and ky values that are evaluated
 
 qx = np.linspace(0, 0.1*np.pi/Lx, steps) #kx in the first Brillouin zone

@@ -14,7 +14,7 @@ def boundary_check(eig_arr, gx, max_gam = 1.0, tol = 0.004):
             return 1
     return val
 
-def junction_geometry_check(Ny, Nx, Wj, cutx, cuty):
+def junction_geometry_check(Nx, Ny, cutx, cuty, Wj):
     while Wj >= Ny: #if juntion width is larger than the total size of unit cell then we must decrease it until it is smaller
         Ny -= 1
 
