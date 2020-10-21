@@ -50,21 +50,20 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
+gx = 1 #meV
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #Amplitude of potential in SC region: [meV]
 Vj = -5 #Amplitude of potential in junction region: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-mu_i = -5
-mu_f = 5.0
-res = 0.2
+mu_i = -1
+mu_f = 1
+res = 0.05
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
-dmu = -0.010347
-
-gx = 1 #meV
+dmu = -.010224
 ###################################################
 #phase diagram mu vs gamx
 dirS = 'gap_data'
@@ -95,6 +94,7 @@ else:
     gap = gap/delta
 
     plt.plot(mu, gap)
+    plt.ylim(-0.1, 0.5)
     plt.xlabel(r'$\mu$')
     plt.ylabel(r'gap/$\Delta$')
 

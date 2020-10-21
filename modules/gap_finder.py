@@ -23,7 +23,7 @@ def gap_finder(
     g_normal = 26, g_sc = 26,
     alpha = 0, delta = 0, phi = 0,
     Tesla = False, diff_g_factors = True,  Rfactor = 0, diff_alphas = False, diff_meff = False,
-    k = 4, steps = 21
+    k = 4, steps = 101
     ):
 
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
@@ -57,14 +57,13 @@ def gap_finder(
     #    plt.plot(-qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
     #plt.scatter(qx[local_min_idx], lowest_energy_band[local_min_idx], c='r', marker = 'X')
     #plt.show()
-    #sys.exit()
 
-    for i in range(0, local_min_idx.size): #eigs_min.size
+    for i in range(local_min_idx.size): #eigs_min.size
         qx_c = qx[local_min_idx[i]] #first approx g_critical
         qx_lower = qx[local_min_idx[i]-1] #one step back
         qx_higher = qx[local_min_idx[i]+1] #one step forward
 
-        n_steps = 21
+        n_steps = 10
         qx_finer = np.linspace(qx_lower, qx_higher, n_steps) #high res gam around supposed zero energy crossing (local min)
         bands_finer = np.zeros((qx_finer.size, k)) #new eigenvalue array
         for j in range(qx_finer.shape[0]):
