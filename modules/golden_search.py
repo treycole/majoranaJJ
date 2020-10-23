@@ -115,7 +115,7 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
     V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
     k_sq = 0
     k = 0
-    k_step = (0.002/Wj)#0.022/(Wj)
+    k_step = (0.001/Wj)#0.022/(Wj)
     tol = 5
     k_sq_max = max([4*muf/(const.xi), 4*(muf-Vj)/const.xi])
 
@@ -130,21 +130,13 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
     min_energy = E_arr[local_min_idx]
     k_min_arr = k_arr[local_min_idx]
 
-    plt.plot(k_arr, E_arr)
-    plt.scatter(k_min_arr, min_energy, c='r', marker = 'X')
+    #plt.plot(k_arr, E_arr)
+    #plt.scatter(k_min_arr, min_energy, c='r', marker = 'X')
 
-    #delta_k_sq = 2*m_eff*delta_mu/(hbar**2)
-    #delta_k = np.sqrt(delta_k_sq)*10
-    #delta_k_arr = k_min_arr[1:] - k_min_arr[:-1]
-    #delta_k = min(delta_k_arr)
     delta_k = k_step #how much k is changed in golden search
-    #print(delta_k)
-
-    #delta_mu = (const.xi/2)*(delta_k/4)**2
     delta_mu = 0.01 #changing mu a small ammount
     mu_steps = int((muf-mui)/delta_mu + 1)
     mu_arr = np.linspace(muf, mui, mu_steps)
-    #print(delta_mu)
 
     #E_arr2, k_arr2 = first_scan(coor, ax, ay, NN, k, k_sq_max, k_step, mu_arr[1], NNb=NNb, cutx=cutx, cuty=cuty, Wj=Wj, gamx=gamx, alpha=alpha, delta=delta, phi=phi, V=V)
     #local_min_idx2 = np.array(argrelextrema(E_arr2, np.less)[0])
@@ -155,8 +147,8 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
 
     #plt.plot(k_arr2, E_arr2, c = 'r', ls='--')
     #plt.scatter(k_min_arr2, min_energy2, c='b', marker = 'o')
-    #sys.exit()
     #plt.show()
+    #sys.exit()
 
     #array for the new local minima in energy found by GoldenSearch
     E_min_GS = np.zeros((mu_arr.shape[0], k_min_arr.shape[0]))
@@ -165,25 +157,22 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
 
     #first step in mu
     for i in range(k_min_arr.shape[0]):
-        E_min_GS[0, i], k_min_GS[0, i], k1_list, k2_list, eigs1_list, eigs2_list = GoldenSearch(coor, ax, ay, NN, muf, k_min_arr[i], delta_k, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, delta=delta, alpha=alpha, phi=phi, V=V)
+        E_min_GS[0, i], k_min_GS[0, i] = GoldenSearch(coor, ax, ay, NN, muf, k_min_arr[i], delta_k, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, delta=delta, alpha=alpha, phi=phi, V=V)
 
-        #plt.plot(k_arr, E_arr)
-        #plt.scatter(k1_list, eigs1_list, c='b', marker='o')
-        #plt.scatter(k2_list, eigs2_list, c='r', marker='o')
-        #plt.show()
-
-        #plt.plot(k1_list, c='r')
-        #plt.plot(k2_list, c='b')
-        #plt.show()
         k_min_arr[i] = k_min_GS[0, i]
 
     #plt.scatter(k_arr, E_arr, s=2, c='r')
     #plt.scatter(k_min_GS[0, :], E_min_GS[0, :], c='b', marker='x')
     #plt.show()
+    #sys.exit()
     #print("kmin", k_min_arr)
     #for i in range(k_min_arr.shape[0]):
     #    print("Emin_i", E_min_GS[0, i])
 
+    #finding how much the minima moves after changing mu
+    #find derivative, determines direction of change
+    #increment to left or right until minima is found
+    change_in_k = np.zeros(k_min_arr.shape[0])
     for i in range(k_min_arr.shape[0]):
         H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=k_min_arr[i])
         eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
@@ -191,7 +180,7 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
         eigs = eigs[idx_sort]
         E1 = eigs[2]
 
-        dk = (delta_k/10)
+        dk = (delta_k/100)
 
         H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=k_min_arr[i]+dk)
         eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
@@ -200,50 +189,52 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
         E2 = eigs[2]
 
         dE_dK = (E2-E1)/dk
+        krange = [None, None]
         if dE_dK > 0:
-            while eigs[2] < E1:
+            krange[1] = k_min_arr[i]+dk
+            El = E1
+            ER = E2
+            while El < ER:
                 knew = k_min_arr[i] - dk
                 H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=knew)
                 eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
                 idx_sort = np.argsort(eigs)
                 eigs = eigs[idx_sort]
-
+                ER = El
+                El = eigs[2]
+            krange[0] = knew - dk
+            k_center = knew - dk
         else:
-            kleft = k_min_arr[i] - delta_k
-            kright = k_min_arr[i] + 10*delta_k
+            krange[0] = k_min_arr[i]-dk
+            El = E1
+            ER = E2
+            while El > ER:
+                knew = k_min_arr[i] + dk
+                H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=knew)
+                eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
+                idx_sort = np.argsort(eigs)
+                eigs = eigs[idx_sort]
+                ER = El
+                El = eigs[2]
+            krange[1] = knew + dk
+            k_center = knew + dk
 
-        qx = np.linspace(kleft, kright, int(delta_k/10))
-        leb = np.zeros(qx.shape[0])
-        for j in range(qx.shape[0]):
-            H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=qx[j])
-            eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
-            idx_sort = np.argsort(eigs)
-            eigs = eigs[idx_sort]
-            leb[i] = eigs[int(2)]
-
-        local_min_idx = np.array(argrelextrema(leb, np.less)[0])
-        local_min_idx = np.concatenate((np.array([0]), local_min_idx))
-
-        #local minima energies along with the corresponding k-values
-        min_energy = leb[local_min_idx]
-        k_min_arr = qx[local_min_idx]
-
+        change_in_k[i] = krange[1]-krange[0]
         print("dE_dK", dE_dK, k_min_arr[i])
-    plt.show()
 
-    sys.exit()
-
-
+    E_min_arr = np.zeros((mu_arr.shape[0], k_min_arr.shape[0]))
+    k_MIN_arr = np.zeros((mu_arr.shape[0], k_min_arr.shape[0]))
+    E_min_Global_arr = np.zeros(mu_arr.shape[0])
     for j in range(mu_arr.shape[0]):
         for i in range(k_min_arr.shape[0]):
-            E_min_i, k_min_i = GoldenSearch(coor, ax, ay, NN, mu_arr[j], k_min_arr[i], delta_k, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, delta=delta, alpha=alpha, phi=phi, V=V)
+            E_min_i, k_min_i = GoldenSearch(coor, ax, ay, NN, mu_arr[j], k_min_arr[i], change_in_k[i], NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, delta=delta, alpha=alpha, phi=phi, V=V)
             k_MIN_arr[j,i] = k_min_i
             E_min_arr[j,i] = E_min_i
             k_min_arr[i] = k_min_i
             print(mu_arr.shape[0]-j, k_min_arr.shape[0]-i, k_min_i, E_min_i)
         E_min_Global_arr[j] = min(E_min_arr[j, :])
 
-    return E_min_Global_arr, mu_arr
+    return E_min_Global_arr, mu_arr, E_min_arr, k_MIN_arr
 
 def GoldenSearch(coor, ax, ay, NN, mu, kcenter, deltak, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0, delta=0, alpha=0, phi=0, V=0):
     ka = kcenter - (deltak)
@@ -260,7 +251,7 @@ def GoldenSearch(coor, ax, ay, NN, mu, kcenter, deltak, NNb=None, Wj=0, cutx=0, 
         idx_sort1 = np.argsort(eigs1)
         eigs1 = eigs1[idx_sort1]
         f1 = min(np.abs(eigs1))
-        return f1, kcenter, kcenter, kcenter, f1, f1
+        return f1, kcenter
 
 
     H1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu, V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=k1)
@@ -343,6 +334,6 @@ def GoldenSearch(coor, ax, ay, NN, mu, kcenter, deltak, NNb=None, Wj=0, cutx=0, 
         tol = 1e-8 #np.sqrt((delta/1000000)*(2/const.xi))
         if abs(ka-kb) < tol:
             if f1 < f2:
-                return f1, k1, k1_list, k2_list, eigs1_list, eigs2_list
+                return f1, k1
             else:
-                return f2, k2, k1_list, k2_list, eigs1_list, eigs2_list
+                return f2, k2

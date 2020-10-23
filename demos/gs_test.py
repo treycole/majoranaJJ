@@ -47,7 +47,7 @@ phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
 mu = 2.1 #Chemical Potential: [meV]
 #####################################
-E_min, mu = gs.mu_scan_2(coor, ax, ay, NN, 5.0, 6.0, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, alpha=alpha, delta=delta, phi=phi, Vj=0)
+E_min, mu = gs.mu_scan_2(coor, ax, ay, NN, 0.0, 2.0, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, alpha=alpha, delta=delta, phi=phi, Vj=0)
 
 plt.plot(mu, E_min)
 plt.show()

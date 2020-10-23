@@ -53,7 +53,7 @@ alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 2.1  #Chemical Potential: [meV]
+mu = 1.19  #Chemical Potential: [meV]
 #####################################
 k = 12 #This is the number of eigenvalues and eigenvectors you want
 steps = 501 #Number of kx values that are evaluated
