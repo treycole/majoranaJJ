@@ -21,10 +21,10 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 290 #Number of lattice sites along y-direction
+Ny = 60 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 40 #Junction region
+Wj = 8 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
@@ -50,17 +50,16 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-gx = 1 #parallel to junction: [meV]
+gx = 1.5 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 1.19  #Chemical Potential: [meV]
+mu = 4.6  #Chemical Potential: [meV]
 #####################################
 k = 12 #This is the number of eigenvalues and eigenvectors you want
-steps = 501 #Number of kx values that are evaluated
+steps = 1001 #Number of kx values that are evaluated
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))
-start = time.perf_counter()
 for i in range(steps):
     print(steps - i)
     H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
@@ -68,9 +67,6 @@ for i in range(steps):
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
     bands[i, :] = eigs
-
-end = time.perf_counter()
-print("Time: ", end-start)
 
 for i in range(bands.shape[1]):
     plt.plot(qx, bands[:, i], c ='mediumblue', linestyle = 'solid')

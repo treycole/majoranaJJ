@@ -1,3 +1,9 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+from scipy.signal import argrelextrema
+import scipy.linalg as LA
+import scipy.sparse.linalg as spLA
 import majoranaJJ.operators.sparse_operators as spop #sparse operators
 from majoranaJJ.operators.potentials import Vjj #potential JJ
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
@@ -13,10 +19,10 @@ import matplotlib.pyplot as plt
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 290 #Number of lattice sites along y-direction
-ax = 50 #lattice spacing in x-direction: [A]
-ay = 50 #lattice spacing in y-direction: [A]
-Wj = 40 #Junction region
+Ny = 50 #Number of lattice sites along y-direction
+ax = 100 #lattice spacing in x-direction: [A]
+ay = 100 #lattice spacing in y-direction: [A]
+Wj = 5 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
@@ -45,9 +51,36 @@ alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gamx = 1 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 2.1 #Chemical Potential: [meV]
+mu = 10 #Chemical Potential: [meV]
 #####################################
-E_min, mu = gs.mu_scan_2(coor, ax, ay, NN, 0.0, 2.0, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, alpha=alpha, delta=delta, phi=phi, Vj=0)
+"""
+k = 12 #This is the number of eigenvalues and eigenvectors you want
+steps = 101 #Number of kx values that are evaluated
+qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
+
+bands = np.zeros((steps, k))
+for i in range(steps):
+    print(steps - i)
+    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=qx[i])
+    eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+    idx_sort = np.argsort(eigs)
+    eigs = eigs[idx_sort]
+    bands[i, :] = eigs
+
+for i in range(bands.shape[1]):
+    plt.plot(qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
+    plt.plot(-qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
+    #plt.scatter(q, eigarr[:, i], c ='b')
+plt.plot(qx, 0*qx, c = 'k', linestyle='solid', lw=1)
+plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
+#plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
+plt.xlabel('kx (1/A)')
+plt.ylabel('Energy (meV)')
+plt.title('BDG Spectrum', wrap = True)
+plt.savefig('juncwidth = {} SCwidth = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
+plt.show()
+"""
+E_min, mu = gs.mu_scan_2(coor, ax, ay, NN, 0.0, 20.0, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, alpha=alpha, delta=delta, phi=phi, Vj=0)
 
 plt.plot(mu, E_min)
 plt.show()

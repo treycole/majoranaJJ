@@ -111,11 +111,11 @@ def first_scan(coor, ax, ay, NN, qx, k_sq_max, k_step, mu, NNb=None, Wj=0, cutx=
     E_arr = np.array(E_list)
     return E_arr, k_arr
 
-def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0, alpha=0, delta=0, phi=0, Vj=0):
-    V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
+def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0, alpha=0, delta=0, phi=0, Vj=0, Vsc=0):
+    V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
     k_sq = 0
     k = 0
-    k_step = (0.001/Wj)#0.022/(Wj)
+    k_step = (0.0005/Wj)#0.022/(Wj)
     tol = 5
     k_sq_max = max([4*muf/(const.xi), 4*(muf-Vj)/const.xi])
 
@@ -138,7 +138,7 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
     mu_steps = int((muf-mui)/delta_mu + 1)
     mu_arr = np.linspace(muf, mui, mu_steps)
 
-    #E_arr2, k_arr2 = first_scan(coor, ax, ay, NN, k, k_sq_max, k_step, mu_arr[1], NNb=NNb, cutx=cutx, cuty=cuty, Wj=Wj, gamx=gamx, alpha=alpha, delta=delta, phi=phi, V=V)
+    #E_arr2, k_arr2 = first_scan(coor, ax, ay, NN, k, k_sq_max, k_step, mu_arr[-1], NNb=NNb, cutx=cutx, cuty=cuty, Wj=Wj, gamx=gamx, alpha=alpha, delta=delta, phi=phi, V=V)
     #local_min_idx2 = np.array(argrelextrema(E_arr2, np.less)[0])
     #local_min_idx2 = np.concatenate((np.array([0]), local_min_idx2))
 
@@ -161,73 +161,19 @@ def mu_scan_2(coor, ax, ay, NN, mui, muf, NNb=None, Wj=0, cutx=0, cuty=0, gamx=0
 
         k_min_arr[i] = k_min_GS[0, i]
 
-    #plt.scatter(k_arr, E_arr, s=2, c='r')
-    #plt.scatter(k_min_GS[0, :], E_min_GS[0, :], c='b', marker='x')
-    #plt.show()
-    #sys.exit()
+    plt.scatter(k_arr, E_arr, s=2, c='r')
+    plt.scatter(k_min_GS[0, :], E_min_GS[0, :], c='b', marker='x')
+    plt.show()
     #print("kmin", k_min_arr)
     #for i in range(k_min_arr.shape[0]):
     #    print("Emin_i", E_min_GS[0, i])
-
-    #finding how much the minima moves after changing mu
-    #find derivative, determines direction of change
-    #increment to left or right until minima is found
-    change_in_k = np.zeros(k_min_arr.shape[0])
-    for i in range(k_min_arr.shape[0]):
-        H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=k_min_arr[i])
-        eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
-        idx_sort = np.argsort(eigs)
-        eigs = eigs[idx_sort]
-        E1 = eigs[2]
-
-        dk = (delta_k/100)
-
-        H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=k_min_arr[i]+dk)
-        eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
-        idx_sort = np.argsort(eigs)
-        eigs = eigs[idx_sort]
-        E2 = eigs[2]
-
-        dE_dK = (E2-E1)/dk
-        krange = [None, None]
-        if dE_dK > 0:
-            krange[1] = k_min_arr[i]+dk
-            El = E1
-            ER = E2
-            while El < ER:
-                knew = k_min_arr[i] - dk
-                H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=knew)
-                eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
-                idx_sort = np.argsort(eigs)
-                eigs = eigs[idx_sort]
-                ER = El
-                El = eigs[2]
-            krange[0] = knew - dk
-            k_center = knew - dk
-        else:
-            krange[0] = k_min_arr[i]-dk
-            El = E1
-            ER = E2
-            while El > ER:
-                knew = k_min_arr[i] + dk
-                H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu_arr[1], V=V, alpha=alpha, delta=delta, phi=phi, gamx=gamx, qx=knew)
-                eigs, vecs = spLA.eigsh(H, k=4, sigma=0, which='LM')
-                idx_sort = np.argsort(eigs)
-                eigs = eigs[idx_sort]
-                ER = El
-                El = eigs[2]
-            krange[1] = knew + dk
-            k_center = knew + dk
-
-        change_in_k[i] = krange[1]-krange[0]
-        print("dE_dK", dE_dK, k_min_arr[i])
 
     E_min_arr = np.zeros((mu_arr.shape[0], k_min_arr.shape[0]))
     k_MIN_arr = np.zeros((mu_arr.shape[0], k_min_arr.shape[0]))
     E_min_Global_arr = np.zeros(mu_arr.shape[0])
     for j in range(mu_arr.shape[0]):
         for i in range(k_min_arr.shape[0]):
-            E_min_i, k_min_i = GoldenSearch(coor, ax, ay, NN, mu_arr[j], k_min_arr[i], change_in_k[i], NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, delta=delta, alpha=alpha, phi=phi, V=V)
+            E_min_i, k_min_i = GoldenSearch(coor, ax, ay, NN, mu_arr[j], k_min_arr[i], delta_k/10, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, gamx=gamx, delta=delta, alpha=alpha, phi=phi, V=V)
             k_MIN_arr[j,i] = k_min_i
             E_min_arr[j,i] = E_min_i
             k_min_arr[i] = k_min_i

@@ -21,10 +21,10 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 290 #Number of lattice sites along y-direction
+Ny = 100 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 40 #Junction region
+Wj = 10 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
@@ -52,16 +52,16 @@ alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #Amplitude of potential in SC region: [meV]
-Vj = -5 #Amplitude of potential in junction region: [meV]
+Vj = 0 #Amplitude of potential in junction region: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-mu_i = -5
-mu_f = 10.0
+mu_i = 0
+mu_f = 20.0
+dmu = 0
 res = 0.1
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
-dmu = -0.010347
 
 k = 200
 ###################################################

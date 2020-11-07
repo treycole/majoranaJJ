@@ -48,7 +48,7 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = 0 #parallel to junction: [meV]
-mu = 0.00 #Chemical Potential: [meV]
+mu = -0.01 #Chemical Potential: [meV]
 ###################################################
 #phase diagram mu vs gamx
 k = 22 #This is the number of eigenvalues and eigenvectors you want

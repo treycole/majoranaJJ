@@ -15,13 +15,14 @@ import majoranaJJ.modules.checkers as check
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 180 #Number of lattice sites along y-direction
-ax = 100 #lattice spacing in x-direction: [A]
-ay = 100 #lattice spacing in y-direction: [A]
-Wj = 20 #Junction region
+Ny = 290 #Number of lattice sites along y-direction
+ax = 50 #lattice spacing in x-direction: [A]
+ay = 50 #lattice spacing in y-direction: [A]
+Wj = 40 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
-Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Ny, Nx, Wj, cutx, cuty)
+Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
+print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -43,8 +44,8 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 #Defining Hamiltonian parameters
 steps = 100
 
-alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-gx = np.linspace(0, 1.2, 50)
+alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
+gx = np.linspace(0, 15, steps)
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
 Vj = 0 #Amplitude of potential: [meV]
@@ -52,15 +53,14 @@ V = Vjj(coor, Wj = Wj, Vsc = 0, Vj = Vj, cutx = cutx, cuty = cuty)
 MU = 10 #Chemical Potential: [meV]
 ###################################################
 #Energy plot vs Zeeman energy in x-direction
-k = 50 #number of perturbation energy eigs
-Q = 1e-4*(np.pi/Lx)
+k = 200 #number of perturbation energy eigs
 
-H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, qx=Q, Tesla = False, Zeeman_in_SC = False, SOC_in_SC = True)
-eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma = 0,  which='LM')
+H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, alpha=alpha, delta=delta, phi=phi, qx=1e-4*(np.pi/Lx))
+eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0,  which='LM')
 vecs_0_hc = np.conjugate(np.transpose(vecs_0))
 
-H_G0 =  spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 0, alpha = alpha, delta = delta, phi = phi, qx = 0, Tesla = False, Zeeman_in_SC = False, SOC_in_SC = True)
-H_G1 = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj = Wj, cutx = cutx, cuty = cuty, V = V, mu = MU, gammax = 1, alpha = alpha, delta = delta, phi = phi, qx = 0, Tesla = False, Zeeman_in_SC = False, SOC_in_SC = True)
+H_G0 =  spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gamx=0, alpha=alpha, delta=delta, phi=phi, qx=0)
+H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=MU, gamx=1, alpha=alpha, delta=delta, phi=phi, qx=0)
 HG = H_G1 - H_G0
 HG0_DB = np.dot(vecs_0_hc, H_G0.dot(vecs_0))
 HG_DB = np.dot(vecs_0_hc, HG.dot(vecs_0))
@@ -78,7 +78,6 @@ for i in range(gx.shape[0]):
     eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
-    print(eigs.shape)
     eig_arr[i, :] = eigs
 
 
