@@ -48,7 +48,7 @@ Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
-alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
+alpha = 300 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #Amplitude of potential in SC region: [meV]
@@ -56,16 +56,16 @@ Vj = 0 #Amplitude of potential in junction region: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
 mu_i = 0
-mu_f = 20.0
-res = 0.25
+mu_f = 50.0
+res = 1
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
 dmu = 0
 
 gi = 0
-gf = 10
-res = 0.25
+gf = 15
+res = 0.5
 steps = int((gf - gi)/(res)) + 1
 gamx = np.linspace(gi, gf, steps)
 
