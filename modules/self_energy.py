@@ -18,7 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.sparse as Spar
 import scipy.sparse.linalg as SparLinalg
-import parameters as par
+from majoranaJJ.modules import parameters as par
 np.set_printoptions(linewidth = 500)
 
 def Junc_Ham_gen(W,ay_targ,kx,m_eff,alp_l,alp_t,mu,V_J,Gam):
@@ -308,7 +308,7 @@ if False:
     eig_arr = np.zeros((kx.size,num))
     for i in range(kx.size):
         if i % 20 == 0:
-            print (kx.size - i)
+            print(kx.size - i)
         Ham = Junc_Ham_gen(W,ay_targ,kx[i],m_eff,alp_l,alp_t,mu,V_J,Gam)
         eig_arr[i,:] = solve_Ham(Ham,num,0.)
 
@@ -341,11 +341,11 @@ if False:
 
     for i in range(omega.size):
         if i % 100 == 0:
-            print omega.size - i
+            print(omega.size - i)
         G_s,G_b,sNRG = top_SC_sNRG_calc(omega[i],W,ay_targ,kx,m_eff,alp_l,alp_t,mu,Gam,Delta,iter,eta)
-        print np.around(sNRG.todense().real,decimals = 5)
-        print '\n'
-        print np.around(sNRG.todense().imag,decimals = 5)
+        print(np.around(sNRG.todense().real,decimals = 5))
+        print('\n')
+        print(np.around(sNRG.todense().imag,decimals = 5))
         sys.exit()
         DOS_b[i] = (-1./np.pi)*np.trace(G_b.imag)
         DOS_s[i] = (-1./np.pi)*np.trace(G_s.imag)
@@ -356,7 +356,7 @@ if False:
     plt.plot(omega,DOS_s,c = 'r')
     plt.show()
 
-if True:
+if False:
     ### Testing the BdG spectrum of H_eff(omega = 0), H_eff(omega = Delta / 3.), H_eff(omega = -Delta / 3.)
 
     W = 100. * 10.
@@ -384,7 +384,7 @@ if True:
     eig_arr_1m = np.zeros((kx.size,num))
     for i in range(kx.size):
         if i % 20 == 0:
-            print (kx.size - i)
+            print(kx.size - i)
         Ham_eff = Junc_eff_Ham_gen(omega_0,W,ay_targ,kx[i],m_eff,alp_l,alp_t,mu,V_J,Gam,Gam_SC_factor,Delta,phi,iter,eta)
         eig_arr_0[i,:] = solve_Ham(Ham_eff,num,0.)
         Ham_eff = Junc_eff_Ham_gen(omega_1,W,ay_targ,kx[i],m_eff,alp_l,alp_t,mu,V_J,Gam,Gam_SC_factor,Delta,phi,iter,eta)
