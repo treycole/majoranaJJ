@@ -374,7 +374,7 @@ def self_consistency_finder_faster(ay, gam, mu, Wj, Vj, alpha, delta, phi, kx, e
 
         if x1==x2:
             print("x1=x2")
-            print(y2, tol)
+            print(y1, y2, tol)
             sys.exit()
 
         if abs(y2) < tol:
