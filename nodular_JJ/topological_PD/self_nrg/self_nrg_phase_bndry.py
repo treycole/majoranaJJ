@@ -23,7 +23,7 @@ import majoranaJJ.modules.checkers as check
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 1000 #Junction width: [A]
+Wj = 2000 #Junction width: [A]
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 
@@ -35,20 +35,20 @@ print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 ###################################################
 #Defining Hamiltonian parameters
-alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
+alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
-Vj = -5 #Junction potential: [meV]
+Vj = 5 #Junction potential: [meV]
 
-mui = -10
-muf = 20
-res = 0.1
+mui = 0
+muf = 6
+res = 0.05
 steps_mu = int((muf-mui)/(res)) + 1
-mu = np.linspace(-10, 20, steps_mu) #meV
+mu = np.linspace(mui, muf, steps_mu) #meV
 
 gi = 0
-gf = 5.0
+gf = 2.0
 res = 0.01
 steps_gam = int((gf - gi)/(res)) + 1
 gx = np.linspace(gi, gf, steps_gam)

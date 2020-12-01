@@ -80,7 +80,7 @@ def lowE(
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 
     #gamz and qx are finite in order to avoid degneracy issues
-    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gamz=1e-5, alpha=alpha, delta=delta, phi=phi, qx=1e-5*(np.pi/Lx), Tesla=Tesla, diff_g_factors=diff_g_factors, Rfactor=Rfactor, diff_alphas=diff_alphas, diff_meff=diff_meff) #gives low energy basis
+    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=V, mu=mu, gamz=1e-4, alpha=alpha, delta=delta, phi=phi, qx=0*1e-5*(np.pi/Lx), Tesla=Tesla, diff_g_factors=diff_g_factors, Rfactor=Rfactor, diff_alphas=diff_alphas, diff_meff=diff_meff) #gives low energy basis
     eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
 
