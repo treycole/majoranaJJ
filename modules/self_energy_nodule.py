@@ -1,66 +1,11 @@
-def Hjunc(
-Wj, nodx, nody, ay, ax, kx, m_eff, alp_l, alp_t, mu, Vj, gamx
-):
-    # Generates the BdG Hamiltonian of the isolated junction region (i.e. no SC included).
-    #    * W is the width of the junction
-    #    * ay_targ is the targeted lattice constant
-    #    * kx is the wavevector along the length of the junction
-    #    * m_eff is the effective mass
-    #    * alp_l is the longitudinal spin-orbit coupling coefficient
-    #    * alp_t is the transverse spin-orbit coupling coefficient
-    #    * mu is the chemical potential
-    #    * V_J is an addition potential in the junction region (V = 0 in SC regions by convention)
-    #     * Gam is the Zeeman energy
+import numpy as np
+import matplotlib.pyplot as plt
+import parameters as par
+import scipy.sparse as Spar
+import majoranaJJ.operators.sparse_operators as spop #sparse operators
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.lattice.shapes as shps #lattice shapes
 
-    N = int(W/ay_targ) - 1 # number of lattice sites in the junction (in the y-direction)
-    ay = W/float(N+1) # actual lattice constant
-
-    t = -1000.*par.hbm0/(2.*m_eff*ay**2) # spin-preserving hopping strength
-    t_alp = alp_t / (2.*ay)     # spin-orbit hopping strength in the y-direction
-    alp_onsite = kx * alp_l    # onsite spin-orbit coupling contribution
-    Tx = 1000.*par.hbm0 * kx**2/(2.*m_eff) # kinetic energy from momentum in x-direction
-
-    row = []; col = []; data = []
-    for i in range(N):
-        # onsite terms
-        row.append(i + 0); col.append(i + 0); data.append(-2*t - mu + Tx + Vj)
-        row.append(i + N); col.append(i + N); data.append(-2*t - mu + Tx + Vj)
-        row.append(i + 0); col.append(i + N); data.append(-1j*alp_onsite + Gam)
-        row.append(i + N); col.append(i + 0); data.append(1j*alp_onsite + Gam)
-
-        row.append(i + 2*N); col.append(i + 2*N); data.append(-(-2*t - mu + Tx + Vj))
-        row.append(i + 3*N); col.append(i + 3*N); data.append(-(-2*t - mu + Tx + Vj))
-        row.append(i + 2*N); col.append(i + 3*N); data.append(1j*alp_onsite - Gam)
-        row.append(i + 3*N); col.append(i + 2*N); data.append(-1j*alp_onsite - Gam)
-
-        # nearest neighbor terms
-        if i != N-1:
-            row.append(i+1 + 0); col.append(i + 0); data.append(t)
-            col.append(i+1 + 0); row.append(i + 0); data.append(t)
-
-            row.append(i+1 + N); col.append(i + N); data.append(t)
-            col.append(i+1 + N); row.append(i + N); data.append(t)
-
-            row.append(i+1 + 2*N); col.append(i + 2*N); data.append(-t)
-            col.append(i+1 + 2*N); row.append(i + 2*N); data.append(-t)
-
-            row.append(i+1 + 3*N); col.append(i + 3*N); data.append(-t)
-            col.append(i+1 + 3*N); row.append(i + 3*N); data.append(-t)
-
-            row.append(i+1 + 0); col.append(i + N); data.append(1j*t_alp)
-            col.append(i+1 + 0); row.append(i + N); data.append(-1j*t_alp)
-
-            row.append(i+1 + N); col.append(i + 0); data.append(1j*t_alp)
-            col.append(i+1 + N); row.append(i + 0); data.append(-1j*t_alp)
-
-            row.append(i+1 + 2*N); col.append(i + 3*N); data.append(1j*t_alp)
-            col.append(i+1 + 2*N); row.append(i + 3*N); data.append(-1j*t_alp)
-
-            row.append(i+1 + 3*N); col.append(i + 2*N); data.append(1j*t_alp)
-            col.append(i+1 + 3*N); row.append(i + 2*N); data.append(-1j*t_alp)
-
-    H_J = Spar.csc_matrix((data,(row,col)),shape = (4*N,4*N),dtype = 'complex')
-    return H_J
 
 def top_SC_sNRG_calc(
 omega, Wj, nodx, nody, ay, ax, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, iter, eta):
@@ -93,20 +38,20 @@ omega, Wj, nodx, nody, ay, ax, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, iter,
     dc = np.conjugate(delta)
 
     ### Onsite Hamiltonian matrix
-    H00 = np.zeros((4*Nx, 4*Nx))
-    H10 = np.zeros((4*Nx, 4*Nx))
-    H01 = np.zeros((4*Nx, 4*Nx))
-    Delta = np.zeros((2*Nx, 2*Nx))
+    H00 = np.zeros((4*Nx, 4*Nx), dtype='complex')
+    H10 = np.zeros((4*Nx, 4*Nx), dtype='complex')
+    H01 = np.zeros((4*Nx, 4*Nx), dtype='complex')
+    Delta = np.zeros((2*Nx, 2*Nx), dtype='complex')
 
     for i in range(Nx):
         H10[i, i] = ty
         H10[i+Nx, i+Nx] = ty
         H10[i+2*Nx, i+2*Nx] = -ty
         H10[i+3*Nx, i+3*Nx] = -ty
-        H10[i, i+Nx] = -1j*ty_alp
-        H10[i+Nx, i] = -1j*ty_alp
-        H10[i+2*Nx, i+Nx+2*Nx] = -1j*ty_alp
-        H10[i+Nx+2*Nx, i+2*Nx] = -1j*ty_alp
+        H10[i, i+Nx] = 1j*ty_alp #check sign
+        H10[i+Nx, i] = 1j*ty_alp
+        H10[i+2*Nx, i+Nx+2*Nx] = 1j*ty_alp
+        H10[i+Nx+2*Nx, i+2*Nx] = 1j*ty_alp
 
         H00[i, i] = ep_on
         H00[i+Nx, i+Nx] = ep_on
@@ -115,8 +60,8 @@ omega, Wj, nodx, nody, ay, ax, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, iter,
 
         H00[i, i+Nx+2*Nx] = delta
         H00[i+Nx, i+2*Nx] = -delta
-        H00[i+2*Nx, i+Nx] = -delta
-        H00[i+Nx+2*Nx, i+Nx] = delta
+        H00[i+2*Nx, i+Nx] = -dc
+        H00[i+Nx+2*Nx, i+Nx] = dc
         if i != Nx-1:
             H00[i, i+1] = tx
             H00[i+1, i] = tx
@@ -153,7 +98,7 @@ omega, Wj, nodx, nody, ay, ax, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, iter,
 
         #hole
         H00[i+2*Nx, 0+2*Nx] = np.conjugate(-tx*np.exp(-1j*kx*ax))
-        H00[0+2*Nx, i+2*Nx] = np.conjugate(-tx*np.exp(1j*kx*ax)
+        H00[0+2*Nx, i+2*Nx] = np.conjugate(-tx*np.exp(1j*kx*ax))
         H00[i+Nx+2*Nx, 0+Nx+2*Nx] = np.conjugate(-tx*np.exp(-1j*kx*ax))
         H00[0+Nx+2*Nx, i+Nx+2*Nx] = np.conjugate(-tx*np.exp(1j*kx*ax))
 
@@ -198,7 +143,7 @@ omega, Wj, nodx, nody, ay, ax, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, iter,
 
     return G_s, G_b, sNRG_mtx
 
-def bot_SC_sNRG_calc(omega,W,ay_targ,kx,m_eff,alp_l,alp_t,mu,Gam_SC,Delta,iter,eta):
+def bot_SC_sNRG_calc(omega, Wj, nodx, ax, ay_targ, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta):
     # Calculates the bulk and surface Greens functions of the bottom superconductor
     # along with the self-energy that it produces in the junction region
     #     * omega is the (real) energy that goes into the Greens function
@@ -209,7 +154,7 @@ def bot_SC_sNRG_calc(omega,W,ay_targ,kx,m_eff,alp_l,alp_t,mu,Gam_SC,Delta,iter,e
     #     * alp_l is the longitudinal spin-orbit coupling coefficient
     #     * alp_t is the transverse spin-orbit coupling coefficient
     #     * mu is the chemical potential
-    #     * Delta is the (complex) SC order parameter in the top SC
+    #     * delta is the (complex) SC order parameter in the top SC
     #     * iter is the number of iteration of the algorithm to perform
     #     * eta is the imaginary component of the energy that is used for broadening
 
@@ -217,85 +162,96 @@ def bot_SC_sNRG_calc(omega,W,ay_targ,kx,m_eff,alp_l,alp_t,mu,Gam_SC,Delta,iter,e
         Nx = 1
     else:
         Nx = nodx+2
+
     Ny = int(Wj/ay_targ) - 1 # number of lattice sites in the junction region (in the y-direction)
     ay = Wj/float(Ny+1)      # actual lattice constant
 
     tx = -1000.*par.hbm0/(2.*m_eff*ax**2)  # spin-preserving hopping strength
     ty = -1000.*par.hbm0/(2.*m_eff*ay**2) # spin-preserving hopping strength
-    ty_alp = alp_t / (2.*ay) # spin-orbit hopping strength in the y-direction
+    ty_alp = alp_t /(2.*ay) # spin-orbit hopping strength in the y-direction
     tx_alp = alp_l/(2*ax)  # onsite spin-orbit coupling contribution
-    ep_on = -2*tx - 2*ty - mu
+    #ep_on = -2*tx - 2*ty - mu
+    ep_on = -2*ty - mu
+    delta = delta*np.exp(1j*phi)
     dc = np.conjugate(delta)
 
     ### Onsite Hamiltonian matrix
-    H00 = np.zeros((4*Nx, 4*Nx))
-    H10 = np.zeros((4*Nx, 4*Nx))
-    H01 = np.zeros((4*Nx, 4*Nx))
-    Delta = np.zeros((2*Nx, 2*Nx))
+    H00 = np.zeros((4*Nx, 4*Nx), dtype='complex')
+    H10 = np.zeros((4*Nx, 4*Nx), dtype='complex')
+    H01 = np.zeros((4*Nx, 4*Nx), dtype='complex')
 
     for i in range(Nx):
+        #particle
         H10[i, i] = ty
         H10[i+Nx, i+Nx] = ty
+        #hole
         H10[i+2*Nx, i+2*Nx] = -ty #-H0(-k)*
         H10[i+3*Nx, i+3*Nx] = -ty #-H0(-k)*
-        H10[i, i+Nx] = -1j*ty_alp*-1 #bottom SC, negative sign
-        H10[i+Nx, i] = -1j*ty_alp*-1 #bottom SC, negative sign
-        H10[i+2*Nx, i+Nx+2*Nx] = -1j*ty_alp*-1 #bottom SC, negative sign
-        H10[i+Nx+2*Nx, i+2*Nx] = -1j*ty_alp*-1 #bottom SC, negative sign
+        #particle
+        H10[i, i+Nx] = -1j*ty_alp #bottom SC, negative sign
+        H10[i+Nx, i] = -1j*ty_alp #bottom SC, negative sign
+        #hole
+        H10[i+2*Nx, i+Nx+2*Nx] = -1j*ty_alp #bottom SC, negative sign
+        H10[i+Nx+2*Nx, i+2*Nx] = -1j*ty_alp #bottom SC, negative sign
 
+        #particle
         H00[i, i] = ep_on
         H00[i+Nx, i+Nx] = ep_on
+        #hole
         H00[i+2*Nx, i+2*Nx] = -ep_on
         H00[i+3*Nx, i+3*Nx] = -ep_on
 
-        H00[i, i+Nx+2*Nx] = dc #delta conjugate
-        H00[i+Nx, i+2*Nx] = -dc
+        H00[i, i+Nx+2*Nx] = delta #delta
+        H00[i+Nx, i+2*Nx] = -delta
         H00[i+2*Nx, i+Nx] = -dc
-        H00[i+Nx+2*Nx, i+Nx] = dc
+        H00[i+Nx+2*Nx, i] = dc
         if i != Nx-1:
+            #particle
             H00[i, i+1] = tx
             H00[i+1, i] = tx
-
-            H00[i+1, i+Nx] = -tx_alp
-            H00[i+Nx, i+1] = -tx_alp
-            H00[i, i+Nx+1] = tx_alp
-            H00[i+Nx+1, i] = tx_alp
-            H00[i, i+Nx+1] = tx_alp
-            H00[i+Nx+1, i] = tx_alp
-            H00[i+1, i+Nx] = -tx_alp
-            H00[i+Nx, i+1] = -tx_alp
-
             H00[i+Nx, i+Nx+1] = tx
             H00[i+Nx+1, i+Nx] = tx
 
+            #hole
             H00[i+2*Nx, i+2*Nx+1] = -tx
             H00[i+2*Nx+1, i+2*Nx] = -tx
-
             H00[i+3*Nx, i+3*Nx+1] = -tx
             H00[i+3*Nx+1, i+3*Nx] = -tx
 
-        if i == Nx-1:
             #particle
-            H00[i, 0] = tx*np.exp(1j*kx*ax)
-            H00[0, i] = tx*np.exp(-1j*kx*ax)
-            H00[i+Nx, 0+Nx] = tx*np.exp(1j*kx*ax)
-            H00[0+Nx, i+Nx] = tx*np.exp(-1j*kx*ax)
-
-            H00[i, 0+Nx] = -tx_alp*np.exp(1j*kx*ax)
-            H00[0+Nx, i] = -tx_alp*np.exp(-1j*kx*ax)
-            H00[i+Nx, 0 ] = tx_alp*np.exp(1j*kx*ax)
-            H00[0, i+Nx] = tx_alp*np.exp(-1j*kx*ax)
+            H00[i+1, i+Nx] = -tx_alp
+            H00[i+Nx, i+1] = -tx_alp
+            H00[i, i+Nx+1] = tx_alp
+            H00[i+Nx+1, i] = tx_alp
 
             #hole
-            H00[i+2*Nx, 0+2*Nx] = np.conjugate(-tx*np.exp(-1j*kx*ax))
-            H00[0+2*Nx, i+2*Nx] = np.conjugate(-tx*np.exp(1j*kx*ax)
-            H00[i+Nx+2*Nx, 0+Nx+2*Nx] = np.conjugate(-tx*np.exp(-1j*kx*ax))
-            H00[0+Nx+2*Nx, i+Nx+2*Nx] = np.conjugate(-tx*np.exp(1j*kx*ax))
+            H00[i+1+2*Nx, i+Nx+2*Nx] = tx_alp
+            H00[i+Nx+2*Nx, i+1+2*Nx] = tx_alp
+            H00[i+2*Nx, i+Nx+1+2*Nx] = -tx_alp
+            H00[i+Nx+1+2*Nx, i+2*Nx] = -tx_alp
 
-            H00[i+2*Nx, 0+Nx+2*Nx] = np.conjugate(tx_alp*np.exp(-1j*kx*ax))
-            H00[0+Nx+2*Nx, i+2*Nx] = np.conjugate(tx_alp*np.exp(1j*kx*ax))
-            H00[i+Nx+2*Nx, 0+2*Nx ] = np.conjugate(-tx_alp*np.exp(-1j*kx*ax))
-            H00[0+2*Nx, i+Nx+2*Nx] = np.conjugate(-tx_alp*np.exp(1j*kx*ax))
+        if False: # i == Nx-1:
+            #particle
+            H00[i, 0] += tx*np.exp(1j*kx*ax)
+            H00[0, i] += tx*np.exp(-1j*kx*ax)
+            H00[i+Nx, 0+Nx] += tx*np.exp(1j*kx*ax)
+            H00[0+Nx, i+Nx] += tx*np.exp(-1j*kx*ax)
+
+            H00[i, 0+Nx] += -tx_alp*np.exp(1j*kx*ax)
+            H00[0+Nx, i] += -tx_alp*np.exp(-1j*kx*ax)
+            H00[i+Nx, 0 ] += tx_alp*np.exp(1j*kx*ax)
+            H00[0, i+Nx] += tx_alp*np.exp(-1j*kx*ax)
+
+            #hole
+            H00[i+2*Nx, 0+2*Nx] += np.conjugate(-tx*np.exp(-1j*kx*ax))
+            H00[0+2*Nx, i+2*Nx] += np.conjugate(-tx*np.exp(1j*kx*ax))
+            H00[i+Nx+2*Nx, 0+Nx+2*Nx] += np.conjugate(-tx*np.exp(-1j*kx*ax))
+            H00[0+Nx+2*Nx, i+Nx+2*Nx] += np.conjugate(-tx*np.exp(1j*kx*ax))
+
+            H00[i+2*Nx, 0+Nx+2*Nx] += np.conjugate(tx_alp*np.exp(-1j*kx*ax))
+            H00[0+Nx+2*Nx, i+2*Nx] += np.conjugate(tx_alp*np.exp(1j*kx*ax))
+            H00[i+Nx+2*Nx, 0+2*Nx] += np.conjugate(-tx_alp*np.exp(-1j*kx*ax))
+            H00[0+2*Nx, i+Nx+2*Nx] += np.conjugate(-tx_alp*np.exp(1j*kx*ax))
 
     ### Identity matrix
     I = np.eye(4*Nx, dtype = 'complex')
@@ -325,11 +281,171 @@ def bot_SC_sNRG_calc(omega,W,ay_targ,kx,m_eff,alp_l,alp_t,mu,Gam_SC,Delta,iter,e
     sNRG = np.dot(H01,np.dot(G_s,H10))
 
     row = []; col = []; data = []
+    N = Nx*Ny
     for m in range(4):
         for n in range(4):
             for i in range(Nx):
-                for j in range(Ny):
-                    row.append((Ny-1)*Nx+i + m*Nx*Ny); col.append((Ny-1)*Nx+j + n*Nx*Ny); data.append(sNRG[m*Nx+i,n*Nx+j])
-    sNRG_mtx = Spar.csc_matrix((data,(row,col)), shape = (4*N,4*N), dtype = 'complex')
+                for j in range(Nx):
+                    #print(m,n,i)
+                    row.append(i + m*Nx*Ny); col.append(j + n*Nx*Ny); data.append(sNRG[m*Nx + i, n*Nx + j])
+    sNRG_mtx = Spar.csc_matrix((data,(row,col)), shape = (4*N, 4*N), dtype = 'complex')
 
     return G_s, G_b, sNRG_mtx
+
+def Junc_eff_Ham_gen(
+omega, Wj, nodx, nody, ax, ay_targ, kx, m_eff, alp_l, alp_t, mu, Vj, Gam, delta, phi, Gam_SC_factor=0, iter=50, eta=0):
+    ### Generates the effective Hamiltonian for the Junction, which includes the self-energy from both of the SC regions
+    ###     * omega is the (real) energy that goes into the Green's function
+    ###     * W is the width of the junction
+    ###     * ay_targ is the targeted lattice constant
+    ###     * kx is the wavevector along the length of the junction
+    ###     * m_eff is the effective mass
+    ###     * alp_l is the longitudinal spin-orbit coupling coefficient
+    ###     * alp_t is the transverse spin-orbit coupling coefficient
+    ###     * mu is the chemical potential
+    ###     * V_J is an addition potential in the junction region (V = 0 in SC regions by convention)
+    ###     * Gam is the Zeeman energy in the junction
+    ###     * Gam_SC = Gam_SC_factor * Gam, which is the Zeeman energy in the SC regions
+    ###     * Delta is the magnitude of the SC pairing in the SC regions
+    ###     * phi is the phase difference between the two SC regions
+    ###     * iter is the number of iteration of the algorithm to perform
+    ###     * eta is the imaginary component of the energy that is used for broadening
+    if nodx == 0:
+        Nx = 1
+    else:
+        Nx = nodx+2
+
+    Ny = int(Wj/ay_targ) - 1 # number of lattice sites in the junction region (in the y-direction)
+    ay = Wj/float(Ny+1)      # actual lattice constant
+
+    #square lattice
+    coor = shps.square(Nx, Ny) #square lattice
+    NN = nb.NN_sqr(coor)
+    NNb = nb.Bound_Arr(coor)
+
+    Gam_SC = Gam_SC_factor * Gam
+
+    H_J = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=nodx, cuty=nody,
+    V=Vj, mu=mu, gamx=Gam, alpha = alp_l, delta=delta, phi=phi, qx=kx)
+
+    Gs,Gb,sNRG_bot = bot_SC_sNRG_calc(omega, Wj, nodx, ax, ay_targ, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta)
+
+    Gs,Gb,sNRG_top = top_SC_sNRG_calc(omega, Wj, nodx, ax, ay_targ, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta)
+
+    H_eff = H_J + sNRG_bot + sNRG_top
+    return H_eff
+
+def self_consistency_finder_faster(ay, gam, mu, Wj, Vj, alpha, delta, phi, kx, eigs_omega0, tol=1e-3, k=4):
+    delta_omega = eigs_omega0
+    steps = int(eigs_omega0/tol) + 1
+    omega = np.linspace(0, eigs_omega0, int(steps))
+    omega_bands = np.zeros(omega.shape[0])
+
+    y1 = eigs_omega0
+    if y1 > 0.7*delta:
+        return y1
+    x1 = 0
+    if eigs_omega0==0:
+        return 0
+    x2 = y1/50
+    counter = 0
+    while True:
+        counter+=1
+        H = Junc_eff_Ham_gen(omega=x2,W=Wj,ay_targ=ay,kx=kx,m_eff=0.023,alp_l=alpha,alp_t=alpha,mu=mu,V_J=Vj,Gam=gam,Gam_SC_factor=0,Delta=delta,phi=phi,iter=50,eta=0)
+        eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+        idx_sort = np.argsort(eigs)
+        eigs = eigs[idx_sort]
+        y2 = eigs[int(k/2)] - x2
+
+        if x1==x2:
+            print("x1=x2")
+            print(y1, y2, tol)
+            sys.exit()
+
+        if abs(y2) < tol:
+            return x2
+
+        m = (y2-y1)/(x2-x1)
+        b = y1-m*x1
+        omega_c = -b/m
+
+        y1=y2
+        x1=x2
+        x2 = omega_c
+    return None
+
+def gap(ay, gam, mu, Vj, Wj, alpha, delta, phi, muf=20, tol = 1e-3, m_eff=0.023, k=4):
+    q_steps = 500
+    if Vj < 0:
+        VVJ = Vj
+    else:
+        VVJ = 0
+    qmax = np.sqrt(2*(muf-VVJ)/params.xi)*1.5
+    #print(qmax, np.pi/ax)
+    qx = np.linspace(0, qmax, q_steps) #kx in the first Brillouin zone
+    omega0_bands = np.zeros(qx.shape[0])
+    for q in range(qx.shape[0]):
+        print(qx.shape[0]-q)
+        H = Junc_eff_Ham_gen(omega=0,W=Wj,ay_targ=ay,kx=qx[q],m_eff=m_eff,alp_l=alpha,alp_t=alpha,mu=mu,V_J=Vj,Gam=gam,Gam_SC_factor=0,Delta=delta,phi=phi,iter=50,eta=0)
+
+        eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+        idx_sort = np.argsort(eigs)
+        eigs = eigs[idx_sort]
+        omega0_bands[q] = eigs[int(k/2)]
+    #plt.plot(qx, omega0_bands, c='k')
+    #plt.show()
+
+    local_min_idx = np.array(argrelextrema(omega0_bands, np.less)[0])
+    local_min_idx = np.concatenate((np.array([0]), local_min_idx))
+    abs_min =  omega0_bands[local_min_idx[0]]
+    idx_absmin = 0
+    for n in range(local_min_idx.shape[0]):
+        abs_min_new = omega0_bands[local_min_idx[n]]
+        if abs_min_new < abs_min:
+            abs_min = abs_min_new
+            idx_absmin = n
+
+    kx_of_absmin = qx[local_min_idx[idx_absmin]]
+    idx_of_absmin = local_min_idx[idx_absmin]
+    #print("kx at absolute minimum", kx_of_absmin)
+    #print("gap of omega0", omega0_bands[idx_of_absmin] )
+    true_eig = self_consistency_finder_faster(ay, gam, mu, Wj, Vj, alpha, delta, phi, kx_of_absmin, omega0_bands[idx_of_absmin], tol)
+    #true_eig2 = self_consistency_finder(gam, mu, Wj, Vj, alpha, delta, phi, kx_of_absmin, omega0_bands[idx_of_absmin], tol)
+    print("gap", true_eig)
+    #print("slower gap", true_eig2)
+    #print(counter)
+    #sys.exit()
+    return true_eig, kx_of_absmin, idx_of_absmin
+
+def solve_Ham(Ham,num,sigma,which = 'LM',Return_vecs = False):
+    ### Finding "num" eigenvalues near E = sigma
+    eigs,vecs = spLA.eigsh(Ham,k=num,sigma = sigma, which = which)
+    idx = np.argsort(eigs)
+    if Return_vecs:
+        return eigs[idx], vecs[:,idx]
+    else:
+        return eigs[idx]
+if False:
+delta=1
+omega=np.linspace(-15, 15, 1000)
+row = np.zeros(1000)
+Wj = 2000 #A
+ay_targ = 1
+alp_l = 200
+alp_t = 200
+mu = 200
+Gam_SC = 0
+phi=np.pi
+m_eff = 0.023
+ax=1
+#(omega,Wj,nodx,ay_targ,kx,m_eff,alp_l,alp_t,mu,Gam_SC,delta,phi,iter,eta)
+for i in range(omega.shape[0]):
+    print(omega.shape[0]-i)
+    gb_bot = bot_SC_sNRG_calc(
+    omega[i],Wj,0,ax,ay_targ,0,m_eff,alp_l,alp_t,mu,Gam_SC,delta,phi,26,1e-2)[1]
+    row[i] = (-1/np.pi)*np.trace(gb_bot.imag)
+
+plt.plot(omega, row)
+plt.show()
+    #row(omega) = -1/pi * np.trace(G_s/b(omega).imag))
+    #eta = 1e-4

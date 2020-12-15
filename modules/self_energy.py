@@ -359,6 +359,8 @@ def self_consistency_finder_faster(ay, gam, mu, Wj, Vj, alpha, delta, phi, kx, e
     omega_bands = np.zeros(omega.shape[0])
 
     y1 = eigs_omega0
+    if y1 > 0.7*delta:
+        return y1
     x1 = 0
     if eigs_omega0==0:
         return 0
