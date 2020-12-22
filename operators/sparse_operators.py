@@ -6,6 +6,7 @@ import numpy as np
 import majoranaJJ.operators.potentials as potentials
 import majoranaJJ.modules.constants as const
 import majoranaJJ.modules.checkers as check
+import majoranaJJ.modules.plots as plots
 
 """Descritized k-x operator"""
 def kx(coor, ax, ay, NN, NNb = None, qx = None):
@@ -14,7 +15,7 @@ def kx(coor, ax, ay, NN, NNb = None, qx = None):
     xmax = max(coor[:, 0])
     xmin = min(coor[:, 0])
     Lx = (xmax - xmin + 1)*ax
-    tx = 1j/(2*ax)
+    tx = -1j/(2*ax)
     for i in range(N):
         if NN[i,0] != -1:
             row.append( NN[i,0] ); col.append(i)
@@ -65,7 +66,7 @@ def ky(coor, ax, ay, NN, NNb = None, qy = None):
     ymax = max(coor[:, 1])
     ymin = min(coor[:, 1])
     Ly = (ymax - ymin + 1)*ay
-    ty = 1j/(2*ay)
+    ty = -1j/(2*ay)
     for i in range(N):
         if NN[i, 1] != -1:
             row.append( NN[i,1] ); col.append(i)
@@ -143,14 +144,16 @@ def Delta(
         bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
         if bool_inSC:
             if which == 'T':
-                data.append(delta*np.exp(1j*phi/2))
+                data.append(delta)
             elif which == 'B':
-                data.append(delta*np.exp(-1j*phi/2))
+                data.append(delta*np.exp(1j*phi))
         else:
             data.append(0)
 
     D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype='complex')
-    delta = sparse.bmat([[None, D], [-D, None]], format='csc', dtype='complex')
+    delta = sparse.bmat([[None, D], [sparse.csc_matrix.conj(-D), None]], format='csc', dtype='complex')
+    plots.junction(coor, delta)
+    #sparse.csc_matrix.transpose(sparse.csc_matrix.conj(D))
     return delta
 ########################################################
 
@@ -174,12 +177,14 @@ def xi(meff):
 def H0(
     coor, ax, ay, NN, NNb = None,
     Wj = 0, cutx = 0, cuty = 0,
-    V = 0, mu = 0, meff_normal = 0.026*const.m0, meff_sc = 0.026*const.m0,
-    alpha = 0, gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 26,
+    V = 0, mu = 0, meff_normal = 0.026, meff_sc = 0.026,
+    alpha = 0, gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 0,
     qx = None, qy = None,
     Tesla = False,
     diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False
     ):
+    meff_normal = meff_normal*const.m0
+    meff_sc = meff_sc*const.m0
     # Hamiltonian with SOC and no superconductivity
     N = coor.shape[0] #number of lattice sites
     I = sparse.identity(N) #identity matrix of size NxN
@@ -251,7 +256,7 @@ def H0(
 def HBDG(
     coor, ax, ay, NN, NNb = None, #lattice parameters
     Wj = 0, cutx = 0, cuty = 0, #junction parameters
-    V = 0, mu = 0, meff_normal = 0.026*const.m0, meff_sc = 0.026*const.m0,
+    V = 0, mu = 0, meff_normal = 0.023, meff_sc = 0.023,
     gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 26, #zeeman contributions
     alpha = 0, delta = 0, phi = 0, #SOC, SC, SC-phase difference
     qx = None, qy = None, #periodicity factors
@@ -267,11 +272,11 @@ def HBDG(
     if qy is not None:
         QY11 = -qy
 
-    H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff)
+    H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal = meff_normal, meff_sc=meff_sc)
 
     H01 = D
 
-    H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=QX11, qy=QY11, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff).conjugate()
+    H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=QX11, qy=QY11, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal = meff_normal, meff_sc=meff_sc).conjugate()
 
     H10 = D.conjugate().transpose()
 

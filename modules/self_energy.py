@@ -35,14 +35,15 @@ def Junc_Ham_gen(W,ay_targ,kx,m_eff,alp_l,alp_t,mu,V_J,Gam):
     ###     * V_J is an addition potential in the junction region (V = 0 in SC regions by convention)
     ###     * Gam is the Zeeman energy
 
-    N = int(W/ay_targ) - 1 # number of lattice sites in the junction (in the y-direction)
-    ay = W/float(N+1)      # actual lattice constant
+    N = int(W/ay_targ)# - 1 # number of lattice sites in the junction (in the y-direction)
+    ay = W/float(N)#+1)      # actual lattice constant
+    print(ay)
 
     t = -1000.*par.hbm0/(2.*m_eff*ay**2)        # spin-preserving hopping strength
     t_alp = alp_t / (2.*ay)                     # spin-orbit hopping strength in the y-direction
     alp_onsite = kx * alp_l                     # onsite spin-orbit coupling contribution
     ep_kx = 1000.*par.hbm0 * kx**2/(2.*m_eff)   # kinetic energy from momentum in x-direction
-
+    print(-2*t)
     row = []; col = []; data = []
     for i in range(N):
 

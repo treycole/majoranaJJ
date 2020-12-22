@@ -18,13 +18,14 @@ import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.gamfinder as gamfinder
 from majoranaJJ.modules.checkers import boundary_check as bc
 import majoranaJJ.modules.checkers as check
+import majoranaJJ.modules.constants as const
 ###################################################
 #Defining System
 Nx = 3 #Number of lattice sites along x-direction
-Ny = 60 #Number of lattice sites along y-direction
+Ny = 1000 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 8 #Junction region
+Wj = 40 #Junction region
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
@@ -49,15 +50,17 @@ Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
-alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
-gx = 1.5 #parallel to junction: [meV]
+alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
+gx = 0.25 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 4.6  #Chemical Potential: [meV]
+mu = 0  #Chemical Potential: [meV]
 #####################################
-k = 12 #This is the number of eigenvalues and eigenvectors you want
-steps = 1001 #Number of kx values that are evaluated
-qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
+k = 4 #This is the number of eigenvalues and eigenvectors you want
+steps = 20 #Number of kx values that are evaluated
+xi = ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(const.m0*0.023)
+qmax = np.sqrt(2*(1)/xi)*1.5
+qx = np.linspace(0.0007, 0.0010, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))
 for i in range(steps):
