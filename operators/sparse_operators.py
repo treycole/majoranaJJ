@@ -16,6 +16,7 @@ def kx(coor, ax, ay, NN, NNb = None, qx = None):
     xmin = min(coor[:, 0])
     Lx = (xmax - xmin + 1)*ax
     tx = -1j/(2*ax)
+    #print("kxLx sparse", qx*Lx)
     for i in range(N):
         if NN[i,0] != -1:
             row.append( NN[i,0] ); col.append(i)
@@ -25,10 +26,10 @@ def kx(coor, ax, ay, NN, NNb = None, qx = None):
             data.append(tx)
         if NNb is not None and qx is not None and NNb[i, 0] != -1:
             row.append(NNb[i,0]); col.append(i)
-            data.append(-tx*np.exp(-1j*qx*Lx))
+            data.append(-tx*np.exp(1j*qx*Lx))
         if NNb is not None and qx is not None and NNb[i, 2] != -1:
             row.append( NNb[i,2] ); col.append(i)
-            data.append(tx*np.exp(1j*qx*Lx))
+            data.append(tx*np.exp(-1j*qx*Lx))
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
@@ -50,10 +51,10 @@ def kx2(coor, ax, ay, NN, NNb = None, qx = None):
             data.append( -tx )
         if NNb is not None and qx is not None and NNb[i, 0] != -1:
             row.append( NNb[i,0] ); col.append(i)
-            data.append( -tx*np.exp(-1j*qx*Lx) )
+            data.append( -tx*np.exp(1j*qx*Lx) )
         if NNb is not None and qx is not None and NNb[i, 2] != -1:
             row.append( NNb[i,2] ); col.append(i)
-            data.append( -tx*np.exp(1j*qx*Lx) )
+            data.append( -tx*np.exp(-1j*qx*Lx) )
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
@@ -76,10 +77,10 @@ def ky(coor, ax, ay, NN, NNb = None, qy = None):
             data.append( -ty )
         if NNb is not None and qy is not None and NNb[i, 1] != -1:
             row.append( NNb[i, 1] ); col.append(i)
-            data.append( ty*np.exp(1j*qy*Ly) )
+            data.append( ty*np.exp(-1j*qy*Ly) )
         if NNb is not None and qy is not None and NNb[i, 3] != -1:
             row.append(NNb[i, 3]); col.append(i)
-            data.append( -ty*np.exp(-1j*qy*Ly) )
+            data.append( -ty*np.exp(1j*qy*Ly) )
     ksq = sparse.csc_matrix((data, (row,col)), shape = (N,N), dtype = 'complex')
     return ksq
 
@@ -101,10 +102,10 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = None):
             data.append(-ty)
         if NNb is not None and qy is not None and NNb[i, 1] != -1:
             row.append( NNb[i, 1] ); col.append(i)
-            data.append( -ty*np.exp(1j*qy*Ly) )
+            data.append( -ty*np.exp(-1j*qy*Ly) )
         if NNb is not None and qy is not None and NNb[i, 3] != -1:
             row.append( NNb[i, 3] ); col.append(i)
-            data.append( -ty*np.exp(-1j*qy*Ly) )
+            data.append( -ty*np.exp(1j*qy*Ly) )
     ksq = sparse.csc_matrix((data, (row,col)), shape= (N,N), dtype = 'complex')
     return ksq
 
@@ -152,7 +153,7 @@ def Delta(
 
     D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype='complex')
     delta = sparse.bmat([[None, D], [sparse.csc_matrix.conj(-D), None]], format='csc', dtype='complex')
-    plots.junction(coor, delta)
+    #plots.junction(coor, delta)
     #sparse.csc_matrix.transpose(sparse.csc_matrix.conj(D))
     return delta
 ########################################################

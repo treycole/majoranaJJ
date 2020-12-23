@@ -40,7 +40,7 @@ phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
 Vj = 0 #Junction potential: [meV]
-mu = np.linspace(0,1,15) #meV
+mu = np.linspace(0,2,100) #meV
 gx = 0.25 #mev
 
 gapmu = np.zeros(mu.shape[0])
@@ -55,7 +55,7 @@ except:
 if PLOT != 'P':
     for i in range(mu.shape[0]):
         print(mu.shape[0]-i)
-        gapmu[i] = slfNRG.gap(Wj,nodx,nody,ax, ay, gx, mu[i], Vj, alpha, delta, phi)[0]
+        gapmu[i] = slfNRG.gap(Wj,0,nodx,nody,ax, ay, gx, mu[i], Vj, alpha, delta, phi)[0]
 
     np.save("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi), gapmu)
     gc.collect()
@@ -65,6 +65,7 @@ else:
     gap = np.load("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f Vsc = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, Vsc, alpha, delta, phi))
 
     plt.plot(mu, gap)
+    plt.grid()
     plt.xlabel(r'$\mu$ (meV)')
     plt.ylabel(r'$E_{gap}$ (meV)')
 
