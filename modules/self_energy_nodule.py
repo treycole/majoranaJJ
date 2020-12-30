@@ -10,6 +10,8 @@ import majoranaJJ.modules.constants as const
 import majoranaJJ.operators.sparse_operators as spop #sparse operators
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
+import majoranaJJ.operators.potentials as pot
+import majoranaJJ.modules.plots as plots
 
 def top_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta):
     # Calculates the bulk and surface Greens functions of the top superconductor
@@ -32,10 +34,8 @@ def top_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, G
     else:
         Nx = int(Lx/ax)
 
-    Ny = int(Wj/ay)# number of lattice sites in the junction region (in the y-direction)
-    ay = Wj/float(Ny) # actual lattice constant
-    Ny = Ny+2 #add one SC site on each side
-    Wj_int = Ny - 2
+    Wj_int = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
+    Ny = Wj_int + 2 #add one SC site on each side
 
     tx = -1000*par.hbm0/(2*m_eff*ax**2)  # spin-preserving hopping strength
     ty = -1000*par.hbm0/(2*m_eff*ay**2) # spin-preserving hopping strength
@@ -181,11 +181,8 @@ def bot_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, G
     else:
         Nx = int(Lx/ax)
 
-    Ny = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
-    ay = Wj/float(Ny)      # actual lattice constant
-    Ny = Ny+2 #add one SC site on each side
-    Wj_int = Ny - 2
-    #print("Lx Greens",Lx)
+    Wj_int = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
+    Ny = Wj_int + 2 #add one SC site on each side
 
     tx = -1000.*par.hbm0/(2.*m_eff*ax**2)  # spin-preserving hopping strength
     ty = -1000.*par.hbm0/(2.*m_eff*ay**2) # spin-preserving hopping strength
@@ -335,24 +332,17 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     else:
         Nx = int(Lx/ax)
 
-    Ny = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
-    ay = Wj/float(Ny) # actual lattice constant
-    Ny = Ny+2 #add one SC site on each side
-    Wj_int = Ny-2
-
-    #print("Nx", Nx)
-    #print("Ny", Ny)
-    #print("N", Nx*Ny)
-    #print("BDG", 4*Nx*Ny)
-    #print("Wj", Wj_int*ay_targ)
+    Wj_int = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
+    Ny = Wj_int + 2 #add one SC site on each side
 
     coor = shps.square(Nx, Ny) #square lattice
     NN = nb.NN_sqr(coor)
     NNb = nb.Bound_Arr(coor)
 
     Gam_SC = Gam_SC_factor * Gam
-
-    H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutx=nodx, cuty=nody, V=Vj, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff)
+    V = pot.Vjj(coor=coor, Wj=Wj_int, Vsc=0, Vj=Vj, cutx=nodx, cuty=nody)
+    #plots.potential_profile(coor, V)
+    H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutx=nodx, cuty=nody, V=V, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff)
 
     Gs,Gb,sNRG_bot = bot_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, nodx=nodx, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
 

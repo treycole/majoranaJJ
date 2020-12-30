@@ -1,6 +1,7 @@
 import scipy.sparse as sparse
 import sys
 from majoranaJJ.modules.checkers import junction_geometry_check as jgc
+from majoranaJJ.modules import checkers as check
 
 def Vjj(coor, Wj, Vsc, Vj, cutx = 0, cuty = 0):
 
@@ -9,12 +10,13 @@ def Vjj(coor, Wj, Vsc, Vj, cutx = 0, cuty = 0):
     Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
     row = []; col = []; data = []
 
-    Nx, Ny, cutx, cuty, Wj = jgc(Ny, Nx, Wj, cutx, cuty)
+    #Nx, Ny, cutx, cuty, Wj = jgc(Ny, Nx, Wj, cutx, cuty)
 
     Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
     Wsc = int((Ny - Wj)/2) #width of single superconductor
 
     for i in range(N):
+        bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
         y = coor[i, 1]
         x = coor[i, 0]
 
