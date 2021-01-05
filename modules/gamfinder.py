@@ -150,17 +150,18 @@ def slfNRG(
     Wj = 0, Lx = 0, cutx = 0, cuty = 0,
     Vj = 0, m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, tol = 0.005
+    k = 20, tol = 0.001
     ):
 
-    H0 = SNRGN.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=0, delta=delta, phi=phi)
+    H0 = SNRGN.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=1e-4, delta=delta, phi=phi)
 
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
+    #print(eigs)
     vecs_hc = np.conjugate(np.transpose(vecs)) #hermitian conjugate
 
-    H_G1 = SNRGN.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=1, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
+    H_G1 = SNRGN.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=1+1e-4, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
     HG = H_G1 - H0 #the proporitonality matrix for gam-x, it is ones along the sites that have a gam value
     HG0_DB = np.dot(vecs_hc, H0.dot(vecs))
@@ -170,38 +171,47 @@ def slfNRG(
     delta_gam = abs(gf - gi)
     steps = int((delta_gam/(0.5*tol))) + 1
     gx = np.linspace(gi, gf, steps)
-    eig_arr = np.zeros((gx.shape[0]))
+    eig_arr = np.zeros((4, gx.shape[0]))
     for i in range(gx.shape[0]):
         H_DB = HG0_DB + gx[i]*HG_DB
         eigs_DB, U_DB = LA.eigh(H_DB)
-        eig_arr[i] = eigs_DB[int(k/2)]
+        idx_sort = np.argsort(eigs_DB)
+        eigs_DB = eigs_DB[idx_sort]
+        #eig_arr[i] = eigs_DB[int(k/2)]
+        eig_arr[:,i] = eigs_DB[int(k/2)-2:int(k/2)+2]
 
     #checking edge cases
-    if eig_arr[0] < tol:
+    if eig_arr[2,0] < tol:
         G_crit.append(gx[0])
-    if eig_arr[-1] < tol:
+    if eig_arr[2,-1] < tol:
         G_crit.append(gx[-1])
 
-    local_min_idx = np.array(argrelextrema(eig_arr, np.less)[0]) #local minima indices in the E vs gam plot
+    local_min_idx = np.array(argrelextrema(eig_arr[2,:], np.less)[0])
+    #for i in range(local_min_idx.shape[0]):
+    #    print(eig_arr[:, local_min_idx[i]])
+    #sys.exit()
+    #local minima indices in the E vs gam plot
     print(local_min_idx.size, "Energy local minima found at gx = ", gx[local_min_idx])
 
-    #plt.plot(gx, eig_arr, c='b')
-    #plt.scatter(gx[local_min_idx], eig_arr[local_min_idx], c='r', marker = 'X')
+    #for i in range(eig_arr.shape[0]):
+    #    plt.plot(gx, eig_arr[i,:], c='b')
+    #plt.scatter(gx[local_min_idx], eig_arr[2, local_min_idx], c='r', marker = 'X')
     #plt.show()
 
-    tol = tol/10
     for i in range(0, local_min_idx.size): #eigs_min.size
         gx_c = gx[local_min_idx[i]] #gx[ZEC_idx[i]]""" #first approx g_critical
-        gx_lower = gx[local_min_idx[i]-1]#gx[ZEC_idx[i]-1]""" #one step back
+        gx_lower = gx[local_min_idx[i]-1 ]#gx[ZEC_idx[i]-1]""" #one step back
         gx_higher = gx[local_min_idx[i]+1]#gx[ZEC_idx[i]+1]""" #one step forward
 
         delta_gam = (gx_higher - gx_lower)
-        n_steps = (int((delta_gam/(0.5*tol))) + 1)
+        n_steps = (int((delta_gam/(0.1*tol))) + 1)
         gx_finer = np.linspace(gx_lower, gx_higher, n_steps) #high res gam around supposed zero energy crossing (local min)
         eig_arr_finer = np.zeros((gx_finer.size)) #new eigenvalue array
         for j in range(gx_finer.shape[0]):
             H_DB = HG0_DB + gx_finer[j]*HG_DB
             eigs_DB, U_DB = LA.eigh(H_DB)
+            idx_sort = np.argsort(eigs_DB)
+            eigs_DB = eigs_DB[idx_sort]
             eig_arr_finer[j] = eigs_DB[int(k/2)] #k/2 -> lowest postive energy state
 
         min_idx_finer = np.array(argrelextrema(eig_arr_finer, np.less)[0]) #new local minima indices
@@ -210,9 +220,10 @@ def slfNRG(
         #plt.plot(gx_finer, eig_arr_finer, c = 'b')
         #plt.scatter(gx_finer[min_idx_finer], eig_arr_finer[min_idx_finer], c='r', marker = 'X')
         #plt.plot(gx_finer, 0*gx_finer, c='k', lw=1)
+        #plt.show()
 
         for m in range(eigs_min_finer.shape[0]):
-            if eigs_min_finer[m] < tol:
+            if abs(eigs_min_finer[m]) < tol:
                 crossing_gam = gx_finer[min_idx_finer[m]]
                 G_crit.append(crossing_gam)
                 print("Crossing found at Gx = {} | E = {} meV".format(crossing_gam, eigs_min_finer[m]))

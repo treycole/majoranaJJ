@@ -12,10 +12,10 @@ import majoranaJJ.modules.self_energy_nodule as slfNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 10 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Wj = 2000 #Junction region [A]
-cutx = 3 #width of nodule
-cuty = 3 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 Lx = Nx*ax
 
 Junc_width = Wj*.10 #nm
@@ -29,18 +29,23 @@ print("Junction Width = ", Junc_width, "(nm)")
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
-Vj = -5 #junction potential: [meV]
+Vj = 0 #junction potential: [meV]
 
-mu_i = -5
+mu_i = 0
 mu_f = 15
-res = 0.02
+res = 0.05
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
 #dmu = -0.010347
 
+print("alpha = ", alpha)
+print("Mu_i = ", mu_i)
+print("Mu_f = ", mu_f)
+print("Vj = ", Vj)
+
 gi = 0
-gf = 2.0
+gf = 5.0
 num_bound = 6
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################

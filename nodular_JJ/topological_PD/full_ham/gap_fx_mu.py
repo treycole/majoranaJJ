@@ -49,7 +49,7 @@ Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
-alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
+alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1 #meV
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
@@ -57,9 +57,9 @@ Vsc = 0 #Amplitude of potential in SC region: [meV]
 Vj = -5 #Amplitude of potential in junction region: [meV]
 V = Vjj(coor, Wj = Wj, Vsc = Vsc, Vj = Vj, cutx = cutx, cuty = cuty)
 
-mu_i = -1
-mu_f = 1
-res = 0.05
+mu_i = 0
+mu_f = 10
+res = 0.2
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(0.5*res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
@@ -78,7 +78,7 @@ if PLOT != 'P':
     q_minima = []
     for i in range(mu.shape[0]):
         print(mu.shape[0]-i)
-        GAP, QMIN = gf(coor, NN, NNb, ax, ay, mu[i], gx, Wj = Wj, cutx = cutx, cuty = cuty, V=V, alpha = alpha, delta = delta, phi = phi)
+        GAP, QMIN = gf(coor, NN, NNb, ax, ay, mu[i], gx, Wj=Wj, cutx=cutx, cuty=cuty, V=V, alpha=alpha, delta=delta, phi=phi)
         print(GAP, QMIN)
         gap.append(GAP)
         q_minima.append(QMIN)
