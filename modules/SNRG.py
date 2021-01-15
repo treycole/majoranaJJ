@@ -369,7 +369,7 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     return H_eff
 
 def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4):
-    if eigs_omega0==0:
+    if eigs_omega0 <= tol:
         return 0
     if eigs_omega0 > 0.7*delta:
         return eigs_omega0
@@ -416,7 +416,7 @@ def minima(arr):
     return abs_min, idx
 
 
-def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026, k=4, muf=20, targ_steps=2000, tol=1e-4):
+def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026, k=4, muf=20, targ_steps=2000, tol=1e-3):
     n1, n2 = fndrs.step_finder(targ_steps)
     print(n1, n2)
     #if Vj < 0:

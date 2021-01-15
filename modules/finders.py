@@ -105,7 +105,7 @@ def local_min_gam_finder(
     g_normal = 26, g_sc = 26,
     alpha = 0, delta = 0, phi = 0,
     Tesla = False, diff_g_factors = True,  Rfactor = 0, diff_alphas = False, diff_meff = False,
-    k = 20, tol = 0.005
+    k = 50, tol = 0.001
     ):
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 

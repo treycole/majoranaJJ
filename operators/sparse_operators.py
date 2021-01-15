@@ -266,6 +266,7 @@ def HBDG(
     N = coor.shape[0] #number of lattice sites
     D = Delta(coor, Wj=Wj, delta=delta, phi=phi, cutx=cutx, cuty=cuty)
     V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutx=cutx, cuty=cuty)
+    #plots.potential_profile(coor, V)
     QX11 = None
     QY11 = None
     if qx is not None:

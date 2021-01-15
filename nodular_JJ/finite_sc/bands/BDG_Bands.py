@@ -53,14 +53,14 @@ alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1.0 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 2.5  #Chemical Potential: [meV]
+mu = -4.017  #Chemical Potential: [meV]
 Vj = -5 #meV junction potential
 meff = 0.026
 #####################################
 k = 4 #This is the number of eigenvalues and eigenvectors you want
 steps = 150 #Number of kx values that are evaluated
-xi = ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(const.m0*meff)
-qmax = np.sqrt(2*(1)/xi)*1.5
+#xi = ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(const.m0*meff)
+#qmax = np.sqrt(2*(1)/xi)*1.5
 qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 
 bands = np.zeros((steps, k))

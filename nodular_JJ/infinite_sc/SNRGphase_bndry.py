@@ -12,10 +12,10 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 10 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Wj = 2000 #Junction region [A]
-cutx = 4 #width of nodule
-cuty = 10 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 Lx = Nx*ax
 
 Junc_width = Wj*.10 #nm
@@ -31,9 +31,9 @@ phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vj = -5 #junction potential: [meV]
 
-mu_i = -5
-mu_f = 10
-res = 0.1
+mu_i = -5#-4.017
+mu_f = 15
+res = 0.05
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
@@ -60,7 +60,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi)
+        gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k = 200)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None
@@ -68,14 +68,14 @@ if PLOT != 'P':
                 boundary[i, j] = gx[j]
     boundary = np.array(boundary)
 
-    np.save("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, Vj, alpha, delta, phi), boundary)
-    np.save("%s/mu Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, Vj, alpha, delta, phi), mu)
+    np.save("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f), boundary)
+    np.save("%s/mu Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f), mu)
     gc.collect()
 
     sys.exit()
 else:
-    boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, Vj, alpha, delta, phi))
-    mu = np.load("%s/mu Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, Vj, alpha, delta, phi))
+    boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f))
+    mu = np.load("%s/mu Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f))
 
     print(boundary[:, 0])
 

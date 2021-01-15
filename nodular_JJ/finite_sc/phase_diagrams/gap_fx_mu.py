@@ -11,6 +11,7 @@ import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.finders as fndrs
 import majoranaJJ.modules.checkers as check
+import majoranaJJ.modules.plots as plots
 ###################################################
 #Defining System
 Nx = 10 #Number of lattice sites along x-direction
@@ -35,21 +36,22 @@ print("Supercondicting Lead Width = ", SC_width, "(nm)")
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_sqr(coor)
 NNb = nb.Bound_Arr(coor)
-
+V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutx=cutx, cuty=cuty)
+plots.potential_profile(coor, V)
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-gx = 1 #meV
+gx = 1.0 #meV
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vsc = 0 #Amplitude of potential in SC region: [meV]
 Vj = -5 #Amplitude of potential in junction region: [meV]
 
-mu_i = -4.2
-mu_f = -3.4
-res = 0.05
+mu_i = 2.5
+mu_f = 3.0
+res = 0.1
 delta_mu = mu_f - mu_i
 steps = int(delta_mu/(res)) + 1
 mu = np.linspace(mu_i, mu_f, steps) #Chemical Potential: [meV]
@@ -67,7 +69,7 @@ if PLOT != 'P':
     QMIN = []
     for i in range(mu.shape[0]):
         print(mu.shape[0]-i)
-        gap, q_minimum = fndrs.gap_finder(coor, NN, NNb, ax, ay, mu[i], gx, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, steps_targ = 500)
+        gap, q_minimum = fndrs.gap_finder(coor, NN, NNb, ax, ay, mu[i], gx, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, steps_targ=2000)
         print("gap", gap)
         GAP.append(gap)
         QMIN.append(q_minimum)
@@ -84,7 +86,7 @@ else:
 
     plt.plot(mu, GAP)
     plt.grid()
-    plt.ylim(0, 0.125)
+    #plt.ylim(0, 0.125)
     plt.xlabel(r'$\mu$')
     plt.ylabel(r'gap/$\Delta$')
     title = r"$E_Z$ = %.2f meV $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
