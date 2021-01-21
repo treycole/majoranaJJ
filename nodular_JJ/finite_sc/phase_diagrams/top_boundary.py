@@ -48,15 +48,15 @@ Vsc = 0 #SC potential: [meV]
 Vj = -5 #Junction potential: [meV]
 
 mu_i = -5
-mu_f = 0
-res = 0.05
+mu_f = 5
+res = 0.1
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
 #dmu = -0.010347
 
 gi = 0
-gf = 5.0
+gf = 4.0
 num_bound = 6
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################
@@ -71,7 +71,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = fndrs.local_min_gam_finder(coor, NN, NNb, ax, ay, mu[i], gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=200)
+        gx = fndrs.local_min_gam_finder(coor, NN, NNb, ax, ay, mu[i], gi, gf, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=120)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None
@@ -94,7 +94,8 @@ else:
 
     plt.xlabel(r'$E_z$ (meV)')
     plt.ylabel(r'$\mu$ (meV)')
-    plt.xlim(gi, gf)
+    plt.xlim(0, 5)
+    plt.ylim(-5, 12)
     title = r"$L_x$ = %.1f nm, $L_y$ = %.1f nm, $W_{sc}$ = %.1f nm, $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $V_{SC}$ = %.1f meV, $\phi$ = %.2f " % (Lx*.1, Ly*.1, SC_width, Junc_width, Nod_widthx, Nod_widthy, Vj, Vsc, phi)
     plt.grid()
     plt.title(title, loc = 'center', wrap = True)

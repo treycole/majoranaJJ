@@ -13,7 +13,7 @@ coor = shps.square(Nx, Ny)
 NN = nb.NN_Arr(coor)
 NNb = nb.Bound_Arr(coor)
 
-V0 = 50
+V0 = -5
 V = potentials.Vjj(coor, Wj, Vsc = 0, Vj = V0, cutx = cutx, cuty = cuty)
 
 plots.potential_profile(coor, V)

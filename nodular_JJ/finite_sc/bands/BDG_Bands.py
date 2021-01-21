@@ -20,8 +20,8 @@ import majoranaJJ.modules.checkers as check
 import majoranaJJ.modules.constants as const
 ###################################################
 #Defining System
-Nx = 10 #Number of lattice sites along x-direction
-Ny = 300 #Number of lattice sites along y-direction
+Nx = 8 #Number of lattice sites along x-direction
+Ny = 500 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 40 #Junction region
@@ -50,18 +50,18 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-gx = 1.0 #parallel to junction: [meV]
+gx = 1.1 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = -4.017  #Chemical Potential: [meV]
-Vj = -5 #meV junction potential
-meff = 0.026
+mu = 8.00  #Chemical Potential: [meV]
+Vj = 5 #meV junction potential
 #####################################
 k = 4 #This is the number of eigenvalues and eigenvectors you want
-steps = 150 #Number of kx values that are evaluated
+steps = 100 #Number of kx values that are evaluated
 #xi = ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(const.m0*meff)
 #qmax = np.sqrt(2*(1)/xi)*1.5
-qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
+#qx = np.linspace(0.0035, 0.006, steps) #kx in the first Brillouin zone
+qx = np.linspace(0, 0.005, steps)
 
 bands = np.zeros((steps, k))
 for i in range(steps):
@@ -71,20 +71,21 @@ for i in range(steps):
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
     bands[i, :] = eigs
-"""
-for i in range(bands.shape[1]):
-    plt.plot(qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
-    plt.plot(-qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
-    #plt.scatter(q, eigarr[:, i], c ='b')
-"""
+
 plt.plot(qx, bands[:, int(k/2)], c ='mediumblue', linestyle = 'solid')
+#for i in range(bands.shape[1]):
+    #plt.plot(qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
+    #plt.plot(-qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
+    #plt.scatter(q, eigarr[:, i], c ='b')
+
 plt.plot(qx, 0*qx, c = 'k', linestyle='solid', lw=1)
-plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
+#plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
 #plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
 plt.xlabel('kx (1/A)')
 plt.ylabel('Energy (meV)')
-plt.title('BDG Spectrum', wrap = True)
-plt.savefig('juncwidth = {} SCwidth = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
+title = r"$\mu$ = %.5f $E_Z$ = %.2f meV $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (mu, gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
+plt.title(title, loc = 'center', wrap = True)
+#plt.savefig('juncwidth = {} SCwidth = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
 plt.show()
 
 #####################################

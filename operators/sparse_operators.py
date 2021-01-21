@@ -173,8 +173,6 @@ Basis:
 Two states per lattice site for spin up and down. Rows/Columns 1 ->
 N correspond to spin up, rows/columns n -> 2N correspond to spin down
 """
-def xi(meff):
-    return ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(meff)
 def H0(
     coor, ax, ay, NN, NNb = None,
     Wj = 0, cutx = 0, cuty = 0,
@@ -184,8 +182,6 @@ def H0(
     Tesla = False,
     diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False
     ):
-    meff_normal = meff_normal*const.m0
-    meff_sc = meff_sc*const.m0
     # Hamiltonian with SOC and no superconductivity
     N = coor.shape[0] #number of lattice sites
     I = sparse.identity(N) #identity matrix of size NxN
@@ -205,7 +201,7 @@ def H0(
             row.append(i); col.append(i)
             inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
             if inSC:
-                data.append(g_SC)
+                data.append(g_sc)
             if not inSC:
                 data.append(g_normal)
         g_factor = sparse.csc_matrix((data, (row, col)), shape = (N,N))
@@ -229,12 +225,12 @@ def H0(
             row.append(i); col.append(i)
             inSC_i = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)[0]
             if inSC_i :
-                data.append(xi(meff_sc)/2)
+                data.append(const.hbsqr_m0/(2*meff_sc))
             else:
-                data.append(xi(meff_normal)/2)
+                data.append(const.hbsqr_m0/(2*meff_normal))
         meff = sparse.csc_matrix((data, (row, col)), shape = (N,N))
     elif not diff_meff:
-        meff = xi(meff_normal)/2
+        meff = const.hbsqr_m0/(2*meff_normal)
 
     if Tesla:
         H00 = (k_x2 + k_y2).multiply(meff) + V + (1/2)*(const.muB*gamz)*g_factor - mu*I

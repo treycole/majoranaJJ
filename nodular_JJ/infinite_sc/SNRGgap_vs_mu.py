@@ -11,12 +11,12 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 10 #Number of lattice sites along x-direction
+Nx = 10#3 #Number of lattice sites along x-direction
 Wj = 2000 #Junction region [A]
-nodx = 4 #width of nodule
-nody = 10 #height of nodule
-Lx = Nx*ax
+nodx = 4#0 #width of nodule
+nody = 10#0 #height of nodule
 
+Lx = Nx*ax
 Junc_width = Wj*.1 #nm
 Nod_widthx = nodx*ay*.1 #nm
 Nod_widthy = nody*ay*.1 #nm
@@ -28,14 +28,14 @@ print("Junction Width = ", Junc_width, "(nm)")
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
-Vj = -5 #Junction potential: [meV]
-gx = 1 #mev
+Vj = 5#-5 #Junction potential: [meV]
+gx = 1#0.8 #mev
 
-mu_i = 0
-mu_f = 3
+mu_i = 8#-0.3
+mu_f = 10#0.1
 delta_mu = mu_f - mu_i
-res = 0.03
-steps = int(abs(delta_mu/res))
+res = 0.1
+steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
 
 print("alpha = ", alpha)
@@ -45,6 +45,9 @@ print("Gamma_x = ", gx)
 print("Vj = ", Vj)
 
 gapmu = np.zeros(mu.shape[0])
+#target_steps = (np.pi/Lx)/2e-8
+target_steps = 0.01/2e-5#0.01/2e-8
+print(target_steps)
 ###################################################
 dirS = 'gap_data'
 if not os.path.exists(dirS):
@@ -56,30 +59,27 @@ except:
 if PLOT != 'P':
     for i in range(mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, muf=10, targ_steps=2500)[0]
+        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=target_steps, n_avg=6)[0]
 
     np.save("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gapmu)
-    np.save("%s/mu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx), mu)
     gc.collect()
 
     sys.exit()
 else:
     gap = np.load("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
-    mu = np.load("%s/mu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
 
-    steps = gap.shape[0]
-    mu = np.linspace(mu_i, mu_f, steps)
+    mu = np.linspace(mu_i, mu_f, gap.shape[0])
     plt.plot(mu, gap)
     plt.grid()
     plt.xlabel(r'$\mu$ (meV)')
     plt.ylabel(r'$E_{gap}$ (meV)')
     #plt.xlim(0, 2)
-    #plt.ylim(0, 0.05)
+    plt.ylim(0, 0.5)
     title = r"SNRG $E_Z$ = %.2f meV $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
 
     plt.title(title, loc = 'center', wrap = True)
     plt.subplots_adjust(top=0.85)
-    plt.savefig('gapfxmu juncwidth = {} nodwidthx = {} nodwidthy = {} alpha = {} phi = {} Vj = {}.png'.format(Junc_width, Nod_widthx, Nod_widthy, alpha, phi, Vj))
+    #plt.savefig('gapfxmu juncwidth = {} nodwidthx = {} nodwidthy = {} alpha = {} phi = {} Vj = {}.png'.format(Junc_width, Nod_widthx, Nod_widthy, alpha, phi, Vj))
     plt.show()
 
     sys.exit()
