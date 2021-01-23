@@ -135,7 +135,8 @@ def Delta(
     if Wj == 0: #If no junction, every site is superconducting, no phase difference
         for i in range(N):
             row.append(i); col.append(i)
-            data.append(delta)
+            data.append(delta*np.exp(1j*phi/3))
+            #data.append(delta)
         D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype='complex')
         delta = sparse.bmat([[None, D], [-D, None]], format='csc', dtype='complex')
         return delta
@@ -152,7 +153,7 @@ def Delta(
             data.append(0)
 
     D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype='complex')
-    delta = sparse.bmat([[None, D], [sparse.csc_matrix.conj(-D), None]], format='csc', dtype='complex')
+    delta = sparse.bmat([[None, D], [-D, None]], format='csc', dtype='complex')
     #plots.junction(coor, delta)
     #sparse.csc_matrix.transpose(sparse.csc_matrix.conj(D))
     return delta
@@ -263,6 +264,7 @@ def HBDG(
     D = Delta(coor, Wj=Wj, delta=delta, phi=phi, cutx=cutx, cuty=cuty)
     V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutx=cutx, cuty=cuty)
     #plots.potential_profile(coor, V)
+    #plots.junction(coor, D)
     QX11 = None
     QY11 = None
     if qx is not None:
@@ -276,8 +278,9 @@ def HBDG(
 
     H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=QX11, qy=QY11, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal = meff_normal, meff_sc=meff_sc).conjugate()
 
-    H10 = D.conjugate().transpose()
-
+    H10 = -D.conjugate()
+    #print(np.around(H01.todense(), decimals=1))
+    #print(np.around(H10.todense(), decimals=1))
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
 

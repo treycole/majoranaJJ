@@ -20,13 +20,13 @@ import majoranaJJ.modules.checkers as check
 import majoranaJJ.modules.constants as const
 ###################################################
 #Defining System
-Nx = 8 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Ny = 500 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Wj = 40 #Junction region
-cutx = 4 #width of nodule
-cuty = 10 #height of nodule
+Wj = 20 #Junction region
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
@@ -50,23 +50,21 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-gx = 1.1 #parallel to junction: [meV]
+gx = 1.0 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 8.00  #Chemical Potential: [meV]
-Vj = 5 #meV junction potential
+mu = 13.4 #Chemical Potential: [meV]
+Vj = 0 #meV junction potential
 #####################################
-k = 4 #This is the number of eigenvalues and eigenvectors you want
-steps = 100 #Number of kx values that are evaluated
-#xi = ((const.hbar**2)*(const.e0)*(10**20)*(10**3))/(const.m0*meff)
-#qmax = np.sqrt(2*(1)/xi)*1.5
-#qx = np.linspace(0.0035, 0.006, steps) #kx in the first Brillouin zone
-qx = np.linspace(0, 0.005, steps)
 
+k = 4 #This is the number of eigenvalues and eigenvectors you want
+steps = 75 #Number of kx values that are evaluated
+qx = np.linspace(0.01015, 0.01025, steps) #kx in the first Brillouin zone
+#qx = np.linspace(0, np.pi/Lx, steps)
 bands = np.zeros((steps, k))
 for i in range(steps):
     print(steps - i)
-    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
+    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj,cutx=cutx, cuty=cuty, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
     eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
@@ -81,32 +79,26 @@ plt.plot(qx, bands[:, int(k/2)], c ='mediumblue', linestyle = 'solid')
 plt.plot(qx, 0*qx, c = 'k', linestyle='solid', lw=1)
 #plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
 #plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
-plt.xlabel('kx (1/A)')
+plt.xlabel(r'$k_x$ (1/A)')
 plt.ylabel('Energy (meV)')
-title = r"$\mu$ = %.5f $E_Z$ = %.2f meV $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (mu, gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
+title = r"Lx = %.2f nm, $\mu$ = %.5f, $E_Z$ = %.2f meV, $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (Lx*.1, mu, gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
 plt.title(title, loc = 'center', wrap = True)
 #plt.savefig('juncwidth = {} SCwidth = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
 plt.show()
+sys.exit()
 
 #####################################
-"""
-#VV = sparse.bmat([[None, V], [-V, None]], format='csc', dtype='complex')
-#plots.junction(coor, VV, title = 'Potential Profile', savenm = 'potential_profile.jpg')
-
-k = 26
-H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, alpha=alpha, delta=delta, phi = phi, V=V, gammax=gx, gammaz=gz, mu=mu, qx=0.00287, periodicX=True, periodicY=False)
-
+k = 4
+H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj,cutx=cutx, cuty=cuty, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=np.pi/Lx)
 eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
 idx_sort = np.argsort(eigs)
 eigs = eigs[idx_sort]
 vecs = vecs[:, idx_sort]
-print(eigs)
 
 n = int(k/2)
-plots.state_cmap(coor, eigs, vecs, n = int(k/2), title = r'$|\psi|^2$', savenm = 'State_k={}.png'.format(n))
+plots.state_cmap(coor, eigs, vecs, n = int(k/2), title = r'$|\psi|^2$ excited state={}'.format(n-int(k/2)))
 
 sys.exit()
 
 for i in range(int(k/2), k):
     plots.state_cmap(coor, eigs, vecs, n = i, title = r'$|\psi|^2$', savenm = 'State_k={}.png'.format(i))
-"""

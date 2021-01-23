@@ -11,10 +11,10 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 10#3 #Number of lattice sites along x-direction
-Wj = 2000 #Junction region [A]
-nodx = 4#0 #width of nodule
-nody = 10#0 #height of nodule
+Nx = 3 #Number of lattice sites along x-direction
+Wj = 1000 #Junction region [A]
+nodx = 0 #width of nodule
+nody = 0 #height of nodule
 
 Lx = Nx*ax
 Junc_width = Wj*.1 #nm
@@ -28,13 +28,13 @@ print("Junction Width = ", Junc_width, "(nm)")
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
-Vj = 5#-5 #Junction potential: [meV]
-gx = 1#0.8 #mev
+Vj = 0 #Junction potential: [meV]
+gx = 1 #mev
 
-mu_i = 8#-0.3
-mu_f = 10#0.1
+mu_i = 8
+mu_f = 14
 delta_mu = mu_f - mu_i
-res = 0.1
+res = 0.25
 steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
 
@@ -45,8 +45,9 @@ print("Gamma_x = ", gx)
 print("Vj = ", Vj)
 
 gapmu = np.zeros(mu.shape[0])
-#target_steps = (np.pi/Lx)/2e-8
-target_steps = 0.01/2e-5#0.01/2e-8
+#target_steps = (np.pi/Lx)/1e-4
+#target_steps = 0.01/(0.00015/75)
+target_steps = 0.012/5e-7
 print(target_steps)
 ###################################################
 dirS = 'gap_data'
@@ -59,7 +60,7 @@ except:
 if PLOT != 'P':
     for i in range(mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=target_steps, n_avg=6)[0]
+        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=target_steps, n_avg=5, muf=mu[i])[0]
 
     np.save("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gapmu)
     gc.collect()
@@ -74,7 +75,7 @@ else:
     plt.xlabel(r'$\mu$ (meV)')
     plt.ylabel(r'$E_{gap}$ (meV)')
     #plt.xlim(0, 2)
-    plt.ylim(0, 0.5)
+    plt.ylim(0, 0.15)
     title = r"SNRG $E_Z$ = %.2f meV $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
 
     plt.title(title, loc = 'center', wrap = True)
