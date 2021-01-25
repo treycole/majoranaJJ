@@ -11,10 +11,10 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 3 #Number of lattice sites along x-direction
+Nx = 10 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
-nodx = 0 #width of nodule
-nody = 0 #height of nodule
+nodx = 4 #width of nodule
+nody = 10 #height of nodule
 
 Lx = Nx*ax
 Junc_width = Wj*.1 #nm
@@ -26,15 +26,15 @@ print("Junction Width = ", Junc_width, "(nm)")
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0 #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vj = 0 #Junction potential: [meV]
-gx = 1 #mev
+gx = 3 #mev
 
-mu_i = 8
-mu_f = 14
+mu_i = 5.0
+mu_f = 6.0
 delta_mu = mu_f - mu_i
-res = 0.25
+res = 0.01
 steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
 
@@ -45,9 +45,9 @@ print("Gamma_x = ", gx)
 print("Vj = ", Vj)
 
 gapmu = np.zeros(mu.shape[0])
-#target_steps = (np.pi/Lx)/1e-4
+target_steps = (np.pi/Lx)/2e-7
 #target_steps = 0.01/(0.00015/75)
-target_steps = 0.012/5e-7
+#target_steps = 0.012/1e-8
 print(target_steps)
 ###################################################
 dirS = 'gap_data'
@@ -60,7 +60,7 @@ except:
 if PLOT != 'P':
     for i in range(mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=target_steps, n_avg=5, muf=mu[i])[0]
+        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=target_steps, n_avg=4, muf=mu[i])[0]
 
     np.save("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gapmu)
     gc.collect()

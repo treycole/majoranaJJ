@@ -13,7 +13,7 @@ import majoranaJJ.modules.SNRG as SNRG
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Nx = 10 #Number of lattice sites along x-direction
-Wj = 1000 #Junction region [A]
+Wj = 2000 #Junction region [A]
 cutx = 4 #width of nodule
 cuty = 10 #height of nodule
 
@@ -27,13 +27,13 @@ print("Junction Width = ", Junc_width, "(nm)")
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0*np.pi #SC phase difference
 delta = 1 #Superconducting Gap: [meV]
 Vj = 0 #junction potential: [meV]
 
 mu_i = 0
-mu_f = 15
-res = 0.05
+mu_f = 30
+res = 0.1
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
@@ -44,8 +44,8 @@ print("Mu_f = ", mu_f)
 print("Vj = ", Vj)
 
 gi = 0
-gf = 3.0
-num_bound = 6
+gf = 4.0
+num_bound = 3
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################
 #phase diagram mu vs gam
@@ -80,7 +80,7 @@ else:
     plt.grid()
     plt.xlabel(r'$E_z$ (meV)')
     plt.ylabel(r'$\mu$ (meV)')
-    plt.xlim(gi, 3)
+    plt.xlim(gi, gf)
     #plt.ylim(-2,2)
     title = r"$L_x$ = %.1f nm, $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (Lx*.1, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)
     plt.title(title, loc = 'center', wrap = True)

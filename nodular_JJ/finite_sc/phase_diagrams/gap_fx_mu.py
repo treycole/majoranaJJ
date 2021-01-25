@@ -19,7 +19,7 @@ Ny = 300 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 40 #Junction region
-cutx = 3 #width of nodule
+cutx = 4 #width of nodule
 cuty = 10 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
@@ -36,8 +36,6 @@ print("Supercondicting Lead Width = ", SC_width, "(nm)")
 coor = shps.square(Nx, Ny) #square lattice
 NN = nb.NN_sqr(coor)
 NNb = nb.Bound_Arr(coor)
-#V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutx=cutx, cuty=cuty)
-#plots.potential_profile(coor, V)
 Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
@@ -69,7 +67,7 @@ if PLOT != 'P':
     QMIN = []
     for i in range(mu.shape[0]):
         print(mu.shape[0]-i)
-        gap, q_minimum = fndrs.gap_finder(coor, NN, NNb, ax, ay, mu[i], gx, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, steps_targ=2000)
+        gap, q_minimum = fndrs.gap_finder(coor, NN, NNb, ax, ay, mu[i], gx, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, steps_targ=50000)
         print("gap", gap)
         GAP.append(gap)
         QMIN.append(q_minimum)
