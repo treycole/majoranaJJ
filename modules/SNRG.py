@@ -405,30 +405,23 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
         #print("x2, y2", x2, y2)
     return None
 
-def minima(arr):
-    abs_min = min(arr)
-    for i in range(arr.shape[0]):
-        min_temp = arr[i]
-        if min_temp <= abs_min:
-            abs_min = min_temp
-            idx = i
-    return abs_min, idx
-
-def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-8, n_avg=7, iter=50):
+def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-4, n_avg=7, iter=50, PLOT=False):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
     print("steps", n1, n2)
     if Vj < 0:
         VVJ = Vj
     else:
         VVJ = 0
-    qmax = np.sqrt(2*(muf-VVJ)*m_eff/const.hbsqr_m0)*1.25
+
+    if muf < 1:
+        muf = 1
+    qmax = np.sqrt(2*(muf-VVJ)*m_eff/const.hbsqr_m0)*1.5
     if qmax >= np.pi/Lx:
         qmax = np.pi/(Lx)
     if nodx != 0:
         qmax = np.pi/(Lx)
     print(qmax, np.pi/(Lx))
-    #qmax = np.pi/(Lx)
-    #qmax = 0.01
+    qmax = np.pi/(Lx)
     qx = np.linspace(0, qmax, n1) #kx in the first Brillouin zone
     omega0_bands = np.zeros(n1)
     for q in range(n1):
@@ -441,8 +434,10 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
         eigs = eigs[idx_sort]
         omega0_bands[q] = eigs[int(k/2)]
 
-    #plt.plot(qx, omega0_bands, c='k')
-    #plt.show()
+    if PLOT:
+        plt.plot(qx, omega0_bands, c='k')
+        plt.show()
+
     local_min_idx = np.array(argrelextrema(omega0_bands, np.less)[0])
     print(local_min_idx.size, "Energy local minima found at kx = ", qx[local_min_idx])
 
@@ -478,10 +473,11 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
             eigs = eigs[idx_sort]
             omega0_arr_finer[j] = eigs[int(k/2)]
 
-        #plt.plot(kx_finer, omega0_arr_finer, c='k')
-        #plt.show()
+        if PLOT:
+            plt.plot(kx_finer, omega0_arr_finer, c='k')
+            plt.show()
 
-        GAP, IDX = minima(omega0_arr_finer)
+        GAP, IDX = fndrs.minima(omega0_arr_finer)
         #print("Energy of minimum {} for omega=0: {}".format(i+1, GAP))
         true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
         print("True minimum {} energy: {}".format(i+1, true_eig))
@@ -491,7 +487,7 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
         kx_of_mins.append(kx_finer[IDX])
 
     mins = np.array(mins)
-    true_gap, idx = minima(mins)
+    true_gap, idx = fndrs.minima(mins)
     kx_of_gap = kx_of_mins[idx]
 
     print("True gap: ", true_gap)
@@ -538,49 +534,49 @@ if False:#False True
     #plotting bands
     m_eff=0.026
     tol=1e-8
-    k=4
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 10 #Number of lattice sites along x-direction
-    Wj = 2000 #Junction region [A]
-    nodx = 4 #width of nodule
-    nody = 10 #height of nodule
+    Nx = 3 #Number of lattice sites along x-direction
+    Wj = 1000 #Junction region [A]
+    nodx = 0 #width of nodule
+    nody = 0 #height of nodule
     Lx = Nx*ax
 
     alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-    phi = np.pi #SC phase difference
+    phi = 0*np.pi #SC phase difference
     delta = 1 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
     Vj = 0 #Junction potential: [meV]
-    mu = 8.75
-    gam = 1.0 #mev
+    mu = 1.0
+    gam = 1.5 #mev
 
-    steps = 10
+    steps = 500
     kx = np.linspace(0, np.pi/Lx, steps)
-    kx = np.linspace(0.004, 0.0042, steps)
-    omega0_bands = np.zeros(kx.shape[0])
+    k = 4
+    #kx = np.linspace(0.004, 0.0042, steps)
+    omega0_bands = np.zeros((k, kx.shape[0]))
     true_bands = np.zeros(kx.shape[0])
 
-    for i in range(omega0_bands.shape[0]):
-        print(2*omega0_bands.shape[0]-i, kx[i])
+    for i in range(kx.shape[0]):
+        print(2*omega0_bands.shape[1]-i, kx[i])
 
         H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx[i], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=50, eta=0)
-
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
         eigs = eigs[idx_sort]
         #print(eigs)
         #arg = np.argmin(np.absolute(eigs))
         #print(arg)
-        omega0_bands[i] = eigs[int(k/2)]
+        omega0_bands[:, i] = eigs[:]
 
-    plt.plot(kx, omega0_bands)
+    for i in range(k):
+        plt.plot(kx, omega0_bands[i, :], c='b')
     plt.title('Omega0 bands')
     plt.show()
-    for i in range(omega0_bands.shape[0]):
-        print(omega0_bands.shape[0]-i)
-        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx[i], eigs_omega0=omega0_bands[i], m_eff=m_eff, tol=tol, k=k)
+    for i in range(kx.shape[0]):
+        print(omega0_bands.shape[1]-i)
+        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx[i], eigs_omega0=omega0_bands[int(k/2), i], m_eff=m_eff, tol=tol, k=k)
         true_bands[i] = true_eig
 
     plt.plot(kx, true_bands)
@@ -626,5 +622,120 @@ if False: #True False
 
     plt.plot(w, E-w, c='b')
     plt.plot(w, w*0, c='k', ls='--')
+    plt.show()
+    sys.exit()
+
+if False:#False True
+    #plotting E vs gam
+    m_eff=0.026
+    tol=1e-8
+    k=4
+
+    ax = 50 #lattice spacing in x-direction: [A]
+    ay = 50 #lattice spacing in y-direction: [A]
+    Nx = 10 #Number of lattice sites along x-direction
+    Wj = 300 #Junction region [A]
+    nodx = 4 #width of nodule
+    nody = 2 #height of nodule
+    Lx = Nx*ax
+
+    alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
+    phi = np.pi #SC phase difference
+    delta = 1 #Superconducting Gap: [meV]
+    Vsc = 0 #SC potential: [meV]
+    Vj = -20 #Junction potential: [meV]
+    mu = 15.3
+    steps = 100
+    gam = np.linspace(0, 3, steps) #mev
+
+    kx = 0
+    k = 20
+    #kx = np.linspace(0.004, 0.0042, steps)
+    omega0_bands = np.zeros((k, gam.shape[0]))
+    true_bands = np.zeros((k, gam.shape[0]))
+
+    for i in range(gam.shape[0]):
+        print(2*gam.shape[0]-i, gam[i])
+
+        H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam[i], Gam_SC_factor=0, delta=delta, phi=phi, iter=50, eta=0)
+
+        eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+        idx_sort = np.argsort(eigs)
+        eigs = eigs[idx_sort]
+        #print(eigs)
+        #arg = np.argmin(np.absolute(eigs))
+        #print(arg)
+        omega0_bands[:, i] = eigs[:]
+
+    for i in range(k):
+        plt.plot(gam, omega0_bands[i, :], c='b')
+    plt.title('Omega0 bands')
+    plt.show()
+    for i in range(omega0_bands.shape[0]):
+        print(omega0_bands.shape[0]-i)
+        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx[i], eigs_omega0=omega0_bands[i], m_eff=m_eff, tol=tol, k=k)
+        true_bands[:, i] = true_eig
+
+    plt.plot(kx, true_bands)
+    plt.plot(kx, 0*kx, c='k', ls='--')
+    plt.title('true band calculated from Greens function and self consistency finder', loc = 'center', wrap = True)
+    plt.show()
+    sys.exit()
+
+if False:#False True
+    #plotting SOC bands
+    m_eff=0.026
+    tol=1e-8
+    k=4
+
+    ax = 50 #lattice spacing in x-direction: [A]
+    ay = 50 #lattice spacing in y-direction: [A]
+    Nx = 10 #Number of lattice sites along x-direction
+    Wj = 300 #Junction region [A]
+    nodx = 4 #width of nodule
+    nody = 2 #height of nodule
+    Lx = Nx*ax
+
+    alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
+    phi = np.pi #SC phase difference
+    delta = 1 #Superconducting Gap: [meV]
+    Vsc = 0 #SC potential: [meV]
+    Vj = -20 #Junction potential: [meV]
+    mu = 0
+    gam = 0 #mev
+
+    steps = 100
+    kx = np.linspace(0, np.pi/Lx, steps)
+    k = 100
+    #kx = np.linspace(0.004, 0.0042, steps)
+    omega0_bands = np.zeros((k, kx.shape[0]))
+    true_bands = np.zeros((k, kx.shape[0]))
+
+    for i in range(kx.shape[0]):
+        print(2*omega0_bands.shape[0]-i, kx[i])
+
+        H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx[i], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=50, eta=0)
+        S = int(H.shape[0]/2)
+        H = (H[:S, :])[:, :S]
+        eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+        idx_sort = np.argsort(eigs)
+        eigs = eigs[idx_sort]
+        #print(eigs)
+        #arg = np.argmin(np.absolute(eigs))
+        #print(arg)
+        omega0_bands[:, i] = eigs[:]
+
+    for i in range(k):
+        plt.plot(kx, omega0_bands[i, :], c='b')
+    plt.title('Omega0 bands')
+    plt.show()
+    for i in range(omega0_bands.shape[0]):
+        print(omega0_bands.shape[0]-i)
+        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx[i], eigs_omega0=omega0_bands[i], m_eff=m_eff, tol=tol, k=k)
+        true_bands[:, i] = true_eig
+
+    plt.plot(kx, true_bands)
+    plt.plot(kx, 0*kx, c='k', ls='--')
+    plt.title('true band calculated from Greens function and self consistency finder', loc = 'center', wrap = True)
     plt.show()
     sys.exit()

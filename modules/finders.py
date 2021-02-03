@@ -18,7 +18,12 @@ def minima(arr):
             idx = i
     return abs_min, idx
 
-def step_finder(r, n_avg=7):
+def targ_step_finder(res_gap, M, kx_max):
+    res_k = res_gap/M
+    target_steps = kx_max/res_k
+    return target_steps
+
+def step_finder(target_steps, n_avg=7):
     #n_steps makes resolution n_steps/2 times better, e.g. if original steps were 100, n_steps=10, as if og steps were 500
     # average number of minima assume is 7, = n
     # r is target resolution in units of (steps)
@@ -34,8 +39,8 @@ def step_finder(r, n_avg=7):
     # dz/dx = 0 ==> minimize z
     # 1 - 2nr/x^2 = 0 ==> x^2 = 2nr ==> x = sqrt(2nr) ===> y = 2r/sqrt(2nr)
 
-    first_steps = np.sqrt(2*n_avg*r)
-    second_steps = 2*r/np.sqrt(2*n_avg*r)
+    first_steps = np.sqrt(2*n_avg*target_steps)
+    second_steps = 2*target_steps/np.sqrt(2*n_avg*target_steps)
     return int(first_steps), int(second_steps)
 
 #Assuming linear behavior of the E vs gamma energy dispersion
@@ -179,18 +184,19 @@ def SNRG_gam_finder(
     Wj = 0, Lx = 0, cutx = 0, cuty = 0,
     Vj = 0, Vsc = 0,  m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, tol = 0.001
+    k = 20, tol = 1e-5
     ):
+    delta_gam = abs(gf-gi)
+    n1, n2 = step_finder(delta_gam/(0.5*tol) + 1, 2)
 
-    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-4, delta=delta, phi=phi)
-
+    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-5, delta=delta, phi=phi)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
+    vecs_hc = np.conjugate(np.transpose(vecs)) #hermitian conjugate
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
     #print(eigs)
-    vecs_hc = np.conjugate(np.transpose(vecs)) #hermitian conjugate
 
-    H_G1 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1+1e-4, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
+    H_G1 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1+1e-5, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
     HG = H_G1 - H0 #the proporitonality matrix for gam-x, it is ones along the sites that have a gam value
     HG0_DB = np.dot(vecs_hc, H0.dot(vecs))
@@ -198,7 +204,7 @@ def SNRG_gam_finder(
 
     G_crit = []
     delta_gam = abs(gf - gi)
-    steps = int((delta_gam/(0.5*tol))) + 1
+    steps = n1
     gx = np.linspace(gi, gf, steps)
     eig_arr = np.zeros((4, gx.shape[0]))
     for i in range(gx.shape[0]):
@@ -224,6 +230,7 @@ def SNRG_gam_finder(
 
     #for i in range(eig_arr.shape[0]):
     #    plt.plot(gx, eig_arr[i,:], c='b')
+    #plt.plot(gx, eig_arr[2,:], c='b')
     #plt.scatter(gx[local_min_idx], eig_arr[2, local_min_idx], c='r', marker = 'X')
     #plt.show()
 
@@ -233,7 +240,7 @@ def SNRG_gam_finder(
         gx_higher = gx[local_min_idx[i]+1]#one step forward
 
         delta_gam = (gx_higher - gx_lower)
-        n_steps = (int((delta_gam/(0.1*tol))) + 1)
+        n_steps = n2
         gx_finer = np.linspace(gx_lower, gx_higher, n_steps)
         eig_arr_finer = np.zeros((gx_finer.size))
         for j in range(gx_finer.shape[0]):
@@ -244,6 +251,7 @@ def SNRG_gam_finder(
             eig_arr_finer[j] = eigs_DB[int(k/2)]
 
         min_idx_finer = np.array(argrelextrema(eig_arr_finer, np.less)[0]) #new local minima indices
+        #min_idx_finer = np.concatenate((np.array([0, n2-1]), min_idx_finer), axis=None)
         eigs_min_finer = eig_arr_finer[min_idx_finer] #isolating local minima
 
         #plt.plot(gx_finer, eig_arr_finer, c = 'b')

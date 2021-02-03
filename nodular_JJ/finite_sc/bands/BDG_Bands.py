@@ -18,15 +18,16 @@ import majoranaJJ.modules.finders as fndrs
 from majoranaJJ.modules.checkers import boundary_check as bc
 import majoranaJJ.modules.checkers as check
 import majoranaJJ.modules.constants as const
+import majoranaJJ.operators.potentials as potentials
 ###################################################
 #Defining System
-Nx = 3 #Number of lattice sites along x-direction
+Nx = 10 #Number of lattice sites along x-direction
 Ny = 500 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 20 #Junction region
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 4 #width of nodule
+cuty = 10 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
@@ -50,16 +51,16 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 ###################################################
 #Hamiltonian Parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-gx = 1.0 #parallel to junction: [meV]
+gx = 1 #parallel to junction: [meV]
 phi = np.pi #SC phase difference
 delta = 1.0 #Superconducting Gap: [meV]
-mu = 13.4 #Chemical Potential: [meV]
-Vj = 0 #meV junction potential
+mu = 12 #Chemical Potential: [meV]
+Vj = 5 #meV junction potential
 #####################################
-
+"""
 k = 4 #This is the number of eigenvalues and eigenvectors you want
-steps = 75 #Number of kx values that are evaluated
-qx = np.linspace(0.01015, 0.01025, steps) #kx in the first Brillouin zone
+steps = 100 #Number of kx values that are evaluated
+qx = np.linspace(0.0033, 0.0035, steps) #kx in the first Brillouin zone
 #qx = np.linspace(0, np.pi/Lx, steps)
 bands = np.zeros((steps, k))
 for i in range(steps):
@@ -86,14 +87,17 @@ plt.title(title, loc = 'center', wrap = True)
 #plt.savefig('juncwidth = {} SCwidth = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
 plt.show()
 sys.exit()
-
+"""
 #####################################
 k = 4
-H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj,cutx=cutx, cuty=cuty, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=np.pi/Lx)
+V = potentials.Vjj(coor, Wj, 0, Vj, cutx = cutx, cuty = cuty)
+plots.potential_profile(coor, V)
+H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=np.pi/Lx)
 eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
 idx_sort = np.argsort(eigs)
 eigs = eigs[idx_sort]
 vecs = vecs[:, idx_sort]
+print(eigs)
 
 n = int(k/2)
 plots.state_cmap(coor, eigs, vecs, n = int(k/2), title = r'$|\psi|^2$ excited state={}'.format(n-int(k/2)))

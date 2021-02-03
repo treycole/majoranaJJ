@@ -11,22 +11,23 @@ import scipy.linalg as LA
 import scipy.sparse.linalg as spLA
 
 import majoranaJJ.operators.sparse_operators as spop #sparse operators
-from majoranaJJ.operators.potentials import Vjj #potential JJ
 import majoranaJJ.lattice.nbrs as nb #neighbor arrays
 import majoranaJJ.lattice.shapes as shps #lattice shapes
 import majoranaJJ.modules.plots as plots #plotting functions
-import majoranaJJ.modules.gamfinder as gamfinder
+import majoranaJJ.modules.finders as fndrs
 from majoranaJJ.modules.checkers import boundary_check as bc
 import majoranaJJ.modules.checkers as check
+import majoranaJJ.modules.constants as const
+import majoranaJJ.operators.potentials as potentials
 ###################################################
 #Defining System
-Nx = 3 #Number of lattice sites along x-direction
+Nx = 10 #Number of lattice sites along x-direction
 Ny = 290 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 40 #Junction region
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 4 #width of nodule
+cuty = 10 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 
 Junc_width = Wj*ay*.10 #nm
@@ -48,17 +49,19 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 #Hamiltonian Parameters
 alpha = 100 #Spin-Orbit Coupling constant: [meV*A]
 gx = 0 #parallel to junction: [meV]
-mu = -0.01 #Chemical Potential: [meV]
+mu = 0 #Chemical Potential: [meV]
+Vj = -5
+potentials.Vjj(coor, Wj, 0, Vj, cutx = cutx, cuty = cuty)
 ###################################################
 #phase diagram mu vs gamx
-k = 22 #This is the number of eigenvalues and eigenvectors you want
-steps = 51 #Number of kx and ky values that are evaluated
+k = 100 #This is the number of eigenvalues and eigenvectors you want
+steps = 101 #Number of kx and ky values that are evaluated
 
-qx = np.linspace(0, 0.1*np.pi/Lx, steps) #kx in the first Brillouin zone
+qx = np.linspace(0, np.pi/Lx, steps) #kx in the first Brillouin zone
 bands = np.zeros((steps, k))
 for i in range(steps):
     print(steps - i)
-    H = spop.H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu, alpha=alpha, gamx=gx, qx=qx[i])
+    H = spop.H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, V=0, mu=mu, alpha=alpha, gamx=gx, qx=qx[i])
     eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
