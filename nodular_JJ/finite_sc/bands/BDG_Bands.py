@@ -21,13 +21,13 @@ import majoranaJJ.modules.constants as const
 import majoranaJJ.operators.potentials as potentials
 ###################################################
 #Defining System
-Nx = 10 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Ny = 500 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 20 #Junction region
-cutx = 4 #width of nodule
-cuty = 10 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
@@ -52,15 +52,15 @@ Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 #Hamiltonian Parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1 #parallel to junction: [meV]
-phi = np.pi #SC phase difference
-delta = 1.0 #Superconducting Gap: [meV]
-mu = 12 #Chemical Potential: [meV]
-Vj = 5 #meV junction potential
+phi = 0*np.pi #SC phase difference
+delta = 0.3 #Superconducting Gap: [meV]
+mu = 2.3 #Chemical Potential: [meV]
+Vj = 0 #meV junction potential
 #####################################
-"""
+
 k = 4 #This is the number of eigenvalues and eigenvectors you want
-steps = 100 #Number of kx values that are evaluated
-qx = np.linspace(0.0033, 0.0035, steps) #kx in the first Brillouin zone
+steps = 300 #Number of kx values that are evaluated
+qx = np.linspace(0, 0.005, steps) #kx in the first Brillouin zone
 #qx = np.linspace(0, np.pi/Lx, steps)
 bands = np.zeros((steps, k))
 for i in range(steps):
@@ -75,7 +75,6 @@ plt.plot(qx, bands[:, int(k/2)], c ='mediumblue', linestyle = 'solid')
 #for i in range(bands.shape[1]):
     #plt.plot(qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
     #plt.plot(-qx, bands[:, i], c ='mediumblue', linestyle = 'solid')
-    #plt.scatter(q, eigarr[:, i], c ='b')
 
 plt.plot(qx, 0*qx, c = 'k', linestyle='solid', lw=1)
 #plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
@@ -87,7 +86,7 @@ plt.title(title, loc = 'center', wrap = True)
 #plt.savefig('juncwidth = {} SCwidth = {} nodwidthx = {} nodwidthy = {} Delta = {} Alpha = {} phi = {} mu = {}.png'.format(Junc_width, SC_width, Nod_widthx, Nod_widthy, delta, alpha, phi, mu))
 plt.show()
 sys.exit()
-"""
+
 #####################################
 k = 4
 V = potentials.Vjj(coor, Wj, 0, Vj, cutx = cutx, cuty = cuty)

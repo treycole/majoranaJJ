@@ -184,19 +184,19 @@ def SNRG_gam_finder(
     Wj = 0, Lx = 0, cutx = 0, cuty = 0,
     Vj = 0, Vsc = 0,  m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, tol = 1e-5
+    k = 20, tol = 5e-6
     ):
     delta_gam = abs(gf-gi)
     n1, n2 = step_finder(delta_gam/(0.5*tol) + 1, 2)
 
-    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-5, delta=delta, phi=phi)
+    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-7, delta=delta, phi=phi)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_hc = np.conjugate(np.transpose(vecs)) #hermitian conjugate
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
     #print(eigs)
 
-    H_G1 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1+1e-5, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
+    H_G1 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=0, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1+1e-7, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
     HG = H_G1 - H0 #the proporitonality matrix for gam-x, it is ones along the sites that have a gam value
     HG0_DB = np.dot(vecs_hc, H0.dot(vecs))
@@ -229,8 +229,8 @@ def SNRG_gam_finder(
     print(local_min_idx.size, "Energy local minima found at gx = ", gx[local_min_idx])
 
     #for i in range(eig_arr.shape[0]):
-    #    plt.plot(gx, eig_arr[i,:], c='b')
-    #plt.plot(gx, eig_arr[2,:], c='b')
+    #    plt.plot(gx, eig_arr[2,:], c='b')
+    #plt.plot(gx, eig_arr[2,:], c='r')
     #plt.scatter(gx[local_min_idx], eig_arr[2, local_min_idx], c='r', marker = 'X')
     #plt.show()
 
