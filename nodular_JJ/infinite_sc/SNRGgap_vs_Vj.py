@@ -33,8 +33,8 @@ delta = 0.3 #Superconducting Gap: [meV]
 mu = 10 #Junction potential: [meV]
 gx = 1 #mev
 
-Vj_i = -20
-Vj_f = 15
+Vj_i = -11
+Vj_f = 11
 delta_Vj= Vj_f - Vj_i
 res = 0.1
 steps = int(abs(delta_Vj/res))+1
@@ -61,17 +61,17 @@ except:
     PLOT = 'F'
 if PLOT != 'P':
     for i in range(Vj.shape[0]):
-        np.save("%s/Vj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu,  alpha, delta, phi, Vj_i, Vj_f, gx), Vj)
+        np.save("%s/Vj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu,  alpha, delta, phi, Vj_i, Vj_f, gx), Vj)
         print(steps-i, "| Vj =", Vj[i])
-        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu, Vj=Vj[i], alpha=alpha, delta=delta, phi=phi, targ_steps=20000, n_avg=10, muf=mu, PLOT=False, tol=1e-8)[0]
+        gapmu[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu, Vj=Vj[i], alpha=alpha, delta=delta, phi=phi, targ_steps=50000, n_avg=10, muf=mu, PLOT=False, tol=1e-8)[0]
 
-        np.save("%s/gapfxVj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu,  alpha, delta, phi, Vj_i, Vj_f, gx), gapmu)
+        np.save("%s/gapfxVj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu,  alpha, delta, phi, Vj_i, Vj_f, gx), gapmu)
         gc.collect()
 
     sys.exit()
 else:
-    gap = np.load("%s/gapfxVj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f, gx))
-    Vj = np.load("%s/Vj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f, gx))
+    gap = np.load("%s/gapfxVj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f, gx))
+    Vj = np.load("%s/Vj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f, gx))
 
     plt.plot(Vj, gap/delta)
     plt.grid()

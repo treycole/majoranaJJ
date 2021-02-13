@@ -65,7 +65,7 @@ if PLOT != 'P':
             else:
                 boundary[i, j] = gx[j]
 
-        np.save("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f), np.array(boundary))
+        np.save("%s/boundaryvjez Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f), np.array(boundary))
         gc.collect()
 
     sys.exit()

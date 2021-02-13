@@ -21,13 +21,13 @@ import majoranaJJ.modules.constants as const
 import majoranaJJ.operators.potentials as potentials
 ###################################################
 #Defining System
-Nx = 3 #Number of lattice sites along x-direction
-Ny = 500 #Number of lattice sites along y-direction
+Nx = 15 #Number of lattice sites along x-direction
+Ny = 1000 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 20 #Junction region
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 5 #width of nodule
+cuty = 8 #height of nodule
 Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
@@ -54,13 +54,13 @@ alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1 #parallel to junction: [meV]
 phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
-mu = 2.3 #Chemical Potential: [meV]
-Vj = 0 #meV junction potential
+mu = 5 #Chemical Potential: [meV]
+Vj = -30 #meV junction potential
 #####################################
 
 k = 4 #This is the number of eigenvalues and eigenvectors you want
-steps = 300 #Number of kx values that are evaluated
-qx = np.linspace(0, 0.005, steps) #kx in the first Brillouin zone
+steps = 10 #Number of kx values that are evaluated
+qx = np.linspace(0.0035, 0.0036, steps) #kx in the first Brillouin zone
 #qx = np.linspace(0, np.pi/Lx, steps)
 bands = np.zeros((steps, k))
 for i in range(steps):

@@ -369,33 +369,31 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     return H_eff
 
 def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
-    if eigs_omega0 > 5:
+    if eigs_omega0 >= 3*delta:
         return eigs_omega0
     if eigs_omega0 == 0:
         return 0
     y1 = eigs_omega0
     omega1 = 0
     omega2 = y1/50
-    n = 2
+    n = .01
+    N = 20
     while True:
-        if abs(omega2) > delta:
-            omega2 = abs(delta-np.exp(-n))
-            n+=1
+
         H = Junc_eff_Ham_gen(omega=omega2, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=iter, eta=0)
 
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
         eigs = eigs[idx_sort]
         arg = np.argmin(np.absolute(eigs))
-        #print("slf consistency eigs", eigs)
-        #print(eigs[arg])
+
         if omega2 == 0:
             y2 = eigs[int(k/2)]
         else:
             y2 = eigs[arg] - omega2
-        if abs(omega2) > delta:
-            y2 = omega2**2
+
         #print("omega2, y2", omega2, y2)
+
         if omega1==omega2:
             print("omega1==omega2")
             print(y1, y2, tol)
@@ -408,6 +406,10 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
         y1=y2
         omega1 = omega2
         omega2 = omega_c
+
+        if abs(omega2) > delta or y2 < -0.2*delta:
+            omega2 = abs(delta*(1-np.exp(-n/N)))
+            n += 0.5
     return None
 
 def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-4, n_avg=7, iter=50, PLOT=False):
@@ -426,6 +428,7 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
     if nodx != 0:
         qmax = np.pi/(Lx)
     qx = np.linspace(0, qmax, n1) #kx in the first Brillouin zone
+    #print(qmax,  np.pi/(Lx))
     omega0_bands = np.zeros(n1)
     for q in range(n1):
         if (n1-q)%100 == 0:
@@ -442,7 +445,7 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
         plt.show()
 
     local_min_idx = np.array(argrelextrema(omega0_bands, np.less)[0])
-    print(local_min_idx.size, "Local minima found at kx = ", qx[local_min_idx])
+    print(local_min_idx.size, "Local minima found at kx = {} w/ energies {}".format(qx[local_min_idx], omega0_bands[local_min_idx]))
 
     mins = []
     kx_of_mins = []
@@ -539,18 +542,18 @@ if False:#False True
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 3 #Number of lattice sites along x-direction
+    Nx = 15 #Number of lattice sites along x-direction
     Wj = 1000 #Junction region [A]
-    nodx = 0 #width of nodule
-    nody = 0 #height of nodule
+    nodx = 5 #width of nodule
+    nody = 8 #height of nodule
     Lx = Nx*ax
 
     alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
     phi = 0*np.pi #SC phase difference
     delta = 0.3 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
-    Vj = -20 #Junction potential: [meV]
-    mu = 0
+    Vj = -30 #Junction potential: [meV]
+    mu = 5
     gam = 1.0 #mev
 
     steps = 100
@@ -565,7 +568,7 @@ if False:#False True
         muf= mu
     qmax = np.sqrt(2*(muf-VVJ)*m_eff/const.hbsqr_m0)*1.25
     print(qmax)
-    kx = np.linspace(0, qmax, steps)
+    kx = np.linspace(0, np.pi/Lx, steps)
     k = 4
     #kx = np.linspace(0.004, 0.0042, steps)
     omega0_bands = np.zeros((k, kx.shape[0]))
@@ -605,18 +608,18 @@ if False: #True False
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 3 #Number of lattice sites along x-direction
+    Nx = 15 #Number of lattice sites along x-direction
     Wj = 1000 #Junction region [A]
-    nodx = 0 #width of nodule
-    nody = 0 #height of nodule
+    nodx = 5 #width of nodule
+    nody = 8 #height of nodule
     Lx = Nx*ax
 
     alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
     phi = 0*np.pi #SC phase difference
     delta = 0.3 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
-    Vj = -19.9 #Junction potential: [meV]
-    mu = 0
+    Vj = -30 #Junction potential: [meV]
+    mu = 7.34
     gam = 1 #mev
 
     if nodx == 0:
@@ -626,22 +629,23 @@ if False: #True False
         Nx = int(Lx/ax)
 
     Wj_int = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
-    Ny = 500 #add one SC site on each side
+    Ny = 1000 #add one SC site on each side
     coor = shps.square(Nx, Ny) #square lattice
     NN = nb.NN_sqr(coor)
     NNb = nb.Bound_Arr(coor)
-    H_sp = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj=Wj_int, cutx=nodx, cuty=nody, Vj=Vj, mu=mu, gamx=gam, alpha=alpha, delta=delta, phi=phi, meff_normal=m_eff, meff_sc=m_eff, qx=0*np.pi/Lx)
+    #qx=0.00046874557053561985
+    H_sp = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj=Wj_int, cutx=nodx, cuty=nody, Vj=Vj, mu=mu, gamx=gam, alpha=alpha, delta=delta, phi=phi, meff_normal=m_eff, meff_sc=m_eff, qx=0.00046874557053561985)
     eigs, vecs = spLA.eigsh(H_sp, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
     print("Real eig =", eigs[int(k/2)])
 
     w_steps = 200
-    w = np.linspace(-3*delta, 3*delta, w_steps) #kx in the first Brillouin zone
+    w = np.linspace(-2*delta*0, 0.99*delta, w_steps) #kx in the first Brillouin zone
     E = np.zeros(w_steps)
     for i in range(w_steps):
         print(w_steps-i)
-        H = Junc_eff_Ham_gen(omega=w[i], Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=0*np.pi/Lx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=50, eta=0)
+        H = Junc_eff_Ham_gen(omega=w[i], Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=0.00046874557053561985, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=50, eta=0)
 
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
@@ -722,29 +726,29 @@ if False:#False True
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 10 #Number of lattice sites along x-direction
-    Wj = 300 #Junction region [A]
-    nodx = 4 #width of nodule
-    nody = 2 #height of nodule
+    Nx = 15 #Number of lattice sites along x-direction
+    Wj = 1000 #Junction region [A]
+    nodx = 5 #width of nodule
+    nody = 8 #height of nodule
     Lx = Nx*ax
 
     alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-    phi = np.pi #SC phase difference
-    delta = 1 #Superconducting Gap: [meV]
+    phi = 0*np.pi #SC phase difference
+    delta = 0.3 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
     Vj = -20 #Junction potential: [meV]
-    mu = 0
-    gam = 0 #mev
+    mu = 6.08
+    gam = 1 #mev
 
     steps = 100
     kx = np.linspace(0, np.pi/Lx, steps)
-    k = 100
+    k = 20
     #kx = np.linspace(0.004, 0.0042, steps)
     omega0_bands = np.zeros((k, kx.shape[0]))
     true_bands = np.zeros((k, kx.shape[0]))
 
     for i in range(kx.shape[0]):
-        print(2*omega0_bands.shape[0]-i, kx[i])
+        print(2*omega0_bands.shape[1]-i, kx[i])
 
         H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx[i], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=50, eta=0)
         S = int(H.shape[0]/2)
