@@ -184,10 +184,10 @@ def SNRG_gam_finder(
     Wj = 0, Lx = 0, cutx = 0, cuty = 0,
     Vj = 0, Vsc = 0,  m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, QX=0, tol = 1e-6, done = False
+    k = 20, QX=0, tol = 5e-7, done = False
     ):
     delta_gam = abs(gf-gi)
-    n1, n2 = step_finder(delta_gam/(0.25*tol) + 1, 2)
+    n1, n2 = step_finder(delta_gam/(0.05*tol) + 1, 2)
 
     H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-7, delta=delta, phi=phi)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
@@ -276,7 +276,6 @@ def SNRG_gam_finder(
         return(G_crit)
 
     if done:
-        G_crit = G_crit
         return G_crit
 
 def gap_finder(

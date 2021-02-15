@@ -19,7 +19,7 @@ Wj = 1000 #Junction region [A]
 cutx = 5 #width of nodule
 cuty = 8 #height of nodule
 Lx = Nx*ax #Angstrom
-Junc_width = Wj*.10 #nm
+Junc_width = Wj*.1 #nm
 Nod_widthx = cutx*ax*.1 #nm
 Nod_widthy = cuty*ay*.1 #nm
 
@@ -31,11 +31,11 @@ print("Junction Width = ", Junc_width, "(nm)")
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
-Vj = -30 #junction potential: [meV]
+Vj = -50 #junction potential: [meV]
 
 mu_i = -5
-mu_f = 15
-res = 0.01
+mu_f = 17
+res = 0.1
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
@@ -45,7 +45,7 @@ print("Mu_f = ", mu_f)
 print("Vj = ", Vj)
 
 gi = 0
-gf = 4.5
+gf = 5.0
 num_bound = 10
 boundary = np.zeros((mu_steps, num_bound))
 ###################################################
@@ -60,7 +60,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=20, tol=1e-6)
+        gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=20)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None
@@ -100,7 +100,7 @@ else:
     title = r'Lx = {} nm, lx = {} nm, W1 = {} nm, W2 = {} nm, Vj = {} meV'.format(Lx*.1, Nod_widthx, Junc_width, Junc_width-2*Nod_widthy, Vj)
     plt.title(title)
 
-    plt.xlim(0, 4.2)
-    plt.ylim(-2, 15.2)
+    #plt.xlim(0, 4.2)
+    #plt.ylim(-2, 15.2)
 
     plt.show()

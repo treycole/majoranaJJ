@@ -50,18 +50,18 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    np.save("%s/gamx Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu), gx)
+    np.save("%s/gamx Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu), gx)
     for i in range(gx.shape[0]):
         print(gx.shape[0]-i)
         gap_gam[i] = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx[i], mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=5000, n_avg=8)[0]
 
-    np.save("%s/gapfxgam Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu), gap_gam)
+    np.save("%s/gapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu), gap_gam)
     gc.collect()
 
     sys.exit()
 else:
-    gap = np.load("%s/gapfxgam Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu))
-    gx = np.load("%s/gamx Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu))
+    gap = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu))
+    gx = np.load("%s/gamx Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu))
 
     plt.plot(gx, gap/delta)
     plt.grid()
