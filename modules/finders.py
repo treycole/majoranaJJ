@@ -184,10 +184,11 @@ def SNRG_gam_finder(
     Wj = 0, Lx = 0, cutx = 0, cuty = 0,
     Vj = 0, Vsc = 0,  m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, QX=0, tol = 5e-7, done = False
+    k = 20, QX=0, tol = 1e-5, done = False, PLOT = False, n=3
     ):
     delta_gam = abs(gf-gi)
-    n1, n2 = step_finder(delta_gam/(0.05*tol) + 1, 2)
+    n1, n2 = step_finder(delta_gam/(0.05*1e-5) + 1, n)
+    #n1 = n1*10
 
     H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-7, delta=delta, phi=phi)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
@@ -222,17 +223,19 @@ def SNRG_gam_finder(
         G_crit.append(gx[-1])
 
     local_min_idx = np.array(argrelextrema(eig_arr[2,:], np.less)[0])
+
     #for i in range(local_min_idx.shape[0]):
     #    print(eig_arr[:, local_min_idx[i]])
     #sys.exit()
+
     #local minima indices in the E vs gam plot
     print(local_min_idx.size, "Energy local minima found at gx = ", gx[local_min_idx])
 
-    #for i in range(eig_arr.shape[0]):
-    #    plt.plot(gx, eig_arr[2,:], c='b')
-    #plt.plot(gx, eig_arr[2,:], c='r')
-    #plt.scatter(gx[local_min_idx], eig_arr[2, local_min_idx], c='r', marker = 'X')
-    #plt.show()
+    if PLOT:
+        plt.plot(gx, eig_arr[2,:], c='r')
+        plt.scatter(gx[local_min_idx], eig_arr[2, local_min_idx], c='b', marker = 'X')
+        plt.plot(gx, 0*gx, c='k', lw=1)
+        plt.show()
 
     for i in range(0, local_min_idx.size): #eigs_min.size
         gx_c = gx[local_min_idx[i]] #first approx g_critical
@@ -252,24 +255,24 @@ def SNRG_gam_finder(
 
         min_idx_finer = np.array(argrelextrema(eig_arr_finer, np.less)[0]) #new local minima indices
         eigs_min_finer = eig_arr_finer[min_idx_finer] #isolating local minima
-
-        #plt.plot(gx_finer, eig_arr_finer, c = 'b')
-        #plt.scatter(gx_finer[min_idx_finer], eig_arr_finer[min_idx_finer], c='r', marker = 'X')
-        #plt.plot(gx_finer, 0*gx_finer, c='k', lw=1)
-        #plt.show()
+        gx_min_finer = gx_finer[min_idx_finer]
+        if PLOT:
+            plt.plot(gx_finer, eig_arr_finer, c = 'b')
+            plt.scatter(gx_finer[min_idx_finer], eig_arr_finer[min_idx_finer], c='r', marker = 'X')
+            plt.plot(gx_finer, 0*gx_finer, c='k', lw=1)
+            plt.show()
 
         for m in range(eigs_min_finer.shape[0]):
             if abs(eigs_min_finer[m]) < tol:
-                crossing_gam = gx_finer[min_idx_finer[m]]
-                G_crit.append(crossing_gam)
-                print("Crossing found at Gx = {} | E = {} meV".format(crossing_gam, eigs_min_finer[m]))
+                G_crit.append(gx_min_finer[m])
+                print("Crossing found at Gx = {} | E = {} meV".format(gx_min_finer[m], eigs_min_finer[m]))
 
     if cutx == 0 and Vj == 0:
         G_crit = np.array(G_crit)
         return G_crit
 
     if not done:
-        G_crit = G_crit + SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, m_eff=m_eff, alpha=alpha, delta=delta, phi=phi, k=k, QX=np.pi/Lx, done = True, tol=tol)
+        G_crit = G_crit + SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, m_eff=m_eff, alpha=alpha, delta=delta, phi=phi, k=k, QX=np.pi/Lx, done = True, tol=1e-3, PLOT=PLOT)
         G_crit.sort()
         G_crit = np.array(G_crit)
         print(G_crit)

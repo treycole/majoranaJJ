@@ -14,15 +14,16 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 15 #Number of lattice sites along x-direction
-Wj = 1000 #Junction region [A]
-cutx = 5 #width of nodule
-cuty = 8 #height of nodule
+Nx = 10 #Number of lattice sites along x-direction
+Wj = 600 #Junction region [A]
+cutx = 2 #width of nodule
+cuty = 5 #height of nodule
 Lx = Nx*ax #Angstrom
 Junc_width = Wj*.1 #nm
 Nod_widthx = cutx*ax*.1 #nm
 Nod_widthy = cuty*ay*.1 #nm
 
+print("Lx = ", Lx*.1, "(nm)" )
 print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
 print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
@@ -34,8 +35,8 @@ delta = 0.3 #Superconducting Gap: [meV]
 Vj = -50 #junction potential: [meV]
 
 mu_i = -5
-mu_f = 17
-res = 0.1
+mu_f = 15
+res = 0.01
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
 mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
@@ -60,7 +61,7 @@ except:
 if PLOT != 'P':
     for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
-        gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=20)
+        gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=20, tol = 3e-3, PLOT=False)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None
@@ -76,11 +77,11 @@ else:
     mu = np.linspace(mu_i, mu_f, boundary.shape[0])
 
     for i in range(num_bound):
-        #plt.plot(boundary[:, i], mu, c='k', linewidth=1.5)
         #spl = interp.splrep(mu, boundary[:, i])
         #mu_new = np.linspace(mu_i, mu_f, mu.shape[0]*10)
         #bnd_new = interp.splev(mu_new, spl)
         #plt.plot(bnd_new, mu_new, c='k', linewidth=1.5, zorder=1)
+        #plt.plot(boundary[:, i], mu, c='k', linewidth=1.5)
         plt.scatter(boundary[:, i], mu, s=1.5, c='r', zorder=2)
 
     #plt.fill_betweenx(mu, boundary[:, 0], boundary[:, 1], visible = True, alpha=0.5, color='steelblue')
@@ -98,7 +99,7 @@ else:
     plt.xlabel(r'$E_Z$ (meV)')
     plt.ylabel(r'$\mu$ (meV)')
     title = r'Lx = {} nm, lx = {} nm, W1 = {} nm, W2 = {} nm, Vj = {} meV'.format(Lx*.1, Nod_widthx, Junc_width, Junc_width-2*Nod_widthy, Vj)
-    plt.title(title)
+    plt.title(title, loc = 'center', wrap = True)
 
     #plt.xlim(0, 4.2)
     #plt.ylim(-2, 15.2)

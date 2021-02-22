@@ -21,15 +21,15 @@ import majoranaJJ.modules.constants as const
 import majoranaJJ.operators.potentials as potentials
 ###################################################
 #Defining System
-Nx = 15 #Number of lattice sites along x-direction
-Ny = 1000 #Number of lattice sites along y-direction
+Nx = 20 #Number of lattice sites along x-direction
+Ny = 500 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 20 #Junction region
 cutx = 5 #width of nodule
 cuty = 8 #height of nodule
-Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
-print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
+#Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
+#print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
 Junc_width = Wj*ay*.10 #nm
 SC_width = ((Ny - Wj)*ay*.10)/2 #nm
@@ -54,14 +54,14 @@ alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1 #parallel to junction: [meV]
 phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
-mu = 5 #Chemical Potential: [meV]
+mu = 4.3 #Chemical Potential: [meV]
 Vj = -30 #meV junction potential
 #####################################
 
 k = 4 #This is the number of eigenvalues and eigenvectors you want
-steps = 10 #Number of kx values that are evaluated
+steps = 100 #Number of kx values that are evaluated
 qx = np.linspace(0.0035, 0.0036, steps) #kx in the first Brillouin zone
-#qx = np.linspace(0, np.pi/Lx, steps)
+qx = np.linspace(0, np.pi/Lx, steps)
 bands = np.zeros((steps, k))
 for i in range(steps):
     print(steps - i)
@@ -79,6 +79,7 @@ plt.plot(qx, bands[:, int(k/2)], c ='mediumblue', linestyle = 'solid')
 plt.plot(qx, 0*qx, c = 'k', linestyle='solid', lw=1)
 #plt.plot(-qx, 0*qx, c = 'k', linestyle='solid', lw=1)
 #plt.xticks(np.linspace(min(k), max(k), 3), ('-π/Lx', '0', 'π/Lx'))
+plt.ylim(-0.1, 1.5)
 plt.xlabel(r'$k_x$ (1/A)')
 plt.ylabel('Energy (meV)')
 title = r"Lx = %.2f nm, $\mu$ = %.5f, $E_Z$ = %.2f meV, $W_j$ = %.1f nm, $nodule_x$ = %.1f nm, $nodule_y$ = %.1f nm, $V_j$ = %.1f meV, $\phi$ = %.2f " % (Lx*.1, mu, gx, Junc_width, Nod_widthx, Nod_widthy, Vj, phi)

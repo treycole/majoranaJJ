@@ -369,9 +369,9 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     return H_eff
 
 def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
-    if eigs_omega0 >= 3*delta:
+    if eigs_omega0 >= 5*delta:
         return eigs_omega0
-    if eigs_omega0 == 0:
+    if eigs_omega0 < tol:
         return 0
     y1 = eigs_omega0
     omega1 = 0
@@ -407,12 +407,19 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
         omega1 = omega2
         omega2 = omega_c
 
-        if abs(omega2) > 2*delta or y2 < -0.2*delta:
-            omega2 = abs(2*delta*(1-np.exp(-n/N)))
+        if abs(omega2) > 3*delta or y2 < -0.2*delta:
+            omega2 = abs(3*delta*(1-np.exp(-n/N)))
             n += 0.5
+            if omega2-3*delta < 1e-5:
+                return eigs_omega0
     return None
 
-def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-4, n_avg=7, iter=50, PLOT=False):
+def gap(
+    Wj, Lx, nodx, nody, ax, ay,
+    gam, mu, Vj, alpha, delta, phi,
+    m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-4, n_avg=7, iter=50,
+    PLOT=False
+    ):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
     print("steps", n1, n2)
     if Vj < 0:
@@ -460,18 +467,22 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
             solve_true_eigk0 = False
         if omega0_bands[-1]/5 > omega0_bands[local_min_idx][i]:
            solve_true_eigkpi = False
-    if solve_true_eigk0 or True:
-        true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
+    if solve_true_eigk0:
+        true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_k0)
         kx_of_mins.append(qx[0])
     else:
         true_gap_of_k0 = omega0_bands[0]
-    if solve_true_eigkpi or True:
+        mins.append(true_gap_of_k0)
+        kx_of_mins.append(qx[0])
+    if solve_true_eigkpi:
         true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_kedge)
         kx_of_mins.append(qx[-1])
     else:
         true_gap_of_kedge = omega0_bands[-1]
+        mins.append(true_gap_of_kedge)
+        kx_of_mins.append(qx[-1])
 
     print("Energy at kx=0: ", true_gap_of_k0)
     print("Energy at k_max:  ", true_gap_of_kedge)
@@ -514,15 +525,6 @@ def gap(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, m_eff=0.026,
     print()
     return true_gap, kx_of_gap
 
-def solve_Ham(Ham,num,sigma,which = 'LM',Return_vecs = False):
-    # Finding "num" eigenvalues near E = sigma
-    eigs,vecs = spLA.eigsh(Ham,k=num,sigma = sigma, which = which)
-    idx = np.argsort(eigs)
-    if Return_vecs:
-        return eigs[idx], vecs[:,idx]
-    else:
-        return eigs[idx]
-
 if False:
     #plotting local density of states
     delta=1
@@ -556,7 +558,7 @@ if False:#False True
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 15 #Number of lattice sites along x-direction
+    Nx = 20 #Number of lattice sites along x-direction
     Wj = 1000 #Junction region [A]
     nodx = 5 #width of nodule
     nody = 8 #height of nodule
@@ -567,7 +569,7 @@ if False:#False True
     delta = 0.3 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
     Vj = -30 #Junction potential: [meV]
-    mu = 5
+    mu = 4.3
     gam = 1.0 #mev
 
     steps = 100

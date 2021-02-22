@@ -30,7 +30,7 @@ def junction_geometry_check(Nx, Ny, cutx, cuty, Wj):
         else:
             Nx += 1
 
-    while (2*cuty) >= Wj: #height of nodule cant be bigger than junction width
+    while (2*cuty) > Wj: #height of nodule cant be bigger than junction width
         cuty -= 1
 
     return Nx, Ny, cutx, cuty, Wj
