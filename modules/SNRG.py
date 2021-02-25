@@ -369,7 +369,7 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     return H_eff
 
 def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
-    if eigs_omega0 >= 5*delta:
+    if eigs_omega0 >= 3*delta:
         return eigs_omega0
     if eigs_omega0 < tol:
         return 0
@@ -410,7 +410,7 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
         if abs(omega2) > 3*delta or y2 < -0.2*delta:
             omega2 = abs(3*delta*(1-np.exp(-n/N)))
             n += 0.5
-            if omega2-3*delta < 1e-5:
+            if abs(omega2-3*delta) < 1e-3:
                 return eigs_omega0
     return None
 
@@ -462,16 +462,16 @@ def gap(
     print("Energy of k=pi/lx w=0: ", omega0_bands[-1])
     solve_true_eigk0 = True
     solve_true_eigkpi = True
-    for i in range(omega0_bands[local_min_idx].shape[0]):
-        if omega0_bands[0]/5 > omega0_bands[local_min_idx][i]:
-            solve_true_eigk0 = False
-        if omega0_bands[-1]/5 > omega0_bands[local_min_idx][i]:
-           solve_true_eigkpi = False
+
+    if omega0_bands[0]/5 > min(omega0_bands[local_min_idx]):
+        solve_true_eigk0 = True
+    if omega0_bands[-1]/5 > min(omega0_bands[local_min_idx]):
+        solve_true_eigkpi = True
     if solve_true_eigk0:
         true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_k0)
         kx_of_mins.append(qx[0])
-    else:
+    if not solve_true_eigk0:
         true_gap_of_k0 = omega0_bands[0]
         mins.append(true_gap_of_k0)
         kx_of_mins.append(qx[0])
@@ -479,7 +479,7 @@ def gap(
         true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_kedge)
         kx_of_mins.append(qx[-1])
-    else:
+    if not solve_true_eigkpi:
         true_gap_of_kedge = omega0_bands[-1]
         mins.append(true_gap_of_kedge)
         kx_of_mins.append(qx[-1])
