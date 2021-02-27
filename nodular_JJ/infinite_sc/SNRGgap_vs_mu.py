@@ -20,10 +20,6 @@ Nx = 12 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
 nodx = 4 #width of nodule
 nody = 8 #height of nodule
-#new_params  = check.junction_geometry_check(Nx, 1000, nodx, nody, int(Wj/ay))
-#Nx = new_params[0]
-#nodx = new_params[2]
-print(Nx, nodx)
 Lx = Nx*ax
 Junc_width = Wj*.1 #nm
 Nod_widthx = nodx*ay*.1 #nm
@@ -43,10 +39,12 @@ gx = 1 #mev
 mu_i = -2
 mu_f = 12
 delta_mu = mu_f - mu_i
-res = 0.01
+res = 0.005
 steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
 
+gap = np.zeros(mu.shape[0])
+kx_of_gap = np.zeros(mu.shape[0])
 print("alpha = ", alpha)
 print("Mu_i = ", mu_i)
 print("Mu_f = ", mu_f)
@@ -63,9 +61,7 @@ except:
     PLOT = 'F'
 if PLOT != 'P':
     np.save("%s/mu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
-    gap = np.zeros(mu.shape[0])
-    kx_of_gap = np.zeros(mu.shape[0])
-    for i in range(mu.shape[0]):
+    for i in range(0, mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
         GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-8)
         gap[i] = GAP
@@ -80,19 +76,33 @@ else:
     kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
     mu = np.load("%s/mu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
 
+    top_arr = np.zeros(mu.shape[0])
+    num = 1
     local_min_idx = np.array(argrelextrema(gap, np.less)[0])
+    lower_bound = 0
+    top_arr[lower_bound:] = num
+    for i in range(local_min_idx.shape[0]):
+        lower_bound = local_min_idx[i]
+        if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] == 0 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) < .15):
+            num=num*-1
+        top_arr[lower_bound:] = num
 
     fig, axs = plt.subplots(2, 1, gridspec_kw={'hspace':0.1}, sharex=True)
+
+    art = axs[0].fill_between(mu, gap/delta, visible=True, alpha=1, color='lightcyan', where=top_arr[:]<0)
+    art.set_edgecolor('k')
+    art = axs[1].fill_between(mu, Lx*kx_of_gap[:], visible=True, alpha=1, color='lightcyan', where=top_arr[:]<0)
+    art.set_edgecolor('k')
+
     axs[0].grid()
     axs[1].grid()
+
     axs[0].scatter(mu[local_min_idx], (1/delta)*gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma', vmax=0.05)
     axs[1].scatter(mu[local_min_idx], Lx*kx_of_gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma', vmax=0.05)
+
     #axs[0].scatter(mu, gap/delta, c='r', zorder=2, s=2)
     axs[0].plot(mu, gap/delta, c='k', lw=2, zorder=1)
     axs[1].plot(mu, kx_of_gap*Lx, c='k', lw=2)
-    #plt.scatter(mu, gap/delta, c='r', zorder=2, s=2)
-    #plt.plot(mu_new, gap_new, c='b', lw=2, zorder=1)
-    #plt.plot(mu, gap/delta, c='b', lw=2, zorder=1)
 
     for ax in axs.flat:
         ax.set_xlabel(r'$\mu$ (meV)')

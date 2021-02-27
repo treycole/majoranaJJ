@@ -187,8 +187,7 @@ def SNRG_gam_finder(
     k = 20, QX=0, tol = 1e-5, done = False, PLOT = False, n=3
     ):
     delta_gam = abs(gf-gi)
-    n1, n2 = step_finder(delta_gam/(0.01*1e-5) + 1, n)
-    #n1 = n1*10
+    n1, n2 = step_finder(delta_gam/(0.1*1e-5) + 1, n)
 
     H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-7, delta=delta, phi=phi)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
@@ -272,7 +271,7 @@ def SNRG_gam_finder(
         return G_crit
 
     if not done:
-        G_crit = G_crit + SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, m_eff=m_eff, alpha=alpha, delta=delta, phi=phi, k=k, QX=np.pi/Lx, done = True, tol=3e-3, PLOT=PLOT)
+        G_crit = G_crit + SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, m_eff=m_eff, alpha=alpha, delta=delta, phi=phi, k=k, QX=np.pi/Lx, done = True, tol=tol, PLOT=PLOT)
         G_crit.sort()
         G_crit = np.array(G_crit)
         print(G_crit)

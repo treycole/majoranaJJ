@@ -11,10 +11,10 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 3 #Number of lattice sites along x-direction
+Nx = 12 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
-nodx = 0 #width of nodule
-nody = 0 #height of nodule
+nodx = 4 #width of nodule
+nody = 8 #height of nodule
 Lx = Nx*ax
 
 Junc_width = Wj*.1 #nm
@@ -27,15 +27,15 @@ print("Junction Width = ", Junc_width, "(nm)")
 
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
-Vj = 0 #Junction potential: [meV]
-mu = 10 #meV
+Vj = -40 #Junction potential: [meV]
+mu = 9.20 #meV, 11.1213, 7.36
 
 gi = 0
 gf = 3
-res = 0.1
+res = 0.01
 steps_gam = int((gf - gi)/(0.5*res)) + 1
 gx = np.linspace(gi, gf, steps_gam)
 

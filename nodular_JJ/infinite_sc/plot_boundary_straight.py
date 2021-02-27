@@ -14,10 +14,10 @@ import majoranaJJ.modules.fig_params as params
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 3#15 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
-cutx = 0#5 #width of nodule
-cuty = 0#8 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 Lx = Nx*ax #Angstrom
 Junc_width = Wj*.10 #nm
 Nod_widthx = cutx*ax*.1 #nm
@@ -36,18 +36,10 @@ Vj = 0 #junction potential: [meV]
 mu_i = -2
 mu_f = 20
 res = 0.01
-delta_mu = mu_f - mu_i
-mu_steps = int(delta_mu/res)
-mu = np.linspace(mu_i, mu_f, mu_steps) #Chemical Potential: [meV]
-print("alpha = ", alpha)
-print("Mu_i = ", mu_i)
-print("Mu_f = ", mu_f)
-print("Vj = ", Vj)
 
 gi = 0
 gf = 5
 num_bound = 4
-boundary = np.zeros((mu_steps, num_bound))
 ###################################################
 #phase diagram mu vs gam
 dirS = 'boundary_data'
@@ -62,11 +54,12 @@ fig, axs = plt.subplots(2, gridspec_kw={'hspace':0.1, 'wspace':0.1})
 axs[0].set_yticks([0, 5, 10, 15, 20])
 axs[1].set_yticks([0, 5, 10, 15, 20])
 for i in range(boundary_0.shape[1]):
-    axs[0].plot(boundary_0[:, i], mu_0, c='k', linewidth=2.2)
-    axs[1].plot(boundary_pi[:, i], mu_pi, c='k', linewidth=2.2)
+    axs[0].plot(boundary_0[:, i], mu_0, c='k', linewidth=1.7)
+    axs[1].plot(boundary_pi[:, i], mu_pi, c='k', linewidth=1.7)
 
-axs[0].fill_betweenx(mu_0, boundary_0[:, 0], boundary_0[:, 1], visible = True, alpha=0.4, color='steelblue')
-axs[1].fill_betweenx(mu_pi, boundary_pi[:, 0], boundary_pi[:, 1], visible = True, alpha=0.4, color='steelblue')
+axs[0].fill_betweenx(mu_0, boundary_0[:, 0], boundary_0[:, 1], visible=True, alpha=1, color='lightcyan')
+axs[1].fill_betweenx(mu_pi, boundary_pi[:, 0], boundary_pi[:, 1], visible=True, alpha=1, color='lightcyan')
+axs[1].plot(1, 10, 'o', c='r', mec='k', zorder=2)
 
 for ax in axs.flat:
     ax.set_xlabel(r'$E_Z$ (meV)', size=9)
@@ -82,8 +75,8 @@ cut1 = np.linspace(-2, 12, 100)
 cut2 = np.linspace(0, 3, 100)
 axs[0].plot(cut1*0+1, cut1, c='b', lw=2)
 axs[0].plot(cut2, cut2*0, c='b', lw=2)
-axs[1].plot(cut1*0+1, cut1, c='r', lw=2)
-axs[1].plot(cut2, cut2*0+10, c='r', lw=2)
+axs[1].plot(cut1*0+1, cut1, c='r', lw=2, zorder=1)
+axs[1].plot(cut2, cut2*0+10, c='r', lw=2, zorder=1)
 
 axs[0].set_xlim([0, 4.2])
 axs[0].set_ylim([-2.0, 15.5])

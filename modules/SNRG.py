@@ -369,7 +369,7 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     return H_eff
 
 def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
-    if eigs_omega0 >= 3*delta:
+    if eigs_omega0 >= 2*delta:
         return eigs_omega0
     if eigs_omega0 < tol:
         return 0
@@ -377,7 +377,7 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
     omega1 = 0
     omega2 = y1/50
     n = .01
-    N = 20
+    N = 30
     while True:
 
         H = Junc_eff_Ham_gen(omega=omega2, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=iter, eta=0)
@@ -392,7 +392,7 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
         else:
             y2 = eigs[arg] - omega2
 
-        #print("omega2, y2", omega2, y2)
+        print("omega2, y2", omega2, y2)
 
         if omega1==omega2:
             print("omega1==omega2")
@@ -407,10 +407,11 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
         omega1 = omega2
         omega2 = omega_c
 
-        if abs(omega2) > 3*delta or y2 < -0.2*delta:
-            omega2 = abs(3*delta*(1-np.exp(-n/N)))
+        if abs(omega2) > delta or y2 < -0.2*delta:
+            #print('here')
+            omega2 = abs(delta*(1-np.exp(-n/N)))
             n += 0.5
-            if abs(omega2-3*delta) < 1e-3:
+            if abs(omega2-delta) < 1e-2:
                 return eigs_omega0
     return None
 
@@ -464,9 +465,9 @@ def gap(
     solve_true_eigkpi = True
 
     if omega0_bands[0]/5 > min(omega0_bands[local_min_idx]):
-        solve_true_eigk0 = True
+        solve_true_eigk0 = False
     if omega0_bands[-1]/5 > min(omega0_bands[local_min_idx]):
-        solve_true_eigkpi = True
+        solve_true_eigkpi = False
     if solve_true_eigk0:
         true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_k0)
@@ -488,33 +489,36 @@ def gap(
     print("Energy at k_max:  ", true_gap_of_kedge)
 
     for i in range(local_min_idx.shape[0]):
-        kx_c = qx[local_min_idx[i]]
-        kx_lower = qx[local_min_idx[i]-1]
-        kx_higher = qx[local_min_idx[i]+1]
+        if (omega0_bands[local_min_idx[i]] > 5*omega0_bands[0]) or omega0_bands[local_min_idx[i]] > 5*omega0_bands[-1] or omega0_bands[local_min_idx[i]] > 5*min(omega0_bands[local_min_idx]):
+            pass
+        else:
+            kx_c = qx[local_min_idx[i]]
+            kx_lower = qx[local_min_idx[i]-1]
+            kx_higher = qx[local_min_idx[i]+1]
 
-        deltaq = kx_higher - kx_lower
-        kx_finer = np.linspace(kx_lower, kx_higher, n2)
-        omega0_arr_finer = np.zeros((kx_finer.size))
-        for j in range(kx_finer.shape[0]):
-            if (kx_finer.shape[0] - j)%10 == 0:
-                print(kx_finer.shape[0] - j)
-            H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
+            deltaq = kx_higher - kx_lower
+            kx_finer = np.linspace(kx_lower, kx_higher, n2)
+            omega0_arr_finer = np.zeros((kx_finer.size))
+            for j in range(kx_finer.shape[0]):
+                if (kx_finer.shape[0] - j)%10 == 0:
+                    print(kx_finer.shape[0] - j)
+                H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
 
-            eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
-            idx_sort = np.argsort(eigs)
-            eigs = eigs[idx_sort]
-            omega0_arr_finer[j] = eigs[int(k/2)]
+                eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+                idx_sort = np.argsort(eigs)
+                eigs = eigs[idx_sort]
+                omega0_arr_finer[j] = eigs[int(k/2)]
 
-        if PLOT:
-            plt.plot(kx_finer, omega0_arr_finer, c='k')
-            plt.show()
+            if PLOT:
+                plt.plot(kx_finer, omega0_arr_finer, c='k')
+                plt.show()
 
-        GAP, IDX = fndrs.minima(omega0_arr_finer)
-        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
-        print("Minimum {} energy: {}".format(i+1, true_eig))
-        print("Kx of minium energy {}: {}: ".format(i+1, kx_finer[IDX]))
-        mins.append(true_eig)
-        kx_of_mins.append(kx_finer[IDX])
+            GAP, IDX = fndrs.minima(omega0_arr_finer)
+            true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
+            print("Minimum {} energy: {}".format(i+1, true_eig))
+            print("Kx of minium energy {}: {}: ".format(i+1, kx_finer[IDX]))
+            mins.append(true_eig)
+            kx_of_mins.append(kx_finer[IDX])
 
     mins = np.array(mins)
     true_gap, idx = fndrs.minima(mins)
@@ -624,19 +628,19 @@ if False: #True False
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 15 #Number of lattice sites along x-direction
+    Nx = 12 #Number of lattice sites along x-direction
     Wj = 1000 #Junction region [A]
-    nodx = 5 #width of nodule
+    nodx = 4 #width of nodule
     nody = 8 #height of nodule
     Lx = Nx*ax
 
     alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-    phi = 0*np.pi #SC phase difference
+    phi = np.pi #SC phase difference
     delta = 0.3 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
-    Vj = -30 #Junction potential: [meV]
-    mu = 0.425
-    gam = 0.5 #mev
+    Vj = -40 #Junction potential: [meV]
+    mu = 2.69
+    gam = 1 #mev
 
     if nodx == 0:
         Nx = 3
@@ -645,19 +649,18 @@ if False: #True False
         Nx = int(Lx/ax)
 
     Wj_int = int(Wj/ay) # number of lattice sites in the junction region (in the y-direction)
-    Ny = 1000 #add one SC site on each side
+    Ny = 800
     coor = shps.square(Nx, Ny) #square lattice
     NN = nb.NN_sqr(coor)
     NNb = nb.Bound_Arr(coor)
-    #qx=0.00046874557053561985
     H_sp = spop.HBDG(coor, ax, ay, NN, NNb = NNb, Wj=Wj_int, cutx=nodx, cuty=nody, Vj=Vj, mu=mu, gamx=gam, alpha=alpha, delta=delta, phi=phi, meff_normal=m_eff, meff_sc=m_eff, qx=np.pi/Lx)
-    eigs, vecs = spLA.eigsh(H_sp, k=k, sigma=0, which='LM')
-    idx_sort = np.argsort(eigs)
-    eigs = eigs[idx_sort]
-    print("Real eig =", eigs[int(k/2)])
+    #eigs, vecs = spLA.eigsh(H_sp, k=k, sigma=0, which='LM')
+    #idx_sort = np.argsort(eigs)
+    #eigs = eigs[idx_sort]
+    #print("Real eig =", eigs[int(k/2)])
 
     w_steps = 200
-    w = np.linspace(-2*delta*0, 2*delta, w_steps) #kx in the first Brillouin zone
+    w = np.linspace(-2*delta*0, 5*delta, w_steps) #kx in the first Brillouin zone
     E = np.zeros(w_steps)
     for i in range(w_steps):
         print(w_steps-i)
