@@ -105,7 +105,7 @@ To have any meaning behind a phase boundary, the system must be perioidic and th
 """
 def local_min_gam_finder(
     coor, NN, NNb, ax, ay, mu, gi, gf,
-    Wj = 0, cutx = 0, cuty = 0,
+    Wj = 0, cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0,
     Vj = 0, Vsc = 0, meff_normal = 0.026*const.m0, meff_sc = 0.026*const.m0,
     g_normal = 26, g_sc = 26,
     alpha = 0, delta = 0, phi = 0,
@@ -115,12 +115,12 @@ def local_min_gam_finder(
     Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
 
     #gamz and qx are finite in order to avoid degneracy issues
-    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, mu=mu, gamx=1e-4, alpha=alpha, delta=delta, phi=phi, qx=0, Tesla=Tesla, diff_g_factors=diff_g_factors, Rfactor=Rfactor, diff_alphas=diff_alphas, diff_meff=diff_meff) #gives low energy basis
+    H0 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, Vsc=Vsc, mu=mu, gamx=1e-4, alpha=alpha, delta=delta, phi=phi, qx=0, Tesla=Tesla, diff_g_factors=diff_g_factors, Rfactor=Rfactor, diff_alphas=diff_alphas, diff_meff=diff_meff) #gives low energy basis
 
     eigs_0, vecs_0 = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_0_hc = np.conjugate(np.transpose(vecs_0)) #hermitian conjugate
 
-    H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, mu=mu, gamx=1+1e-4, alpha=alpha, delta=delta, phi=phi, qx=0, Tesla=Tesla, diff_g_factors=diff_g_factors, Rfactor=Rfactor, diff_alphas=diff_alphas, diff_meff=diff_meff) #Hamiltonian with ones on Zeeman energy along x-direction sites
+    H_G1 = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, Vsc=Vsc, mu=mu, gamx=1+1e-4, alpha=alpha, delta=delta, phi=phi, qx=0, Tesla=Tesla, diff_g_factors=diff_g_factors, Rfactor=Rfactor, diff_alphas=diff_alphas, diff_meff=diff_meff) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
     HG = H_G1 - H0 #the proporitonality matrix for gam-x, it is ones along the sites that have a gam value
 
@@ -181,22 +181,22 @@ def local_min_gam_finder(
 
 def SNRG_gam_finder(
     ax, ay, mu, gi, gf,
-    Wj = 0, Lx = 0, cutx = 0, cuty = 0,
+    Wj = 0, Lx = 0, cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0,
     Vj = 0, Vsc = 0,  m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, QX=0, tol = 1e-5, done = False, PLOT = False, n=3
+    k = 20, QX=0, tol = 1e-5, done = False, PLOT = False, n = 3
     ):
     delta_gam = abs(gf-gi)
-    n1, n2 = step_finder(delta_gam/(0.1*1e-5) + 1, n)
+    n1, n2 = step_finder(delta_gam/(tol) + 1, n)
 
-    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-7, delta=delta, phi=phi)
+    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-7, delta=delta, phi=phi)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_hc = np.conjugate(np.transpose(vecs)) #hermitian conjugate
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
     #print(eigs)
 
-    H_G1 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=cutx, nody=cuty, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1+1e-7, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
+    H_G1 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1+1e-7, delta=delta, phi=phi) #Hamiltonian with ones on Zeeman energy along x-direction sites
 
     HG = H_G1 - H0 #the proporitonality matrix for gam-x, it is ones along the sites that have a gam value
     HG0_DB = np.dot(vecs_hc, H0.dot(vecs))
@@ -266,12 +266,12 @@ def SNRG_gam_finder(
                 G_crit.append(gx_min_finer[m])
                 print("Crossing found at Gx = {} | E = {} meV".format(gx_min_finer[m], eigs_min_finer[m]))
 
-    if cutx == 0 and Vj == 0:
+    if cutxT*cutxB == 0 and Vj == 0:
         G_crit = np.array(G_crit)
         return G_crit
 
     if not done:
-        G_crit = G_crit + SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, m_eff=m_eff, alpha=alpha, delta=delta, phi=phi, k=k, QX=np.pi/Lx, done = True, tol=tol, PLOT=PLOT)
+        G_crit = G_crit + SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, Vsc=Vsc, m_eff=m_eff, alpha=alpha, delta=delta, phi=phi, k=k, QX=np.pi/Lx, done = True, tol=tol, PLOT=PLOT)
         G_crit.sort()
         G_crit = np.array(G_crit)
         print(G_crit)
@@ -282,7 +282,7 @@ def SNRG_gam_finder(
 
 def gap_finder(
     coor, NN, NNb, ax, ay, mu, gx,
-    Wj = 0, cutx = 0, cuty = 0,
+    Wj = 0, cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0,
     Vj = 0, Vsc = 0, alpha = 0, delta = 0, phi = 0,
     k = 4, n=5, steps_targ = 1000
     ):
@@ -296,7 +296,7 @@ def gap_finder(
         if((n1 - i)%10==0):
             print(n1 - i)
         H = spop.HBDG(coor, ax, ay, NN, NNb=NNb,
-        Wj=Wj, cutx=cutx, cuty=cuty, Vj=Vj, Vsc=Vsc, mu=mu, gamx=gx, alpha=alpha, delta=delta, phi=phi, qx=qx[i])
+        Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, Vsc=Vsc, mu=mu, gamx=gx, alpha=alpha, delta=delta, phi=phi, qx=qx[i])
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
         eigs = eigs[idx_sort]
@@ -327,7 +327,7 @@ def gap_finder(
         qx_finer = np.linspace(qx_lower, qx_higher, n2) #around local min
         bands_finer = np.zeros((n2, k)) #new eigenvalue array
         for j in range(n2):
-            H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutx=cutx, cuty=cuty, mu=mu, Vj=Vj, Vsc=Vsc, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx_finer[j])
+            H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, mu=mu, Vj=Vj, Vsc=Vsc, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx_finer[j])
             eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
             idx_sort = np.argsort(eigs)
             eigs = eigs[idx_sort]

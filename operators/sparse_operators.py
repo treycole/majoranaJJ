@@ -110,97 +110,102 @@ def ky2(coor, ax, ay, NN, NNb = None, qy = None):
     return ksq
 
 ########################################################
-
-""" Delta Matrix: Particle hole coupling
+"""
+Delta Matrix: Particle hole coupling
 Parameters:
-coor =  coordinate array
-Wj =    Width of normal region in Josephson junction
+coor = coordinate array
+Wj = Width of normal region in Josephson junction
 delta = size of superconducting gap in meV
-phi =   superconducting phase difference across the normal region
-cutx =   width of nodule
-cuty =   height of nodule
+phi = superconducting phase difference across the normal region
+cutxT = nodule width along x for top (integer)
+cutxB = nodule width along x for bottom (integer)
+cutyT = nodule width along y for top (integer)
+cutyB = nodule width along y for bottom (integer)
 """
 def Delta(
-    coor, Wj = 0,
-    delta = 0, phi = 0,
-    cutx = 0, cuty = 0
+    coor, Wj = 0, delta = 0, phi = 0,
+    cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0
     ):
     N = coor.shape[0]
     Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
     Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
-    Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
     Wsc = int((Ny - Wj)/2) #width of single superconductor
 
     row = []; col = []; data = []
     if Wj == 0: #If no junction, every site is superconducting, no phase difference
         for i in range(N):
             row.append(i); col.append(i)
-            data.append(delta*np.exp(1j*phi/3))
-            #data.append(delta)
+            data.append(delta)
         D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype='complex')
         delta = sparse.bmat([[None, D], [-D, None]], format='csc', dtype='complex')
         return delta
 
     for i in range(N):
         row.append(i); col.append(i)
-        bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
+        bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
         if bool_inSC:
-            if which == 'T':
+            if which == 'T': #in top SC
                 data.append(delta)
-            elif which == 'B':
+            elif which == 'B': #in bottom SC
                 data.append(delta*np.exp(1j*phi))
         else:
             data.append(0)
 
     D = sparse.csc_matrix((data, (row, col)), shape = (N,N), dtype='complex')
     delta = sparse.bmat([[None, D], [-D, None]], format='csc', dtype='complex')
-    #plots.junction(coor, delta)
-    #sparse.csc_matrix.transpose(sparse.csc_matrix.conj(D))
     return delta
 ########################################################
-
 """
-This is the Hamiltonian with Spin Orbit Coupling and nearest neighbor hopping and no Superconductivity.
-
 Parameters:
-V = potential type, must be a Matrix NxN
+coor = coordinate array
+ax = descritization constant along x
+ay = descritization constant along y
+NN = nearest neighbor array
+NNb = nearest neighbor array for periodic boundary conditions
+Wj = Junction width (integer)
+cutxT = nodule width along x for top (integer)
+cutxB = nodule width along x for bottom (integer)
+cutyT = nodule width along y for top (integer)
+cutyB = nodule width along y for bottom (integer)
+Vj = junction potential
+Vsc = superconducting potential
 mu = chemical potential
 alpha = Rashba SOC
 gamx = Zeeman energy parallel to junction/superconductor interface
-gamy = Zeeman energy perpindicular to Junction
+gamy = Zeeman energy perpendicular to junction
 gamz = Zeeman energy normal to device
 
 Basis:
-Two states per lattice site for spin up and down. Rows/Columns 1 ->
-N correspond to spin up, rows/columns n -> 2N correspond to spin down
+Two states per lattice site for spin up and down.
+Rows/Columns 1 -> N correspond to spin up, rows/columns N -> 2N correspond to spin down
 """
 def H0(
     coor, ax, ay, NN, NNb = None,
-    Wj = 0, cutx = 0, cuty = 0,
-    V = 0, mu = 0, meff_normal = 0.026, meff_sc = 0.026,
+    Wj = 0, cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0,
+    Vj = 0, Vsc = 0, mu = 0, meff_normal = 0.026, meff_sc = 0.026,
     alpha = 0, gamx = 0, gamy = 0, gamz = 0, g_normal = 26, g_sc = 0,
     qx = None, qy = None,
     Tesla = False,
     diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False
     ):
-    # Hamiltonian with SOC and no superconductivity
     N = coor.shape[0] #number of lattice sites
-    I = sparse.identity(N) #identity matrix of size NxN
     Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
     Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
-    Sx = int((Nx - cutx)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
+    I = sparse.identity(N) #identity matrix of size NxN
+    V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB) #potential matrix NxN
+
     Wsc = int((Ny - Wj)/2) #width of single superconductor
 
-    k_x = kx(coor, ax, ay, NN, NNb = NNb, qx = qx)
-    k_y = ky(coor, ax, ay, NN, NNb = NNb, qy = qy)
-    k_x2 = kx2(coor, ax, ay, NN, NNb = NNb, qx = qx)
-    k_y2 = ky2(coor, ax, ay, NN, NNb = NNb, qy = qy)
+    k_x = kx(coor, ax, ay, NN, NNb=NNb, qx=qx)
+    k_y = ky(coor, ax, ay, NN, NNb=NNb, qy=qy)
+    k_x2 = kx2(coor, ax, ay, NN, NNb=NNb, qx=qx)
+    k_y2 = ky2(coor, ax, ay, NN, NNb=NNb, qy=qy)
 
     if diff_g_factors and Tesla:
         row = []; col = []; data = []
         for i in range(N):
             row.append(i); col.append(i)
-            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
+            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
             if inSC:
                 data.append(g_sc)
             if not inSC:
@@ -210,7 +215,7 @@ def H0(
         row = []; col = []; data = []
         for i in range(N):
             row.append(i); col.append(i)
-            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)
+            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
             if inSC:
                 data.append(Rfactor)
             if not inSC:
@@ -224,7 +229,7 @@ def H0(
         row = []; col = []; data = []
         for i in range(N):
             row.append(i); col.append(i)
-            inSC_i = check.is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty)[0]
+            inSC_i = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)[0]
             if inSC_i :
                 data.append(const.hbsqr_m0/(2*meff_sc))
             else:
@@ -253,7 +258,7 @@ def H0(
 """BDG Hamiltonian for superconductivity and SOC"""
 def HBDG(
     coor, ax, ay, NN, NNb = None,
-    Wj = 0, cutx = 0, cuty = 0,
+    Wj = 0, cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0,
     Vj = 0, Vsc = 0, mu = 0, gamx = 0, gamy = 0, gamz = 0, alpha = 0,
     delta = 0, phi = 0,
     meff_normal = 0.026, meff_sc = 0.026, g_normal = 26, g_sc = 26,
@@ -261,10 +266,14 @@ def HBDG(
     Tesla = False, diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False
     ):
     N = coor.shape[0] #number of lattice sites
-    D = Delta(coor, Wj=Wj, delta=delta, phi=phi, cutx=cutx, cuty=cuty)
-    V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutx=cutx, cuty=cuty)
+    Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
+    Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
+    D = Delta(coor=coor, Wj=Wj, delta=delta, phi=phi, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
+
+    #V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
     #plots.potential_profile(coor, V)
     #plots.junction(coor, D)
+
     QX11 = None
     QY11 = None
     if qx is not None:
@@ -272,53 +281,13 @@ def HBDG(
     if qy is not None:
         QY11 = -qy
 
-    H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal = meff_normal, meff_sc=meff_sc)
-
+    H00 = H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, Vsc=Vsc, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, g_normal=g_normal, g_sc=g_sc, Tesla=Tesla, Rfactor=Rfactor, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal=meff_normal, meff_sc=meff_sc)
+    H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, Vsc=Vsc, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=QX11, qy=QY11, g_normal=g_normal, g_sc=g_sc, Tesla=Tesla, Rfactor=Rfactor, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal=meff_normal, meff_sc=meff_sc).conjugate()
     H01 = D
-
-    H11 = -1*H0(coor, ax, ay, NN, NNb=NNb, Wj=Wj, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=QX11, qy=QY11, Tesla=Tesla, diff_g_factors=diff_g_factors, diff_alphas=diff_alphas, diff_meff=diff_meff, meff_normal = meff_normal, meff_sc=meff_sc).conjugate()
-
     H10 = -D.conjugate()
-    #print(np.around(H01.todense(), decimals=1))
-    #print(np.around(H10.todense(), decimals=1))
+
     H = sparse.bmat([[H00, H01], [H10, H11]], format='csc', dtype = 'complex')
     return H
-
-#######################################################
-
-#Energy eigenvalues for BDG Hamilonian
-def EBDG(
-    coor, ax, ay, NN, NNb = None, Wj = 0,
-    cutx = 0, cuty = 0,
-    V = 0, mu = 0,
-    gamx = 0, gamy = 0, gamz = 0,
-    alpha = 0, delta = 0, phi = 0,
-    qx = 0, qy = 0,
-    periodicX = False, periodicY = False,
-    k = 8, sigma = 0, which = 'LM', tol = 0, maxiter = None
-    ):
-    H = HBDG(coor, ax, ay, NN, Wj=Wj, NNb=NNb, cutx=cutx, cuty=cuty, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, delta=delta, phi=phi, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
-
-    eigs, vecs = spLA.eigsh(H, k=k, sigma=sigma, which=which, tol=tol, maxiter=maxiter)
-    idx_sort = np.argsort(eigs)
-    eigs = eigs[idx_sort]
-    return np.sort(eigs)
-
-#Energy Eignencalues for SOC Hamiltonain, or H0
-def ESOC(
-    coor, ax, ay, NN, NNb = None,
-    V = 0, mu = 0,
-    gamx = 0, gamy = 0, gamz = 0, alpha = 0,
-    qx = 0, qy = 0,
-    periodicX = False, periodicY = False,
-    k = 4, sigma = 0, which = 'LM', tol = 0, maxiter = None
-    ):
-    H = H0(coor, ax, ay, NN, NNb=NNb, V=V, mu=mu, gamx=gamx, gamy=gamy, gamz=gamz, alpha=alpha, qx=qx, qy=qy, periodicX=periodicX, periodicY=periodicY)
-
-    eigs, vecs = spLA.eigsh(H, k=k, sigma=sigma, which=which, tol=tol, maxiter=maxiter)
-    idx_sort = np.argsort(eigs)
-    eigs = eigs[idx_sort]
-    return np.sort(eigs)
 
 #######################################################
 

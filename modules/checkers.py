@@ -35,7 +35,10 @@ def junction_geometry_check(Nx, Ny, cutx, cuty, Wj):
 
     return Nx, Ny, cutx, cuty, Wj
 
-def is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty):
+def is_in_SC(i, coor, Wsc, Wj, cutxT, cutyT, cutxB, cutyB):
+    Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
+    SxT = int((Nx - cutxT)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
+    SxB = int((Nx - cutxB)/2) #length of either side of nodule, leftover length after subtracted nodule length divided by two
     x = coor[i, 0]
     y = coor[i, 1]
 
@@ -44,15 +47,13 @@ def is_in_SC(i, coor, Wsc, Wj, Sx, cutx, cuty):
     if y >= (Wsc+Wj): #in top SC
         return [True, 'T']
     if y >= Wsc and y < (Wsc+Wj): #if coordinates in junction region
-        if cuty != 0 and cutx !=0: #if there is a nodule present
-            if (x >= Sx and x < (Sx + cutx)): #in x range of cut
-                if y >= ((Wsc + Wj) - cuty): #if in y range of cut along top interface, in top SC
-                    return [True, 'T']
-                elif  y < (Wsc + cuty): #if in y range of cut along bottom interface, in bottom SC
-                    return [True, 'B']
-                else: #site is in junction, out of y range
-                    return [False,  None]
-            else: #lattice site is in junction, out of x range
-                return [False, None]
-        else: #lattice site is in junction, no nodule
-            return [False, None]
+        if (x >= SxT and x < (SxT + cutxT)) and cutxT*cutyT != 0: #in x range of cut at top and nodule present there
+            if y >= ((Wsc + Wj) - cutyT): #if in y range of cut along top interface, in top SC
+                return [True, 'T']
+        if (x >= SxB and x < (SxB + cutxB)) and cutxB*cutyB != 0:
+            if y < (Wsc + cutyB): #if in y range of cut along bottom interface, in bottom SC
+                return [True, 'B']
+            else: #site is in junction, out of y range
+                return [False,  None]
+        else: #site is in junction, out of y range
+            return [False,  None]

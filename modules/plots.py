@@ -39,7 +39,7 @@ def lattice(
         plt.savefig(savenm)
     plt.show()
 
-def junction(coor, delta, title = None, savenm = None):
+def junction(coor, delta):
     delta = delta.toarray()
     N = coor.shape[0]
     D = delta[0:N, N:]
@@ -58,19 +58,14 @@ def junction(coor, delta, title = None, savenm = None):
     axx.set_xlim(-5, max(coor[:,0])+5)
     axx.set_title('Green is negative phase argument, Blue is positive phase argument, Red is zero phase', wrap = True)
     axx.set_aspect(1.0)
-    if savenm is not None:
-        plt.savefig(savenm)
 
     plt.show()
 
 def potential_profile(coor, V):
-    V = sparse.bmat([[None, V], [V, None]], format='csc')
     V = V.toarray()
     N = coor.shape[0]
-    V = V[0:N, N:]
     fig = plt.figure()
     axx = fig.add_subplot(1,1,1)
-
     axx.scatter(coor[:, 0], coor[:, 1] , c = 'k')
     for i in range(N):
         if np.any(np.abs(V[i, :])) != 0:

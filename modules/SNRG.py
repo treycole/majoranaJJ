@@ -27,7 +27,7 @@ import majoranaJJ.modules.finders as fndrs
     of Sancho (1984)
 """
 
-def top_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta):
+def top_SC_sNRG_calc(omega, Wj, Lx, cutxT, cutxB, ax, ay, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta):
     # Calculates the bulk and surface Greens functions of the top superconductor
     # along with the self-energy that it produces in the junction region
     # * omega is the (real) energy that goes into the Greens function
@@ -42,7 +42,7 @@ def top_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, G
     # * iter is the number of iteration of the algorithm to perform
     # * eta is the imaginary component of the energy that is used for broadening
 
-    if nodx == 0:
+    if cutxT*cutxB == 0:
         Nx = 3
         Lx = (Nx)*ax
     else:
@@ -174,7 +174,7 @@ def top_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, G
 
     return G_s, G_b, sNRG_mtx
 
-def bot_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta):
+def bot_SC_sNRG_calc(omega, Wj, Lx, cutxT, cutxB, ax, ay, kx, m_eff, alp_l, alp_t, mu, Gam_SC, delta, phi, iter, eta):
     # Calculates the bulk and surface Greens functions of the bottom superconductor
     # along with the self-energy that it produces in the junction region
     # * omega is the (real) energy that goes into the Greens function
@@ -189,7 +189,7 @@ def bot_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, G
     # * iter is the number of iteration of the algorithm to perform
     # * eta is the imaginary component of the energy that is used for broadening
 
-    if nodx == 0:
+    if cutxT*cutxB == 0:
         Nx = 3
         Lx = (Nx)*ax
     else:
@@ -323,7 +323,7 @@ def bot_SC_sNRG_calc(omega, Wj, Lx, nodx, ax, ay, kx, m_eff, alp_l, alp_t, mu, G
 
     return G_s, G_b, sNRG_mtx
 
-def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t, mu, Vj, Gam, delta, phi, Vsc=0, Gam_SC_factor=0, iter=50, eta=0):
+def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_eff, alp_l, alp_t, mu, Vj, Gam, delta, phi, Vsc=0, Gam_SC_factor=0, iter=50, eta=0):
     # Generates the effective Hamiltonian for the Junction, which includes the self-energy from both of the SC regions
     # * omega is the (real) energy that goes into the Green's function
     # * W is the width of the junction
@@ -340,9 +340,9 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     # * phi is the phase difference between the two SC regions
     # * iter is the number of iteration of the algorithm to perform
     # * eta is the imaginary component of the energy that is used for broadening
-    if nodx == 0:
+    if cutxT*cutxB == 0:
         Nx = 3
-        Lx = (Nx)*ax
+        Lx = Nx*ax
     else:
         Nx = int(Lx/ax)
 
@@ -354,13 +354,12 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     NNb = nb.Bound_Arr(coor)
 
     Gam_SC = Gam_SC_factor * Gam
-    #V = pot.Vjj(coor=coor, Wj=Wj_int, Vsc=Vsc, Vj=Vj, cutx=nodx, cuty=nody)
-    #plots.potential_profile(coor, V)
-    H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutx=nodx, cuty=nody, Vj=Vj, Vsc=Vsc, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff)
+    
+    H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, Vj=Vj, Vsc=Vsc, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff)
 
-    Gs,Gb,sNRG_bot = bot_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, nodx=nodx, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
+    Gs,Gb,sNRG_bot = bot_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, cutxT=cutxT, cutxB=cutxB, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
 
-    Gs,Gb,sNRG_top = top_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, nodx=nodx, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
+    Gs,Gb,sNRG_top = top_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, cutxT=cutxT, cutxB=cutxB, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
 
     #print(H_J.shape)
     #print(sNRG_top.shape)
@@ -368,8 +367,8 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, nodx, nody, ax, ay, kx, m_eff, alp_l, alp_t,
     H_eff = H_J + sNRG_bot + sNRG_top
     return H_eff
 
-def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
-    if eigs_omega0 >= 2*delta:
+def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
+    if eigs_omega0 >= 5*delta:
         return eigs_omega0
     if eigs_omega0 < tol:
         return 0
@@ -380,7 +379,7 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
     N = 30
     while True:
 
-        H = Junc_eff_Ham_gen(omega=omega2, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=iter, eta=0)
+        H = Junc_eff_Ham_gen(omega=omega2, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=iter, eta=0)
 
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
@@ -416,9 +415,9 @@ def self_consistency_finder(Wj, Lx, nodx, nody, ax, ay, gam, mu, Vj, alpha, delt
     return None
 
 def gap(
-    Wj, Lx, nodx, nody, ax, ay,
+    Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay,
     gam, mu, Vj, alpha, delta, phi,
-    m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-4, n_avg=7, iter=50,
+    m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-6, n_avg=5, iter=50,
     PLOT=False
     ):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
@@ -441,7 +440,7 @@ def gap(
     for q in range(n1):
         if (n1-q)%100 == 0:
             print(n1-q)
-        H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=qx[q], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
+        H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, ax=ax, ay=ay, kx=qx[q], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
 
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
@@ -461,35 +460,29 @@ def gap(
     #checking edge cases
     print("Energy of k=0 w=0: ", omega0_bands[0])
     print("Energy of k=pi/lx w=0: ", omega0_bands[-1])
-    solve_true_eigk0 = True
-    solve_true_eigkpi = True
 
-    if omega0_bands[0]/5 > min(omega0_bands[local_min_idx]):
-        solve_true_eigk0 = False
-    if omega0_bands[-1]/5 > min(omega0_bands[local_min_idx]):
-        solve_true_eigkpi = False
-    if solve_true_eigk0:
-        true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
+    if omega0_bands[0]/10 > min(omega0_bands[local_min_idx]):
+        true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_k0)
         kx_of_mins.append(qx[0])
-    if not solve_true_eigk0:
-        true_gap_of_k0 = omega0_bands[0]
-        mins.append(true_gap_of_k0)
-        kx_of_mins.append(qx[0])
-    if solve_true_eigkpi:
-        true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
+    if omega0_bands[-1]/10 > min(omega0_bands[local_min_idx]):
+        true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_kedge)
         kx_of_mins.append(qx[-1])
-    if not solve_true_eigkpi:
+    if omega0_bands[0]/10 <= min(omega0_bands[local_min_idx]):
+        true_gap_of_k0 = omega0_bands[0]
+        mins.append(omega0_bands[0])
+        kx_of_mins.append(qx[0])
+    if omega0_bands[-1]/10 <= min(omega0_bands[local_min_idx]):
         true_gap_of_kedge = omega0_bands[-1]
-        mins.append(true_gap_of_kedge)
+        mins.append(omega0_bands[-1])
         kx_of_mins.append(qx[-1])
 
     print("Energy at kx=0: ", true_gap_of_k0)
     print("Energy at k_max:  ", true_gap_of_kedge)
 
     for i in range(local_min_idx.shape[0]):
-        if (omega0_bands[local_min_idx[i]] > 5*omega0_bands[0]) or omega0_bands[local_min_idx[i]] > 5*omega0_bands[-1] or omega0_bands[local_min_idx[i]] > 5*min(omega0_bands[local_min_idx]):
+        if (omega0_bands[local_min_idx[i]] > 10*omega0_bands[0]) or omega0_bands[local_min_idx[i]] > 10*omega0_bands[-1] or omega0_bands[local_min_idx[i]] > 10*min(omega0_bands[local_min_idx]):
             pass
         else:
             kx_c = qx[local_min_idx[i]]
@@ -502,7 +495,7 @@ def gap(
             for j in range(kx_finer.shape[0]):
                 if (kx_finer.shape[0] - j)%10 == 0:
                     print(kx_finer.shape[0] - j)
-                H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
+                H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
 
                 eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
                 idx_sort = np.argsort(eigs)
@@ -514,7 +507,7 @@ def gap(
                 plt.show()
 
             GAP, IDX = fndrs.minima(omega0_arr_finer)
-            true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
+            true_eig = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
             print("Minimum {} energy: {}".format(i+1, true_eig))
             print("Kx of minium energy {}: {}: ".format(i+1, kx_finer[IDX]))
             mins.append(true_eig)

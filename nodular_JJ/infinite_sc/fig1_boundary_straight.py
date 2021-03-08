@@ -10,6 +10,7 @@ import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.finders as fndrs
 import majoranaJJ.modules.SNRG as SNRG
 import majoranaJJ.modules.fig_params as params
+import matplotlib.colors as colors
 ###################################################
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
@@ -57,8 +58,14 @@ for i in range(boundary_0.shape[1]):
     axs[0].plot(boundary_0[:, i], mu_0, c='k', linewidth=1.7)
     axs[1].plot(boundary_pi[:, i], mu_pi, c='k', linewidth=1.7)
 
-axs[0].fill_betweenx(mu_0, boundary_0[:, 0], boundary_0[:, 1], visible=True, alpha=1, color='lightcyan')
-axs[1].fill_betweenx(mu_pi, boundary_pi[:, 0], boundary_pi[:, 1], visible=True, alpha=1, color='lightcyan')
+color = colors.colorConverter.to_rgba('paleturquoise', alpha=1.0)
+print(color)
+color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
+color = list(color)
+color[0] = 0.85
+print(color)
+axs[0].fill_betweenx(mu_0, boundary_0[:, 0], boundary_0[:, 1], visible=True, alpha=1, color=color)
+axs[1].fill_betweenx(mu_pi, boundary_pi[:, 0], boundary_pi[:, 1], visible=True, alpha=1, color=color)
 axs[1].plot(1, 10, 'o', c='r', mec='k', zorder=2)
 
 for ax in axs.flat:

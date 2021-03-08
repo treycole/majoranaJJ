@@ -6,12 +6,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import argrelextrema
 from matplotlib import ticker
+import matplotlib.colors as colors
 
 import majoranaJJ.modules.plots as plots #plotting functions
 import majoranaJJ.modules.finders as fndrs
 import majoranaJJ.modules.SNRG as SNRG
 import majoranaJJ.modules.fig_params as params
-import matplotlib.colors as colors
 ###################################################
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
@@ -91,7 +91,9 @@ for i in range(1, muB.shape[0]-1):
             boundary[i,j]=None
 
 fig, axs = plt.subplots(1, 2, gridspec_kw={'hspace':0.1, 'wspace':0.05}, sharey=True)
-color = colors.colorConverter.to_rgba('lightcyan', alpha=1)
+color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
+color = list(color)
+color[0] = 0.85
 for i in range(int(num_bound/2)):
     art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=2.8, zorder=0, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):

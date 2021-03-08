@@ -31,15 +31,15 @@ print("Junction Width = ", Junc_width, "(nm)")
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0*np.pi #SC phase difference
+phi = np.pi #SC phase difference
 delta = 0.30 #Superconducting Gap: [meV]
 Vj = -40 #Junction potential: [meV]
-gx = 1 #mev
+gx = 0.6 #mev
 
 mu_i = -2
-mu_f = 12
+mu_f = 13.2
 delta_mu = mu_f - mu_i
-res = 0.005
+res = 0.01
 steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
 
@@ -60,15 +60,15 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    np.save("%s/mu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
+    #np.save("%s/mu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
     for i in range(0, mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-8)
+        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2000, n_avg=4, muf=mu[i], PLOT=True, tol=1e-8)
         gap[i] = GAP
         kx_of_gap[i] = KX
-        np.save("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gap)
-        np.save("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), kx_of_gap)
-        gc.collect()
+        #np.save("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gap)
+        #np.save("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), kx_of_gap)
+        #gc.collect()
 
     sys.exit()
 else:
@@ -83,7 +83,7 @@ else:
     top_arr[lower_bound:] = num
     for i in range(local_min_idx.shape[0]):
         lower_bound = local_min_idx[i]
-        if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] == 0 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) < .15):
+        if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.1 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) < .15):
             num=num*-1
         top_arr[lower_bound:] = num
 

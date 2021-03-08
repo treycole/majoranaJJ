@@ -31,7 +31,7 @@ print("Junction Width = ", Junc_width, "(nm)")
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0 #SC phase difference
+phi = np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
 Vj = -40 #junction potential: [meV]
 
@@ -57,7 +57,8 @@ boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj =
 mu = np.linspace(mu_i, mu_f, boundary.shape[0])
 
 fig, axs = plt.subplots(1, gridspec_kw={'hspace':0.1, 'wspace':0.1})
-axs.set_yticks([0, 5, 10, 15, 20])
+axs.set_yticks([ 0, 5, 10])
+axs.set_zorder(100)
 axs.label_outer()
 
 for i in range(mu.shape[0]-1):
@@ -82,11 +83,13 @@ for i in range(1, mu.shape[0]-1):
         if np.isnan(boundary[i+1,j]) and np.isnan(boundary[i-1, j]):
             boundary[i,j]=None
 
-color = colors.colorConverter.to_rgba('lightcyan', alpha=1)
+color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
+color = list(color)
+color[0] = 0.85
 for i in range(int(num_bound/2)):
     art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=2.0, zorder=1, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.3, zorder=3, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.3, zorder=1.1, where=dist_arr[:,i]<0.1)
     #art.set_edgecolor(color)
 
 plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
@@ -94,14 +97,15 @@ axs.set_xlabel(r'$E_Z$ (meV)', size=9)
 axs.set_ylabel(r'$\mu$ (meV)', size=9)
 
 axs.set_xlim([0, 4.2])
-axs.set_ylim([-2.2, 15.5])
+axs.set_ylim([-4, 14])
 
-cut1 = np.linspace(-2, 12, 100)
-cut2 = np.linspace(0, 3, 100)
-axs.plot(cut1*0+1, cut1, c='b', lw=1.5, mec='k', zorder=4)
+axs.plot([0.6, 0.6], [-2, 13.2], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([0, 3], [10.30, 10.30], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([0, 3], [6.28, 6.28], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([0, 3], [2.37, 2.37], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.tick_params(axis='x', labelsize=9)
 axs.tick_params(axis='y', labelsize=9)
 axs.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-plt.savefig('FIG3', dpi=700)
+plt.savefig('FIG6', dpi=700)
 plt.show()

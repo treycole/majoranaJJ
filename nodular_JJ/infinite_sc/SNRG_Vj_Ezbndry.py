@@ -12,11 +12,10 @@ import majoranaJJ.modules.SNRG as SNRG
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 10 #Number of lattice sites along x-direction
+Nx = 12 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
 cutx = 4 #width of nodule
-cuty = 5 #height of nodule
-
+cuty = 8 #height of nodule
 Lx = Nx*ax
 Junc_width = Wj*.10 #nm
 Nod_widthx = cutx*ax*.1 #nm
@@ -27,13 +26,13 @@ print("Junction Width = ", Junc_width, "(nm)")
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0*np.pi #SC phase difference
-delta = 1 #Superconducting Gap: [meV]
-mu = 30 #junction potential: [meV]
+phi = np.pi #SC phase difference
+delta = 0.3 #Superconducting Gap: [meV]
+mu = 10 #junction potential: [meV]
 
-Vj_i = -100
-Vj_f = 50
-res = 0.05
+Vj_i = -42
+Vj_f = 12
+res = 0.005
 delta_Vj = Vj_f - Vj_i
 Vj_steps = int(delta_Vj/res)
 Vj = np.linspace(Vj_i, Vj_f, Vj_steps) #Chemical Potential: [meV]
@@ -43,8 +42,8 @@ print("Vj_i = ", Vj_i)
 print("Vj_f = ", Vj_f)
 
 gi = 0
-gf = 6
-num_bound = 6
+gf = 5
+num_bound = 10
 boundary = np.zeros((Vj_steps, num_bound))
 ###################################################
 #phase diagram mu vs gam
@@ -58,7 +57,7 @@ except:
 if PLOT != 'P':
     for i in range(Vj_steps):
         print(Vj_steps-i, "| Vj =", Vj[i])
-        gx = fndrs.SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj[i], alpha=alpha, delta=delta, phi=phi, k=50)
+        gx = fndrs.SNRG_gam_finder(ax, ay, mu, gi, gf, Wj=Wj, Lx=Lx, cutx=cutx, cuty=cuty, Vj=Vj[i], alpha=alpha, delta=delta, phi=phi, k=20, tol=1e-5, PLOT=False)
         for j in range(num_bound):
             if j >= gx.size:
                 boundary[i, j] = None
@@ -70,11 +69,11 @@ if PLOT != 'P':
 
     sys.exit()
 else:
-    boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f))
+    boundary = np.load("%s/boundaryvjez Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx, Nod_widthy, mu, alpha, delta, phi, Vj_i, Vj_f))
 
     Vj = np.linspace(Vj_i, Vj_f, boundary.shape[0])
     for i in range(boundary.shape[1]):
-        plt.scatter(boundary[:, i], Vj, c='r', s = 2)
+        plt.scatter(boundary[:, i], Vj, c='r', s=0.8)
         #plt.plot(boundary[:, i], mu, c='r')
     plt.grid()
     plt.xlabel(r'$E_z$ (meV)')
