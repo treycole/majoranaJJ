@@ -354,7 +354,7 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_ef
     NNb = nb.Bound_Arr(coor)
 
     Gam_SC = Gam_SC_factor * Gam
-    
+
     H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, Vj=Vj, Vsc=Vsc, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff)
 
     Gs,Gb,sNRG_bot = bot_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, cutxT=cutxT, cutxB=cutxB, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
@@ -432,7 +432,7 @@ def gap(
     qmax = np.sqrt(2*(muf-VVJ)*m_eff/const.hbsqr_m0)*1.25
     if qmax >= np.pi/Lx:
         qmax = np.pi/(Lx)
-    if nodx != 0:
+    if cutxT*cutxB != 0:
         qmax = np.pi/(Lx)
     qx = np.linspace(0, qmax, n1) #kx in the first Brillouin zone
     #print(qmax,  np.pi/(Lx))
@@ -460,20 +460,21 @@ def gap(
     #checking edge cases
     print("Energy of k=0 w=0: ", omega0_bands[0])
     print("Energy of k=pi/lx w=0: ", omega0_bands[-1])
+    #print(omega0_bands[0]/5, min(omega0_bands[local_min_idx]))
 
-    if omega0_bands[0]/10 > min(omega0_bands[local_min_idx]):
+    if omega0_bands[0]/5 <= min(omega0_bands[local_min_idx]):
         true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_k0)
         kx_of_mins.append(qx[0])
-    if omega0_bands[-1]/10 > min(omega0_bands[local_min_idx]):
+    if omega0_bands[-1]/5 <= min(omega0_bands[local_min_idx]):
         true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
         mins.append(true_gap_of_kedge)
         kx_of_mins.append(qx[-1])
-    if omega0_bands[0]/10 <= min(omega0_bands[local_min_idx]):
+    if omega0_bands[0]/5 > min(omega0_bands[local_min_idx]):
         true_gap_of_k0 = omega0_bands[0]
         mins.append(omega0_bands[0])
         kx_of_mins.append(qx[0])
-    if omega0_bands[-1]/10 <= min(omega0_bands[local_min_idx]):
+    if omega0_bands[-1]/5 > min(omega0_bands[local_min_idx]):
         true_gap_of_kedge = omega0_bands[-1]
         mins.append(omega0_bands[-1])
         kx_of_mins.append(qx[-1])
@@ -495,7 +496,7 @@ def gap(
             for j in range(kx_finer.shape[0]):
                 if (kx_finer.shape[0] - j)%10 == 0:
                     print(kx_finer.shape[0] - j)
-                H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
+                H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
 
                 eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
                 idx_sort = np.argsort(eigs)
@@ -507,7 +508,7 @@ def gap(
                 plt.show()
 
             GAP, IDX = fndrs.minima(omega0_arr_finer)
-            true_eig = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
+            true_eig = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB,  cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
             print("Minimum {} energy: {}".format(i+1, true_eig))
             print("Kx of minium energy {}: {}: ".format(i+1, kx_finer[IDX]))
             mins.append(true_eig)

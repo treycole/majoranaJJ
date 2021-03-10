@@ -19,14 +19,22 @@ Nx = 12 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
 cutx = 4 #width of nodule
 cuty = 8 #height of nodule
+cutxT = cutx
+cutxB = cutx
+cutyT = cuty
+cutyB = cuty
 Lx = Nx*ax #Angstrom
 Junc_width = Wj*.1 #nm
-Nod_widthx = cutx*ax*.1 #nm
-Nod_widthy = cuty*ay*.1 #nm
+cutxT_width = cutxT*ax*.1 #nm
+cutyT_width = cutyT*ax*.1 #nm
+cutxB_width = cutxB*ax*.1 #nm
+cutyB_width = cutyB*ax*.1 #nm
 
 print("Lx = ", Lx*.1, "(nm)" )
-print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
-print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
+print("Top Nodule Width in x-direction = ", cutxT_width, "(nm)")
+print("Bottom Nodule Width in x-direction = ", cutxB_width, "(nm)")
+print("Top Nodule Width in y-direction = ", cutyT_width, "(nm)")
+print("Bottom Nodule Width in y-direction = ", cutyB_width, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 ###################################################
 #Defining Hamiltonian parameters
@@ -52,8 +60,7 @@ num_bound = 10
 ###################################################
 #phase diagram mu vs gam
 dirS = 'boundary_data'
-
-boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f))
+boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, alpha, delta, phi, mu_i, mu_f))
 mu = np.linspace(mu_i, mu_f, boundary.shape[0])
 
 fig, axs = plt.subplots(1, gridspec_kw={'hspace':0.1, 'wspace':0.1})
@@ -86,9 +93,9 @@ color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
 color = list(color)
 color[0] = 0.85
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=2.0, zorder=1, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=2.8, zorder=1, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.3, zorder=1.2, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=1, zorder=1.2, where=dist_arr[:,i]<0.1)
     #art.set_edgecolor(color)
 
 plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)

@@ -18,26 +18,35 @@ ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Nx = 12 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
-nodx = 4 #width of nodule
-nody = 8 #height of nodule
-Lx = Nx*ax
+cutx = 4 #width of nodule
+cuty = 8 #height of nodule
+cutxT = cutx
+cutxB = cutx
+cutyT = cuty
+cutyB = cuty
+Lx = Nx*ax #Angstrom
 Junc_width = Wj*.1 #nm
-Nod_widthx = nodx*ay*.1 #nm
-Nod_widthy = nody*ay*.1 #nm
+cutxT_width = cutxT*ax*.1 #nm
+cutyT_width = cutyT*ax*.1 #nm
+cutxB_width = cutxB*ax*.1 #nm
+cutyB_width = cutyB*ax*.1 #nm
 
-print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
-print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
+print("Lx = ", Lx*.1, "(nm)" )
+print("Top Nodule Width in x-direction = ", cutxT_width, "(nm)")
+print("Bottom Nodule Width in x-direction = ", cutxB_width, "(nm)")
+print("Top Nodule Width in y-direction = ", cutyT_width, "(nm)")
+print("Bottom Nodule Width in y-direction = ", cutyB_width, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0*np.pi #SC phase difference
 delta = 0.30 #Superconducting Gap: [meV]
 Vj = -40 #Junction potential: [meV]
-gx = 0.6 #mev
+gx = 1 #mev
 
 mu_i = -2
-mu_f = 13.2
+mu_f = 12
 delta_mu = mu_f - mu_i
 res = 0.01
 steps = int(abs(delta_mu/res))+1
@@ -60,25 +69,26 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    #np.save("%s/mu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
+    np.save("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
     for i in range(0, mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2000, n_avg=4, muf=mu[i], PLOT=True, tol=1e-8)
+        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-8)
         gap[i] = GAP
         kx_of_gap[i] = KX
-        #np.save("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gap)
-        #np.save("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, mu_i, mu_f, gx), kx_of_gap)
-        #gc.collect()
+        np.save("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gap)
+        np.save("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), kx_of_gap)
+        gc.collect()
 
     sys.exit()
 else:
-    gap = np.load("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
-    kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
-    mu = np.load("%s/mu Wj = %.1f nm Lx = %.1f nm nodx = %.1f nm nody = %.1f nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f, gx))
+    gap = np.load("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    mu = np.load("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    local_min_idx = np.array(argrelextrema(gap, np.less)[0])
+    fig, axs = plt.subplots(2, 1, gridspec_kw={'hspace':0.1}, sharex=True)
 
     top_arr = np.zeros(mu.shape[0])
     num = 1
-    local_min_idx = np.array(argrelextrema(gap, np.less)[0])
     lower_bound = 0
     top_arr[lower_bound:] = num
     for i in range(local_min_idx.shape[0]):
@@ -86,8 +96,6 @@ else:
         if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.1 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) < .15):
             num=num*-1
         top_arr[lower_bound:] = num
-
-    fig, axs = plt.subplots(2, 1, gridspec_kw={'hspace':0.1}, sharex=True)
 
     art = axs[0].fill_between(mu, gap/delta, visible=True, alpha=1, color='lightcyan', where=top_arr[:]<0)
     art.set_edgecolor('k')
@@ -97,8 +105,8 @@ else:
     axs[0].grid()
     axs[1].grid()
 
-    axs[0].scatter(mu[local_min_idx], (1/delta)*gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma', vmax=0.05)
-    axs[1].scatter(mu[local_min_idx], Lx*kx_of_gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma', vmax=0.05)
+    axs[0].scatter(mu[local_min_idx], (1/delta)*gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma')#, vmax=0.05)
+    axs[1].scatter(mu[local_min_idx], Lx*kx_of_gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma')#, vmax=0.05)
 
     #axs[0].scatter(mu, gap/delta, c='r', zorder=2, s=2)
     axs[0].plot(mu, gap/delta, c='k', lw=2, zorder=1)

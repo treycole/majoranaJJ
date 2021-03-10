@@ -70,8 +70,7 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    #boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, phi, mu_i, mu_f))
-    for i in range( mu_steps):
+    for i in range(mu_steps):
         print(mu_steps-i, "| mu =", mu[i])
         gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=50, tol = 1e-5, PLOT=False)
         for j in range(num_bound):
@@ -88,7 +87,9 @@ else:
     boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, alpha, delta, phi, mu_i, mu_f))
     mu = np.linspace(mu_i, mu_f, boundary.shape[0])
 
-    """
+    fig, axs = plt.subplots(1, gridspec_kw={'hspace':0.1, 'wspace':0.1})
+    axs.set_yticks([ 0, 5, 10])
+    axs.label_outer()
     for i in range(mu.shape[0]-1):
         for j in range(int(boundary.shape[1]/2)):
             if np.isnan(boundary[i,2*j+1]) and not np.isnan(boundary[i,2*j]):
@@ -104,25 +105,38 @@ else:
             else:
                 dist_arr[i,j] = abs(boundary[i, j] - boundary[i+1, j])
             if dist_arr[i,j]>0.1:
-                boundary[i, j+1:] = None
-                boundary[i+1, j+1:] = None
+                boundary[i, j:] = None
                 pass
+    for i in range(1, mu.shape[0]-1):
+        for j in range(num_bound):
+            if np.isnan(boundary[i+1,j]) and np.isnan(boundary[i-1, j]):
+                boundary[i,j]=None
 
     color = colors.colorConverter.to_rgba('lightcyan', alpha=1)
+    color = list(color)
+    color[0] = 0.85
     for i in range(int(num_bound/2)):
-        art = plt.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, alpha=1, fc=color, ec='k', lw=2.8, where=dist_arr[:,i]<0.1, zorder=0)
+        art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, alpha=1, fc=color, ec='k', lw=2.8, where=dist_arr[:,i]<0.1, zorder=1)
     for i in range(int(num_bound/2)):
-        art = plt.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, alpha=1, fc=color, ec='face', lw=1, where=dist_arr[:,i]<0.1, zorder=2.5)
-        """
-    for i in range(num_bound):
-        plt.scatter(boundary[:, i], mu, s=1, c='k', zorder=2)
-        pass
-    plt.xlabel(r'$E_Z$ (meV)')
-    plt.ylabel(r'$\mu$ (meV)')
-    #title = r'Lx = {} nm, lxT = {} nm, lxB = {} nm, W1 = {} nm, W2 = {} nm, Vj = {} meV'.format(Lx*.1, Nod_widthx, Junc_width, Junc_width-2*Nod_widthy, Vj)
-    #plt.title(title, loc = 'center', wrap = True)
+        art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, alpha=1, fc=color, ec='face', lw=1, where=dist_arr[:,i]<0.1, zorder=1.2)
 
-    #plt.xlim(-0.2, 4.2)
-    #plt.ylim(-2.2, 15.5)
+    for i in range(num_bound):
+        #axs.scatter(boundary[:, i], mu, s=1, c='k', zorder=2)
+        pass
+    plt.subplots_adjust(top=0.9, left=0.1, bottom=0.1, right=0.97)
+    axs.set_xlabel(r'$E_Z$ (meV)', size=9)
+    axs.set_ylabel(r'$\mu$ (meV)', size=9)
+
+    axs.set_xlim([0, 4.2])
+    axs.set_ylim([-3, 13])
+    axs.plot([1,1], [-2,12], c='b', lw=1.5, mec='k', zorder=4)
+    axs.plot([0,3], [9.2,9.2], c='b', lw=1.5, mec='k', zorder=4)
+    axs.plot([0,3], [11.1213,11.1213], c='b', lw=1.5, mec='k', zorder=4)
+    axs.plot([0,3], [7.36,7.36], c='b', lw=1.5, mec='k', zorder=4)
+    axs.tick_params(axis='x', labelsize=9)
+    axs.tick_params(axis='y', labelsize=9)
+    axs.xaxis.set_major_locator(ticker.MultipleLocator(1))
+    title = r'Lx = {} nm, lxT = {} nm, lxB = {} nm, W1 = {} nm, W2 = {} nm, Vj = {} meV'.format(Lx*.1, cutxT_width, cutxB_width, Junc_width, Junc_width-(cutyT_width+cutyB_width), Vj)
+    plt.title(title, loc = 'center', wrap = True)
 
     plt.show()
