@@ -40,13 +40,13 @@ print("Junction Width = ", Junc_width, "(nm)")
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0*np.pi #SC phase difference
+phi = np.pi #SC phase difference
 delta = 0.30 #Superconducting Gap: [meV]
 Vj = -40 #Junction potential: [meV]
 gx = 1 #mev
 
 mu_i = -2
-mu_f = 12
+mu_f = 13.2
 delta_mu = mu_f - mu_i
 res = 0.01
 steps = int(abs(delta_mu/res))+1
@@ -72,7 +72,7 @@ if PLOT != 'P':
     np.save("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
     for i in range(0, mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-8)
+        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2500, n_avg=4, muf=mu[i], PLOT=False, tol=1e-7)
         gap[i] = GAP
         kx_of_gap[i] = KX
         np.save("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gap)
@@ -93,7 +93,7 @@ else:
     top_arr[lower_bound:] = num
     for i in range(local_min_idx.shape[0]):
         lower_bound = local_min_idx[i]
-        if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.1 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) < .15):
+        if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .138):
             num=num*-1
         top_arr[lower_bound:] = num
 
@@ -120,8 +120,8 @@ else:
 
     axs[0].set_ylabel(r'$\Delta_{qp}/\Delta_{0}$')
     axs[1].set_ylabel(r'$k_{x}*L_{x}$')
-    axs[1].set_yticks([0, np.pi/8, 2*np.pi/8, 3*np.pi/8, 4*np.pi/8, 5*np.pi/8, 6*np.pi/8, 7*np.pi/8, 8*np.pi/8])
-    axs[1].set_yticklabels(['0', r'$\pi/8$', r'$2\pi/8$', r'$3\pi/8$', r'$4\pi/8$', r'$5\pi/8$', r'6$\pi/8$', r'7$\pi/8$', r'$\pi$'])
+    #axs[1].set_yticks([0, np.pi/8, 2*np.pi/8, 3*np.pi/8, 4*np.pi/8, 5*np.pi/8, 6*np.pi/8, 7*np.pi/8, 8*np.pi/8])
+    #axs[1].set_yticklabels(['0', r'$\pi/8$', r'$2\pi/8$', r'$3\pi/8$', r'$4\pi/8$', r'$5\pi/8$', r'6$\pi/8$', r'7$\pi/8$', r'$\pi$'])
     #plt.xlabel(r'$\mu$ (meV)')
     #plt.ylabel(r'$\Delta_{qp}/\Delta_{0}$')
     #plt.ylim(0,0.3)
