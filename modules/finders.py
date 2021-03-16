@@ -184,12 +184,12 @@ def SNRG_gam_finder(
     Wj = 0, Lx = 0, cutxT = 0, cutyT = 0, cutxB = 0, cutyB = 0,
     Vj = 0, Vsc = 0,  m_eff = 0.026,
     alpha = 0, delta = 0, phi = 0,
-    k = 20, QX=0, tol = 1e-5, done = False, PLOT = False, n = 3
+    k = 20, QX=0, tol = 1e-5, done = False, PLOT = False, n = 3, plot_junction=False
     ):
     delta_gam = abs(gf-gi)
     n1, n2 = step_finder(delta_gam/(2*tol) + 1, n)
 
-    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-9, delta=delta, phi=phi)
+    H0 = SNRG.Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=QX, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Vsc=Vsc, Gam=1e-9, delta=delta, phi=phi, plot_junction=plot_junction)
     eigs, vecs = spLA.eigsh(H0, k=k, sigma=0, which='LM')
     vecs_hc = np.conjugate(np.transpose(vecs)) #hermitian conjugate
     idx_sort = np.argsort(eigs)

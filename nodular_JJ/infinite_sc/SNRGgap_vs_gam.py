@@ -36,15 +36,15 @@ print("Junction Width = ", Junc_width, "(nm)")
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0*np.pi #SC phase difference
+phi = np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
 Vsc = 0 #SC potential: [meV]
 Vj = -40 #Junction potential: [meV]
-mu = [7.36, 9.2, 11.12] #phi0
-#mu = [2.37, 6.28, 10.30] #phipi
+#mu = [7.36, 9.2, 11.12] #phi0
+mu = [2.37, 6.28, 10.30] #phipi
 
-gi = 0
-gf = 3
+gi = 1
+gf = 1.5
 res = 0.01
 steps_gam = int((gf - gi)/(0.5*res)) + 1
 gx = np.linspace(gi, gf, steps_gam)
@@ -61,24 +61,24 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    np.save("%s/gamx Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[0]), gx)
+    np.save("%s/gamx Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[1]), gx)
     for i in range(gx.shape[0]):
         print(gx.shape[0]-i)
-        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx[i], mu=mu[0], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2500, n_avg=4, muf=mu[0], PLOT=False, tol=1e-7)
+        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx[i], mu=mu[1], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2500, n_avg=4, muf=mu[1], PLOT=False, tol=1e-7)
         gap_gam[i] = GAP
         kx_of_gap[i] = KX
-        np.save("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[0]), gap_gam)
-        np.save("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[0]), kx_of_gap)
+        np.save("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[1]), gap_gam)
+        np.save("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[1]), kx_of_gap)
         gc.collect()
 
     sys.exit()
 else:
-    gap = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[0]))
-    gx = np.load("%s/gamx Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[0]))
-    kx_of_gap = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[0]))
+    gap = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[1]))
+    gx = np.load("%s/gamx Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[1]))
+    kx_of_gap = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, gi, gf, mu[1]))
 
     top_arr = np.zeros(gx.shape[0])
-    num = 1
+    num = -1
     local_min_idx = np.array(argrelextrema(gap, np.less)[0])
     lower_bound = 0
     top_arr[lower_bound:] = num
@@ -98,8 +98,8 @@ else:
     axs[0].grid()
     axs[1].grid()
 
-    axs[0].scatter(gx[local_min_idx], (1/delta)*gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma', vmax=0.05)
-    axs[1].scatter(gx[local_min_idx], Lx*kx_of_gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma', vmax=0.05)
+    axs[0].scatter(gx[local_min_idx], (1/delta)*gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma')#), vmax=0.05)
+    axs[1].scatter(gx[local_min_idx], Lx*kx_of_gap[local_min_idx], marker='X', c=(1/delta)*gap[local_min_idx], cmap='plasma')#, vmax=0.05)
 
     #axs[0].scatter(mu, gap/delta, c='r', zorder=2, s=2)
     axs[0].plot(gx, gap/delta, c='k', lw=2, zorder=1)

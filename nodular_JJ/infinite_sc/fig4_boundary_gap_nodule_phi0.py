@@ -107,13 +107,13 @@ color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
 color = list(color)
 color[0] = 0.85
 for i in range(int(num_bound/2)):
-    art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=2.8, zorder=0, where=dist_arr[:,i]<0.1)
+    art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=4, zorder=0, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.8, zorder=1, where=dist_arr[:,i]<0.1)
+    art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.2, zorder=1, where=dist_arr[:,i]<0.1)
 
-axs[1].plot(gap/delta, muG, c='k', linewidth=0.8)
+axs[1].plot(gap/delta, muG, c='b', linewidth=1.0)
 art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, color=color, where=top_arr[:]<0, lw=0.8)
-art.set_edgecolor('k')
+art.set_edgecolor('b')
 axs[0].plot([1,1], [-2,12], c='b', lw=1.5, zorder=3)
 
 axs[0].set_yticks([0, 5, 10, 15, 20])

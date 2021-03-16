@@ -98,10 +98,13 @@ color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
 color = list(color)
 color[0] = 0.85
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=3.0, zorder=1, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=4.0, zorder=1, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.3, zorder=1.1, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.21, zorder=1.1, where=dist_arr[:,i]<0.1)
     #art.set_edgecolor(color)
+for i in range(num_bound):
+    axs.scatter(boundary[:, i], mu, c='k', zorder=0, s=1)
+    pass
 
 plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 axs.set_xlabel(r'$E_Z$ (meV)', size=9)
@@ -111,7 +114,7 @@ axs.set_xlim([0, 4.2])
 axs.set_ylim([-4, 14])
 
 axs.plot([0.6, 0.6], [-2, 13.2], c='r', lw=1.5, mec='k', zorder=1.2)
-axs.plot([0, 3], [10.30, 10.30], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([0, 3], [10.988, 10.988], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.plot([0, 3], [6.28, 6.28], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.plot([0, 3], [2.37, 2.37], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.tick_params(axis='x', labelsize=9)

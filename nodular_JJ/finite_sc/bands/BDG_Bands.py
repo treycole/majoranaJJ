@@ -21,13 +21,18 @@ import majoranaJJ.modules.constants as const
 import majoranaJJ.operators.potentials as potentials
 ###################################################
 #Defining System
-Nx = 20 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Ny = 500 #Number of lattice sites along y-direction
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Wj = 20 #Junction region
-cutx = 5 #width of nodule
-cuty = 8 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
+
+cutxT = cutx
+cutxB = cutx
+cutyT = cuty
+cutyB = cuty
 #Nx, Ny, cutx, cuty, Wj = check.junction_geometry_check(Nx, Ny, cutx, cuty, Wj)
 #print("Nx = {}, Ny = {}, cutx = {}, cuty = {}, Wj = {}".format(Nx, Ny, cutx, cuty, Wj))
 
@@ -54,18 +59,19 @@ alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 gx = 1 #parallel to junction: [meV]
 phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
-mu = 4.3 #Chemical Potential: [meV]
-Vj = -30 #meV junction potential
+mu = 0 #Chemical Potential: [meV]
+Vj = -40 #meV junction potential
 #####################################
 
 k = 4 #This is the number of eigenvalues and eigenvectors you want
 steps = 100 #Number of kx values that are evaluated
 qx = np.linspace(0.0035, 0.0036, steps) #kx in the first Brillouin zone
-qx = np.linspace(0, np.pi/Lx, steps)
+qmax = np.sqrt(2*(5-Vj)*0.026/const.hbsqr_m0)*1.25
+qx = np.linspace(0, qmax, steps)
 bands = np.zeros((steps, k))
 for i in range(steps):
     print(steps - i)
-    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj,cutx=cutx, cuty=cuty, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
+    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj,cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
     eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]

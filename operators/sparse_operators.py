@@ -263,16 +263,28 @@ def HBDG(
     delta = 0, phi = 0,
     meff_normal = 0.026, meff_sc = 0.026, g_normal = 26, g_sc = 26,
     qx = None, qy = None,
-    Tesla = False, diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False
+    Tesla = False, diff_g_factors = True, Rfactor = 0, diff_alphas = False, diff_meff = False, plot_junction = False
     ):
     N = coor.shape[0] #number of lattice sites
     Nx = int((max(coor[: , 0]) - min(coor[:, 0])) + 1) #number of lattice sites in x-direction, parallel to junction
     Ny = int((max(coor[: , 1]) - min(coor[:, 1])) + 1) #number of lattice sites in y-direction, perpendicular to junction
+    Wsc = int((Ny - Wj)/2) #width of single superconductor
     D = Delta(coor=coor, Wj=Wj, delta=delta, phi=phi, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
 
-    #V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
-    #plots.potential_profile(coor, V)
-    #plots.junction(coor, D)
+    if plot_junction:
+        V = potentials.Vjj(coor=coor, Wj=Wj, Vsc=Vsc, Vj=Vj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
+        row = []; col = []; data = []
+        for i in range(N):
+            row.append(i); col.append(i)
+            inSC, which = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
+            if inSC:
+                data.append(Rfactor)
+            if not inSC:
+                data.append(1)
+        R = sparse.csc_matrix((data, (row, col)), shape = (N,N))
+        plots.Zeeman_profile(coor, R)
+        plots.potential_profile(coor, V)
+        plots.delta_profile(coor, D)
 
     QX11 = None
     QY11 = None

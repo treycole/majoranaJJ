@@ -39,7 +39,7 @@ def lattice(
         plt.savefig(savenm)
     plt.show()
 
-def junction(coor, delta):
+def delta_profile(coor, delta):
     delta = delta.toarray()
     N = coor.shape[0]
     D = delta[0:N, N:]
@@ -66,18 +66,36 @@ def potential_profile(coor, V):
     N = coor.shape[0]
     fig = plt.figure()
     axx = fig.add_subplot(1,1,1)
-    axx.scatter(coor[:, 0], coor[:, 1] , c = 'k')
     for i in range(N):
-        if np.any(np.abs(V[i, :])) != 0:
-            if V[i, i] < 0:
-                axx.scatter(coor[i, 0], coor[i, 1], c = 'b', label = 'Blue')
-            if V[i, i] > 0:
-                axx.scatter(coor[i, 0], coor[i, 1], c = 'red', label = 'Red')
+        if V[i, i] < 0:
+            axx.scatter(coor[i, 0], coor[i, 1], c = 'b')
+        if V[i, i] > 0:
+            axx.scatter(coor[i, 0], coor[i, 1], c = 'red')
+        if V[i, i]==0:
+            axx.scatter(coor[i, 0], coor[i, 1], c = 'k')
     blue_patch = mpatches.Patch(color='b', label='Negative potential')
     red_patch = mpatches.Patch(color='r', label='Positive potential')
     plt.legend(handles=[blue_patch,red_patch])
     axx.set_xlim(-5, max(coor[:,0])+5)
     axx.set_title('Potential Profile', wrap = True)
+    axx.set_aspect(1.0)
+    plt.show()
+
+def Zeeman_profile(coor, V):
+    V = V.toarray()
+    N = coor.shape[0]
+    fig = plt.figure()
+    axx = fig.add_subplot(1,1,1)
+    for i in range(N):
+        if V[i, i] != 0:
+            axx.scatter(coor[i, 0], coor[i, 1], c = 'b')
+        if V[i, i]==0:
+            axx.scatter(coor[i, 0], coor[i, 1], c = 'k')
+    blue_patch = mpatches.Patch(color='b', label='Zeeman != 0')
+    black_patch = mpatches.Patch(color='k', label='Zeeman == 0 ')
+    plt.legend(handles=[blue_patch,black_patch])
+    axx.set_xlim(-5, max(coor[:,0])+5)
+    axx.set_title('Zeeman Profile', wrap = True)
     axx.set_aspect(1.0)
     plt.show()
 

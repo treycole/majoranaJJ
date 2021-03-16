@@ -323,7 +323,7 @@ def bot_SC_sNRG_calc(omega, Wj, Lx, cutxT, cutxB, ax, ay, kx, m_eff, alp_l, alp_
 
     return G_s, G_b, sNRG_mtx
 
-def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_eff, alp_l, alp_t, mu, Vj, Gam, delta, phi, Vsc=0, Gam_SC_factor=0, iter=50, eta=0):
+def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_eff, alp_l, alp_t, mu, Vj, Gam, delta, phi, Vsc=0, Gam_SC_factor=0, iter=50, eta=0, plot_junction=False):
     # Generates the effective Hamiltonian for the Junction, which includes the self-energy from both of the SC regions
     # * omega is the (real) energy that goes into the Green's function
     # * W is the width of the junction
@@ -340,7 +340,7 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_ef
     # * phi is the phase difference between the two SC regions
     # * iter is the number of iteration of the algorithm to perform
     # * eta is the imaginary component of the energy that is used for broadening
-    if cutxT*cutxB == 0:
+    if cutxT == 0 and cutxB == 0:
         Nx = 3
         Lx = Nx*ax
     else:
@@ -355,7 +355,7 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_ef
 
     Gam_SC = Gam_SC_factor * Gam
 
-    H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, Vj=Vj, Vsc=Vsc, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff)
+    H_J = spop.HBDG(coor=coor, ax=ax, ay=ay, NN=NN, NNb=NNb, Wj=Wj_int, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, Vj=Vj, Vsc=Vsc, mu=mu, gamx=Gam, alpha=alp_l, delta=delta, phi=phi, qx=kx, meff_sc=m_eff, meff_normal=m_eff, plot_junction=plot_junction)
 
     Gs,Gb,sNRG_bot = bot_SC_sNRG_calc(omega=omega, Wj=Wj, Lx=Lx, cutxT=cutxT, cutxB=cutxB, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alp_l, alp_t=alp_t, mu=mu, Gam_SC=Gam_SC, delta=delta, phi=phi, iter=iter, eta=eta)
 
