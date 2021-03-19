@@ -376,7 +376,7 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
     omega1 = 0
     omega2 = y1/50
     n = .01
-    N = 30
+    N = 40
     while True:
 
         H = Junc_eff_Ham_gen(omega=omega2, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=iter, eta=0)
@@ -391,7 +391,7 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
         else:
             y2 = eigs[arg] - omega2
 
-        print("omega2, y2", omega2, y2)
+        #print("omega2, y2", omega2, y2)
 
         if omega1==omega2:
             print("omega1==omega2")
@@ -406,11 +406,11 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
         omega1 = omega2
         omega2 = omega_c
 
-        if abs(omega2) > delta or y2 < -0.2*delta:
+        if abs(omega2) > eigs_omega0 or y2 < -0.2*delta or abs(omega2) >= delta:
             #print('here')
-            omega2 = abs(delta*(1-np.exp(-n/N)))
+            omega2 = abs(eigs_omega0*(1-np.exp(-n/N)))
             n += 0.5
-            if abs(omega2-delta) < 1e-2:
+            if abs(omega2-eigs_omega0) < 1e-2 or abs(omega2-delta) < 1e-2:
                 return eigs_omega0
     return None
 
@@ -421,6 +421,8 @@ def gap(
     PLOT=False
     ):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
+    n1 = 400
+    n2 = 50
     print("steps", n1, n2)
     if Vj < 0:
         VVJ = Vj
@@ -432,7 +434,7 @@ def gap(
     qmax = np.sqrt(2*(muf-VVJ)*m_eff/const.hbsqr_m0)*1.25
     if qmax >= np.pi/Lx:
         qmax = np.pi/(Lx)
-    if cutxT*cutxB != 0:
+    if cutxT == 0 and cutxB == 0:
         qmax = np.pi/(Lx)
     qx = np.linspace(0, qmax, n1) #kx in the first Brillouin zone
     #print(qmax,  np.pi/(Lx))
@@ -483,32 +485,43 @@ def gap(
     print("Energy at k_max:  ", true_gap_of_kedge)
 
     for i in range(local_min_idx.shape[0]):
-        if (omega0_bands[local_min_idx[i]] > 10*omega0_bands[0]) or omega0_bands[local_min_idx[i]] > 10*omega0_bands[-1] or omega0_bands[local_min_idx[i]] > 10*min(omega0_bands[local_min_idx]):
+        if (omega0_bands[local_min_idx[i]] > 5*omega0_bands[0]) or omega0_bands[local_min_idx[i]] > 5*omega0_bands[-1] or omega0_bands[local_min_idx[i]] > 5*min(omega0_bands[local_min_idx]):
             pass
         else:
             kx_c = qx[local_min_idx[i]]
-            kx_lower = qx[local_min_idx[i]-1]
-            kx_higher = qx[local_min_idx[i]+1]
+            if local_min_idx[i]-10 < 0:
+                kx_lower = qx[0]
+            else:
+                kx_lower = qx[local_min_idx[i]-10]
+            if local_min_idx[i]+10 >= qx.shape[0]:
+                kx_higher = qx[-1]
+            else:
+                kx_higher = qx[local_min_idx[i]+10]
 
             deltaq = kx_higher - kx_lower
             kx_finer = np.linspace(kx_lower, kx_higher, n2)
             omega0_arr_finer = np.zeros((kx_finer.size))
             for j in range(kx_finer.shape[0]):
-                if (kx_finer.shape[0] - j)%10 == 0:
-                    print(kx_finer.shape[0] - j)
+                #if (kx_finer.shape[0] - j)%10 == 0:
+                #print(kx_finer.shape[0] - j)
                 H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
 
                 eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
                 idx_sort = np.argsort(eigs)
                 eigs = eigs[idx_sort]
-                omega0_arr_finer[j] = eigs[int(k/2)]
+                if True:
+                    EIG = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB,  cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[j], eigs_omega0=eigs[int(k/2)], m_eff=m_eff, tol=1e-3, k=k, iter=iter)
+                else:
+                    EIG = eigs[int(k/2)]
+                omega0_arr_finer[j] = EIG
 
             if PLOT:
                 plt.plot(kx_finer, omega0_arr_finer, c='k')
                 plt.show()
 
             GAP, IDX = fndrs.minima(omega0_arr_finer)
-            true_eig = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB,  cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
+            true_eig = GAP
+            #true_eig = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB,  cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[IDX], eigs_omega0=GAP, m_eff=m_eff, tol=tol, k=k, iter=iter)
             print("Minimum {} energy: {}".format(i+1, true_eig))
             print("Kx of minium energy {}: {}: ".format(i+1, kx_finer[IDX]))
             mins.append(true_eig)
@@ -556,21 +569,21 @@ if False:#False True
 
     ax = 50 #lattice spacing in x-direction: [A]
     ay = 50 #lattice spacing in y-direction: [A]
-    Nx = 20 #Number of lattice sites along x-direction
+    Nx = 12 #Number of lattice sites along x-direction
     Wj = 1000 #Junction region [A]
-    nodx = 5 #width of nodule
-    nody = 8 #height of nodule
+    cutx = 4 #width of nodule
+    cuty = 8 #height of nodule
     Lx = Nx*ax
 
     alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
     phi = 0*np.pi #SC phase difference
     delta = 0.3 #Superconducting Gap: [meV]
     Vsc = 0 #SC potential: [meV]
-    Vj = -30 #Junction potential: [meV]
-    mu = 4.3
-    gam = 1.0 #mev
+    Vj = -40 #Junction potential: [meV]
+    mu = 11.12
+    gam = 2.404 #mev
 
-    steps = 100
+    steps = 300
     if Vj < 0:
         VVJ = Vj
     else:
@@ -591,7 +604,7 @@ if False:#False True
     for i in range(kx.shape[0]):
         print(2*omega0_bands.shape[1]-i, kx[i])
 
-        H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, nodx=nodx, nody=nody, ax=ax, ay=ay, kx=kx[i], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=50, eta=0)
+        H = Junc_eff_Ham_gen(omega=0, Wj=Wj, Lx=Lx, cutxT=cutx, cutyT=cuty, cutxB=cutx, cutyB=cuty, ax=ax, ay=ay, kx=kx[i], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Vsc=0, Gam_SC_factor=0, iter=50, eta=0, plot_junction=False)
         eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
         idx_sort = np.argsort(eigs)
         eigs = eigs[idx_sort]
@@ -606,7 +619,7 @@ if False:#False True
     plt.show()
     for i in range(kx.shape[0]):
         print(omega0_bands.shape[1]-i)
-        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx,nodx=nodx, nody=nody, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx[i], eigs_omega0=omega0_bands[int(k/2), i], m_eff=m_eff, tol=tol, k=k)
+        true_eig = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutx, cutyT=cuty, cutxB=cutx, cutyB=cuty, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx[i], eigs_omega0=omega0_bands[int(k/2), i], m_eff=m_eff, tol=tol, k=k)
         true_bands[i] = true_eig
 
     plt.plot(kx, true_bands)
