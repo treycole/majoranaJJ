@@ -48,7 +48,7 @@ gx = 1 #mev
 mu_i = -2
 mu_f = 13.2
 delta_mu = mu_f - mu_i
-res = 0.01
+res = 0.025
 steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
 
@@ -69,21 +69,24 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    np.save("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), mu)
+    #gap = np.load("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    #kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    #mu = np.load("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    np.save("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), mu)
     for i in range(0, mu.shape[0]):
         print(steps-i, "| mu =", mu[i])
-        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=2500, n_avg=4, muf=mu[i], PLOT=False, tol=1e-7)
+        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=5000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-7)
         gap[i] = GAP
         kx_of_gap[i] = KX
-        np.save("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), gap)
-        np.save("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx), kx_of_gap)
+        np.save("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), gap)
+        np.save("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), kx_of_gap)
         gc.collect()
 
     sys.exit()
 else:
-    gap = np.load("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
-    kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
-    mu = np.load("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    mu = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
     local_min_idx = np.array(argrelextrema(gap, np.less)[0])
     fig, axs = plt.subplots(2, 1, gridspec_kw={'hspace':0.1}, sharex=True)
 
