@@ -22,8 +22,8 @@ cutx = 4 #width of nodule
 cuty = 8 #height of nodule
 cutxT = cutx
 cutxB = cutx
-cutyT = cuty
-cutyB = cuty
+cutyT = 2*cuty
+cutyB = 0
 Lx = Nx*ax #Angstrom
 Junc_width = Wj*.1 #nm
 cutxT_width = cutxT*ax*.1 #nm
@@ -37,29 +37,21 @@ print("Bottom Nodule Width in x-direction = ", cutxB_width, "(nm)")
 print("Top Nodule Width in y-direction = ", cutyT_width, "(nm)")
 print("Bottom Nodule Width in y-direction = ", cutyB_width, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
+print()
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 0.30 #Superconducting Gap: [meV]
 Vj = -40 #Junction potential: [meV]
-gx = 1 #mev
+gx = 1.0 #mev
 
-mu_i = -2
-mu_f = 13.2
+mu_i = -2.5
+mu_f = 14.0
 delta_mu = mu_f - mu_i
-res = 0.025
+res = 0.015
 steps = int(abs(delta_mu/res))+1
 mu = np.linspace(mu_i, mu_f, steps) #meV
-
-gap = np.zeros(mu.shape[0])
-kx_of_gap = np.zeros(mu.shape[0])
-print("alpha = ", alpha)
-print("Mu_i = ", mu_i)
-print("Mu_f = ", mu_f)
-print("Gamma_x = ", gx)
-print("Vj = ", Vj)
-print()
 ###################################################
 dirS = 'gap_data'
 if not os.path.exists(dirS):
@@ -69,21 +61,47 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    #gap = np.load("%s/gapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
-    #kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
-    #mu = np.load("%s/mu Wj = %.1f nm Lx = %.1f nm cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, nm Vj = %.1f meV alpha = %.1f meVA delta = %.2f meV phi = %.2f mu_i = %.1f meV mu_f = %.1f meV gx = %.2f meV.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  alpha, delta, phi, mu_i, mu_f, gx))
+    gap = np.zeros(mu.shape[0])
+    kx_of_gap = np.zeros(mu.shape[0])
+    #gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    #kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    #mu = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    #b = 224
+    #e = 298
+    #print(mu[b], mu[e])
+    #print(gap[895], mu[895])
+    #mu1=mu[0:103]
+    #gap1 = gap[0:103]
+    #kx_of_gap1 = kx_of_gap[0:103]
+    #mu2 = np.linspace(mu[103], mu[103+1], 10)
+    #gap2 = np.zeros(10)
+    #kx_of_gap2 = np.zeros(10)
+    #mu3 = mu[105:]
+    #gap3 = gap[105:]
+    #kx_of_gap3 = kx_of_gap[105:]
+
+    #mu = np.concatenate((mu1, mu2, mu3), axis=None)
+    #print(mu[0:160])
+    #sys.exit()
     np.save("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), mu)
     for i in range(0, mu.shape[0]):
-        print(steps-i, "| mu =", mu[i])
-        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=5000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-7)
+        print(mu.shape[0]-i, "| mu =", mu[i])
+        GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=50000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-7)
         gap[i] = GAP
         kx_of_gap[i] = KX
-        np.save("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), gap)
-        np.save("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), kx_of_gap)
+        #np.save("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), gap)
+        #np.save("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), kx_of_gap)
         gc.collect()
+
+    #gap = np.concatenate((gap1, gap2, gap3), axis=None)
+    #kx_of_gap = np.concatenate((kx_of_gap1, kx_of_gap2, kx_of_gap3), axis=None)
+    #np.save("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), gap)
+    #np.save("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), kx_of_gap)
+    #gc.collect()
 
     sys.exit()
 else:
+    np.save("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), mu)
     gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
     kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
     mu = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
@@ -96,8 +114,9 @@ else:
     top_arr[lower_bound:] = num
     for i in range(local_min_idx.shape[0]):
         lower_bound = local_min_idx[i]
-        if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .138):
+        if gap[local_min_idx[i]]/delta < 0.025 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .6):
             num=num*-1
+            gap[local_min_idx[i]] = 0
         top_arr[lower_bound:] = num
 
     art = axs[0].fill_between(mu, gap/delta, visible=True, alpha=1, color='lightcyan', where=top_arr[:]<0)

@@ -1,38 +1,39 @@
 import sys
+import time
 import os
 import gc
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import ticker
-import scipy.interpolate as interp
+import matplotlib.cm as cm
+from scipy.signal import argrelextrema
+import scipy.sparse.linalg as spLA
 
-import majoranaJJ.modules.plots as plots #plotting functions
-import majoranaJJ.modules.finders as fndrs
 import majoranaJJ.modules.SNRG as SNRG
-import majoranaJJ.modules.distance as distance
-import matplotlib.colors as colors
+import majoranaJJ.operators.sparse_operators as spop
+import majoranaJJ.lattice.nbrs as nb #neighbor arrays
+import majoranaJJ.lattice.shapes as shps #lattice shapes
+import majoranaJJ.modules.plots as plots #plotting functions
+import majoranaJJ.modules.finders as finders
+import majoranaJJ.modules.checkers as check
+import majoranaJJ.modules.constants as const
+import scipy.interpolate as interp
 ###################################################
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Nx = 3 #Number of lattice sites along x-direction
 Ny = 500
-Wj = 20 #Junction region [A]
+Wj = int(1000/ay) #Junction region [A]
+Wsc = int((Ny-Wj)/2)
 cutx = 0 #width of nodule
 cuty = 0 #height of nodule
-
 cutxT = cutx
 cutxB = cutx
-cutyT = cuty
-cutyB = cuty
+cutyT = 2*cuty
+cutyB = 0
 Lx = Nx*ax #Angstrom
-
-coor = shps.square(Nx, Ny) #square lattice
-NN = nb.NN_Arr(coor) #neighbor array
-NNb = nb.Bound_Arr(coor) #boundary array
-
-Junc_width = Wj*.1 #nm
+Junc_width = Wj*.1*ay #nm
 cutxT_width = cutxT*ax*.1 #nm
 cutyT_width = cutyT*ax*.1 #nm
 cutxB_width = cutxB*ax*.1 #nm
@@ -44,30 +45,119 @@ print("Bottom Nodule Width in x-direction = ", cutxB_width, "(nm)")
 print("Top Nodule Width in y-direction = ", cutyT_width, "(nm)")
 print("Bottom Nodule Width in y-direction = ", cutyB_width, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
-###################################################
+coor = shps.square(Nx, Ny) #square lattice
+NN = nb.NN_Arr(coor) #neighbor array
+NNb = nb.Bound_Arr(coor) #boundary array
+lat_size = coor.shape[0]
+
+Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
+Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
+#########################################
 #Defining Hamiltonian parameters
+m_eff = 0.026
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
-Vj = -40 #junction potential: [meV]
-mu = 0
+phi = np.pi #SC phase difference
+Vj = -40*0 #junction potential: [meV]
+mu = 10
 gx = 1
-###################################################
-k = 4 #This is the number of eigenvalues and eigenvectors you want
+k = 4 #This is the number of eigenvalues and eigenvectors
 steps = 100 #Number of kx values that are evaluated
-qx = np.linspace(0.0035, 0.0036, steps) #kx in the first Brillouin zone
-qmax = np.sqrt(2*(5-Vj)*0.026/const.hbsqr_m0)*1.25
+VVJ = 0
+if Vj < 0:
+    VVJ = Vj
+if mu < 1:
+    muf = 5
+qmax = np.sqrt(2*(mu-VVJ)*m_eff/const.hbsqr_m0)*1.25
+if qmax >= np.pi/Lx or cutxT != 0 or cutxB != 0:
+    qmax = np.pi/(Lx)
 qx = np.linspace(0, qmax, steps)
-bands = np.zeros((steps, k))
-for i in range(steps):
-    print(steps - i)
-    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj,cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
+###################################################
+dirS = 'bands_data'
+if not os.path.exists(dirS):
+    os.makedirs(dirS)
+try:
+    PLOT = str(sys.argv[1])
+except:
+    PLOT = 'F'
+if PLOT != 'P':
+    bands = np.zeros((steps, k))
+    for i in range(steps):
+        print(steps - i)
+        H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=qx[i])
+        eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+        idx_sort = np.argsort(eigs)
+        eigs = eigs[idx_sort]
+        bands[i, :] = eigs
+
+        np.save("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), bands)
+    gc.collect()
+    sys.exit()
+else:
+    bands = np.load("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx))
+    local_min_idx = np.array(argrelextrema(bands, np.less)[0])
+    plt.scatter(qx[local_min_idx], bands[local_min_idx, int(k/2)], c='r', s=5, marker='X')
+    for i in range(k):
+        plt.plot(qx, bands[:, i], c='b')
+    #plt.ylim(0,30)
+    plt.show()
+    mins = []
+    kx_of_mins = []
+    for i in range(local_min_idx.shape[0]):
+        print("i: ", local_min_idx.shape[0]-i)
+        if bands[local_min_idx[i], int(k/2)] >= 1.1*min(bands[:, int(k/2)]):
+            pass
+        else:
+            qx_lower = qx[local_min_idx[i]-1]
+            qx_c = qx[local_min_idx[i]]
+            qx_higher = qx[local_min_idx[i]+1]
+            deltaq = qx_higher - qx_lower
+            kx_finer = np.linspace(qx_lower, qx_higher, 20)
+            bands_finer = np.zeros((kx_finer.size))
+            for j in range(kx_finer.shape[0]):
+                print(kx_finer.shape[0] - j)
+                H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=kx_finer[j])
+                eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
+                idx_sort = np.argsort(eigs)
+                eigs = eigs[idx_sort]
+                bands_finer[j] = eigs[int(k/2)]
+            GAP, IDX = finders.minima(bands_finer)
+            mins.append(GAP)
+            kx_of_mins.append(kx_finer[IDX])
+
+    mins = np.array(mins)
+    gap, idx = finders.minima(mins)
+    kx_of_gap = kx_of_mins[idx]
+    np.save("%s/gap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), gap)
+    np.save("%s/kxofgap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), kx_of_gap)
+    plt.scatter(kx_of_gap, gap, c='r', s=5, marker='X')
+    for i in range(k):
+        plt.plot(qx, bands[:, i], c='b')
+    plt.show()
+
+    H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=kx_of_gap)
     eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
     idx_sort = np.argsort(eigs)
     eigs = eigs[idx_sort]
-    bands[i, :] = eigs
+    vecs = vecs[:, idx_sort]
+    nth = 0
+    n = int(k/2) + nth
+    N = coor.shape[0]
+    num_div = int(vecs.shape[0]/N)
+    probdens = np.square(abs(vecs[:, n]))
+    map = np.zeros(N)
+    for i in range(num_div):
+        map[:] = map[:] + probdens[i*N:(i+1)*N]
 
-H = spop.HBDGHBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj = Vj, mu = mu, gamx = gx,alpha = alpha, delta = delta, phi = phi, qx = None)
-eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
-idx_sort = np.argsort(eigs)
-eigs = eigs[idx_sort]
+    wt_sc = 0
+    wt_junc = 0
+    for i in range(coor.shape[0]):
+        bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
+        if bool_inSC:
+            wt_sc += map[i]
+        else:
+            wt_junc += map[i]
+    print("Weight in SC: ", wt_sc)
+    print("Weight in junction: ", wt_junc)
+    print("Total weight: ", wt_sc+wt_junc)
+    plots.state_cmap(coor, eigs, vecs, n=n)

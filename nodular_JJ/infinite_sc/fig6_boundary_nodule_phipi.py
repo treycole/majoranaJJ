@@ -113,7 +113,7 @@ axs.set_ylabel(r'$\mu$ (meV)', size=9)
 axs.set_xlim([0, 4.2])
 axs.set_ylim([-4, 14])
 
-axs.plot([0.6, 0.6], [-2, 13.2], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([1, 1], [-2, 13.2], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.plot([0, 3], [10.988, 10.988], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.plot([0, 3], [6.28, 6.28], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.plot([0, 3], [2.37, 2.37], c='r', lw=1.5, mec='k', zorder=1.2)

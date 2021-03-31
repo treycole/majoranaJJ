@@ -417,25 +417,22 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
 def gap(
     Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay,
     gam, mu, Vj, alpha, delta, phi,
-    m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-6, n_avg=5, iter=50,
+    m_eff=0.026, k=4, muf=10, targ_steps=2000, tol=1e-7, n_avg=5, iter=50,
     PLOT=False
     ):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
-    n1 = 400
-    n2 = 50
+    n1 = 200
+    n2 = 40
     print("steps", n1, n2)
+    VVJ = 0
     if Vj < 0:
         VVJ = Vj
-    else:
-        VVJ = 0
-
     if muf < 1:
         muf = 5
     qmax = np.sqrt(2*(muf-VVJ)*m_eff/const.hbsqr_m0)*1.25
-    if qmax >= np.pi/Lx:
+    if qmax >= np.pi/Lx or cutxT != 0 or cutxB != 0:
         qmax = np.pi/(Lx)
-    if cutxT == 0 and cutxB == 0:
-        qmax = np.pi/(Lx)
+    qmax = np.pi/(Lx)
     qx = np.linspace(0, qmax, n1) #kx in the first Brillouin zone
     #print(qmax,  np.pi/(Lx))
     omega0_bands = np.zeros(n1)
@@ -484,33 +481,38 @@ def gap(
     print("Energy at kx=0: ", true_gap_of_k0)
     print("Energy at k_max:  ", true_gap_of_kedge)
 
+    slfCON = True
     for i in range(local_min_idx.shape[0]):
         if (omega0_bands[local_min_idx[i]] > 5*omega0_bands[0]) or omega0_bands[local_min_idx[i]] > 5*omega0_bands[-1] or omega0_bands[local_min_idx[i]] > 5*min(omega0_bands[local_min_idx]):
             pass
         else:
             kx_c = qx[local_min_idx[i]]
-            if local_min_idx[i]-10 < 0:
-                kx_lower = qx[0]
+            if slfCON:
+                if local_min_idx[i]-2 < 0:
+                    kx_lower = qx[0]
+                else:
+                    kx_lower = qx[local_min_idx[i]-2]
+                if local_min_idx[i]+2 >= qx.shape[0]:
+                    kx_higher = qx[-1]
+                else:
+                    kx_higher = qx[local_min_idx[i]+2]
             else:
-                kx_lower = qx[local_min_idx[i]-10]
-            if local_min_idx[i]+10 >= qx.shape[0]:
-                kx_higher = qx[-1]
-            else:
-                kx_higher = qx[local_min_idx[i]+10]
+                kx_lower = qx[local_min_idx[i]-1]
+                kx_higher = qx[local_min_idx[i]+1]
 
             deltaq = kx_higher - kx_lower
             kx_finer = np.linspace(kx_lower, kx_higher, n2)
             omega0_arr_finer = np.zeros((kx_finer.size))
             for j in range(kx_finer.shape[0]):
-                #if (kx_finer.shape[0] - j)%10 == 0:
-                #print(kx_finer.shape[0] - j)
+                if (kx_finer.shape[0] - j)%10 == 0:
+                    print(kx_finer.shape[0] - j)
                 H = Junc_eff_Ham_gen(omega=0, Wj=Wj,Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, kx=kx_finer[j], m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, delta=delta, phi=phi, Gam_SC_factor=0, iter=iter, eta=0)
 
                 eigs, vecs = spLA.eigsh(H, k=k, sigma=0, which='LM')
                 idx_sort = np.argsort(eigs)
                 eigs = eigs[idx_sort]
-                if True:
-                    EIG = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB,  cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[j], eigs_omega0=eigs[int(k/2)], m_eff=m_eff, tol=1e-3, k=k, iter=iter)
+                if slfCON:
+                    EIG = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[j], eigs_omega0=eigs[int(k/2)], m_eff=m_eff, tol=1e-7, k=k, iter=iter)
                 else:
                     EIG = eigs[int(k/2)]
                 omega0_arr_finer[j] = EIG

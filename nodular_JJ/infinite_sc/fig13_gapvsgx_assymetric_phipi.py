@@ -48,7 +48,7 @@ alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 phi = np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
 Vj = -40 #junction potential: [meV]
-mu = [10.5, 14]
+mu = [1.25, 10.5, 14]
 gi = 0
 gf = 3
 ###################################################

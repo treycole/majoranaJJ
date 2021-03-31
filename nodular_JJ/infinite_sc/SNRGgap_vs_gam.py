@@ -89,6 +89,7 @@ else:
         lower_bound = local_min_idx[i]
         if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.1 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) < .15):
             num=num*-1
+            gap[local_min_idx[i]] = 0
         top_arr[lower_bound:] = num
 
     fig, axs = plt.subplots(2, 1, gridspec_kw={'hspace':0.1}, sharex=True)
