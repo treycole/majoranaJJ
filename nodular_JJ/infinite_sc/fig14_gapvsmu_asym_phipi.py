@@ -9,6 +9,7 @@ from scipy.signal import argrelextrema
 from matplotlib import ticker
 import matplotlib.colors as colors
 
+import majoranaJJ.modules.fig_params as params
 import majoranaJJ.modules.SNRG as SNRG
 import majoranaJJ.modules.finders as finders
 import majoranaJJ.modules.checkers as check
@@ -76,8 +77,11 @@ top_arr[lower_bound:] = num
 for i in range(local_min_idx.shape[0]):
     lower_bound = local_min_idx[i]
     if gap[local_min_idx[i]]/delta < 0.04 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .2):
-        num=num*-1
-        gap[local_min_idx[i]] = 0
+        if abs(muG[local_min_idx[i]]-7.7) < 0.02:
+            pass
+        else:
+            num=num*-1
+        #gap[local_min_idx[i]] = 0
     if num==1:
         top_arr[lower_bound+1:] = num
     if num==-1:
@@ -106,44 +110,45 @@ for i in range(2, muB.shape[0]-2):
             boundary[i,j]=None
 
 fig, axs = plt.subplots(1, 2, gridspec_kw={'hspace':0.1, 'wspace':0.055}, sharey=True)
+for ax in fig.get_axes():
+    ax.label_outer()
+
 color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
 color = list(color)
 color[0] = 0.85
 for i in range(int(num_bound/2)):
     art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=4, zorder=0, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.2, zorder=1, where=dist_arr[:,i]<0.1)
+    art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=1, zorder=1, where=dist_arr[:,i]<0.1)
 
-axs[1].plot(gap/delta, muG, c='r', linewidth=1.0)
-art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, ec='r', color=color, where=top_arr[:]<0, lw=1)
+axs[1].plot(gap/delta, muG, c='k', linewidth=1, zorder=0)
+art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, ec='r', color=color, where=top_arr[:]<0, lw=1.5, zorder=1)
 art.set_edgecolor('r')
-
 axs[0].plot([1,1], [mu_iG, mu_fG], c='r', lw=1.0, zorder=3)
+
 axs[0].set_yticks([0, 5, 10, 15, 20])
 axs[0].set_xticks([0, 0.5, 1])
-axs[1].set_xticks([0, 0.1, 0.2])
+axs[1].set_xticks([0, 0.1, 0.2, 0.3])
+axs[0].set_xlim([0, 1.10])
+axs[0].set_ylim([mu_iB-.2, mu_fB + .2])
+axs[1].set_ylim([mu_iG-.2, mu_fG + .2])
+axs[1].set_xlim([0, 0.25])
 axs[0].set_xlabel(r'$E_Z$ (meV)', size=9, labelpad=1)
 axs[0].set_ylabel(r'$\mu$ (meV)', size=9, labelpad=-2)
 axs[1].set_xlabel(r'$\Delta_{qp}/\Delta_{0}$', size=9, labelpad=1)
-for ax in fig.get_axes():
-    ax.label_outer()
-
-plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 #axs[1].text(0.15, 12, '(b)', fontdict=None, size=9)
 #axs[0].text(0.15, 12, '(a)', fontdict=None, size=9)
-
 axs[0].grid(True, zorder=2.5)
 axs[1].grid(True, zorder=2.5)
-axs[0].set_xlim([0, 1.10])
-axs[0].set_ylim([mu_iG-.2, mu_fG + .2])
-axs[1].set_xlim([0, 0.210])
 axs[0].tick_params(axis='x', labelsize=9)
 axs[1].tick_params(axis='x', labelsize=9)
 axs[0].tick_params(axis='y', labelsize=9)
 axs[1].tick_params(axis='y', labelsize=9, length=0)
+
 f = lambda x,pos:str(x).rstrip('0').rstrip('.')
+plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 axs[1].xaxis.set_major_formatter(ticker.FuncFormatter(f))
 #axs[1].xaxis.set_major_locator(ticker.MultipleLocator(0.1))
 
-plt.savefig('FIG7', dpi=700)
+plt.savefig('FIG14', dpi=700)
 plt.show()

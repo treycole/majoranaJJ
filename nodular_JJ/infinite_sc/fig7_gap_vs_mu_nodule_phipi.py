@@ -103,6 +103,9 @@ for i in range(2, muB.shape[0]-2):
             boundary[i,j]=None
 
 fig, axs = plt.subplots(1, 2, gridspec_kw={'hspace':0.1, 'wspace':0.055}, sharey=True)
+for ax in fig.get_axes():
+    ax.label_outer()
+
 color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
 color = list(color)
 color[0] = 0.85
@@ -116,30 +119,28 @@ art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, ec='r', color=
 art.set_edgecolor('r')
 axs[0].plot([1,1], [-2,12], c='r', lw=1.0, zorder=3)
 
+axs[1].set_xlim([0, 0.210])
+axs[0].set_xlim([0, 1.10])
+axs[0].set_ylim([mu_iB-.2, mu_fB + .2])
+axs[1].set_ylim([mu_iG-.2, mu_fG + .2])
 axs[0].set_yticks([0, 5, 10, 15, 20])
 axs[0].set_xticks([0, 0.5, 1])
 axs[1].set_xticks([0, 0.1, 0.2])
 axs[0].set_xlabel(r'$E_Z$ (meV)', size=9, labelpad=1)
 axs[0].set_ylabel(r'$\mu$ (meV)', size=9, labelpad=-2)
 axs[1].set_xlabel(r'$\Delta_{qp}/\Delta_{0}$', size=9, labelpad=1)
-for ax in fig.get_axes():
-    ax.label_outer()
-
-plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 #axs[1].text(0.15, 12, '(b)', fontdict=None, size=9)
 #axs[0].text(0.15, 12, '(a)', fontdict=None, size=9)
-
 axs[0].grid(True, zorder=2.5)
 axs[1].grid(True, zorder=2.5)
-axs[0].set_xlim([0, 1.10])
-axs[0].set_ylim([-2.2, 12.2])
-axs[1].set_xlim([0, 0.210])
 axs[0].tick_params(axis='x', labelsize=9)
 axs[1].tick_params(axis='x', labelsize=9)
 axs[0].tick_params(axis='y', labelsize=9)
 axs[1].tick_params(axis='y', labelsize=9, length=0)
+
 f = lambda x,pos:str(x).rstrip('0').rstrip('.')
 axs[1].xaxis.set_major_formatter(ticker.FuncFormatter(f))
+plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 #axs[1].xaxis.set_major_locator(ticker.MultipleLocator(0.1))
 
 plt.savefig('FIG7', dpi=700)

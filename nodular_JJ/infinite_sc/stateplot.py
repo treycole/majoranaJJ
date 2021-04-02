@@ -22,47 +22,48 @@ import scipy.interpolate as interp
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 3 #Number of lattice sites along x-direction
-Ny = 500
+Nx = 12 #Number of lattice sites along x-direction
+Ny = 300
+
 Wj = int(1000/ay) #Junction region [A]
 Wsc = int((Ny-Wj)/2)
-cutx = 0 #width of nodule
-cuty = 0 #height of nodule
+cutx = 4 #width of nodule
+cuty = 8 #height of nodule
 cutxT = cutx
 cutxB = cutx
 cutyT = 2*cuty
 cutyB = 0
-Lx = Nx*ax #Angstrom
+
+coor = shps.square(Nx, Ny) #square lattice
+NN = nb.NN_Arr(coor) #neighbor array
+NNb = nb.Bound_Arr(coor) #boundary array]
+
 Junc_width = Wj*.1*ay #nm
 cutxT_width = cutxT*ax*.1 #nm
 cutyT_width = cutyT*ax*.1 #nm
 cutxB_width = cutxB*ax*.1 #nm
 cutyB_width = cutyB*ax*.1 #nm
-
+Lx = Nx*ax #Angstrom
+Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
+Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 print("Lx = ", Lx*.1, "(nm)" )
 print("Top Nodule Width in x-direction = ", cutxT_width, "(nm)")
 print("Bottom Nodule Width in x-direction = ", cutxB_width, "(nm)")
 print("Top Nodule Width in y-direction = ", cutyT_width, "(nm)")
 print("Bottom Nodule Width in y-direction = ", cutyB_width, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
-coor = shps.square(Nx, Ny) #square lattice
-NN = nb.NN_Arr(coor) #neighbor array
-NNb = nb.Bound_Arr(coor) #boundary array
-lat_size = coor.shape[0]
-
-Lx = (max(coor[:, 0]) - min(coor[:, 0]) + 1)*ax #Unit cell size in x-direction
-Ly = (max(coor[:, 1]) - min(coor[:, 1]) + 1)*ay #Unit cell size in y-direction
 #########################################
 #Defining Hamiltonian parameters
 m_eff = 0.026
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 delta = 0.3 #Superconducting Gap: [meV]
 phi = np.pi #SC phase difference
-Vj = -40*0 #junction potential: [meV]
-mu = 10
+Vj = -40 #junction potential: [meV]
+mu = 5.9148
 gx = 1
+
 k = 4 #This is the number of eigenvalues and eigenvectors
-steps = 100 #Number of kx values that are evaluated
+steps = 200 #Number of kx values that are evaluated
 VVJ = 0
 if Vj < 0:
     VVJ = Vj
@@ -89,18 +90,9 @@ if PLOT != 'P':
         idx_sort = np.argsort(eigs)
         eigs = eigs[idx_sort]
         bands[i, :] = eigs
+        #np.save("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), bands)
 
-        np.save("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), bands)
-    gc.collect()
-    sys.exit()
-else:
-    bands = np.load("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx))
     local_min_idx = np.array(argrelextrema(bands, np.less)[0])
-    plt.scatter(qx[local_min_idx], bands[local_min_idx, int(k/2)], c='r', s=5, marker='X')
-    for i in range(k):
-        plt.plot(qx, bands[:, i], c='b')
-    #plt.ylim(0,30)
-    plt.show()
     mins = []
     kx_of_mins = []
     for i in range(local_min_idx.shape[0]):
@@ -128,11 +120,21 @@ else:
     mins = np.array(mins)
     gap, idx = finders.minima(mins)
     kx_of_gap = kx_of_mins[idx]
-    np.save("%s/gap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), gap)
-    np.save("%s/kxofgap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), kx_of_gap)
+    #np.save("%s/gap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), gap)
+    #np.save("%s/kxofgap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), kx_of_gap)
+    gc.collect()
+    sys.exit()
+else:
+    bands = np.load("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx))
+    gap = np.load("%s/gap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx))
+    kx_of_gap = np.load("%s/kxofgap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx))
+
+    local_min_idx = np.array(argrelextrema(bands, np.less)[0])
+    plt.scatter(qx[local_min_idx], bands[local_min_idx, int(k/2)], c='g', s=5, marker='X')
     plt.scatter(kx_of_gap, gap, c='r', s=5, marker='X')
-    for i in range(k):
-        plt.plot(qx, bands[:, i], c='b')
+    for i in range(int(k/2)):
+        plt.plot(qx, bands[:, int(k/2)+i], c='b')
+    plt.ylim(0, 0.5)
     plt.show()
 
     H = spop.HBDG(coor, ax, ay, NN, NNb=NNb, Wj=Wj, cutxT=cutxT, cutyT=cutyT, cutxB = cutxB, cutyB = cutyB, Vj=Vj, mu=mu, alpha=alpha, delta=delta, phi=phi, gamx=gx, qx=kx_of_gap)
