@@ -63,7 +63,7 @@ mu = 5.9148
 gx = 1
 
 k = 4 #This is the number of eigenvalues and eigenvectors
-steps = 200 #Number of kx values that are evaluated
+steps = 100 #Number of kx values that are evaluated
 VVJ = 0
 if Vj < 0:
     VVJ = Vj
@@ -90,7 +90,7 @@ if PLOT != 'P':
         idx_sort = np.argsort(eigs)
         eigs = eigs[idx_sort]
         bands[i, :] = eigs
-        #np.save("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), bands)
+        np.save("%s/bands Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), bands)
 
     local_min_idx = np.array(argrelextrema(bands, np.less)[0])
     mins = []
@@ -120,8 +120,8 @@ if PLOT != 'P':
     mins = np.array(mins)
     gap, idx = finders.minima(mins)
     kx_of_gap = kx_of_mins[idx]
-    #np.save("%s/gap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), gap)
-    #np.save("%s/kxofgap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), kx_of_gap)
+    np.save("%s/gap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), gap)
+    np.save("%s/kxofgap Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu = %.1f gam = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu, gx), kx_of_gap)
     gc.collect()
     sys.exit()
 else:
