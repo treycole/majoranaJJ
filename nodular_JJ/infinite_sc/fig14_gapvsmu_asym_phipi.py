@@ -67,7 +67,7 @@ boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cu
 muB = np.load("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS1, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iB, mu_fB))
 gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS2, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iG, mu_fG, gx))
 kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS2, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iG, mu_fG, gx))
-muG = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS2, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iG, mu_fG, gx))
+muG = np.linspace(mu_iG, mu_fG, gap.shape[0])
 
 top_arr = np.zeros(muG.shape[0])
 num = 1
@@ -121,8 +121,8 @@ for i in range(int(num_bound/2)):
 for i in range(int(num_bound/2)):
     art = axs[0].fill_betweenx(muB, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=1, zorder=1, where=dist_arr[:,i]<0.1)
 
-axs[1].plot(gap/delta, muG, c='k', linewidth=1, zorder=0)
-art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, ec='r', color=color, where=top_arr[:]<0, lw=1.5, zorder=1)
+axs[1].plot(gap/delta, muG, c='r', linewidth=1, zorder=0)
+art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, ec='r', color=color, where=top_arr[:]<0, lw=1.0, zorder=1)
 art.set_edgecolor('r')
 axs[0].plot([1,1], [mu_iG, mu_fG], c='r', lw=1.0, zorder=3)
 

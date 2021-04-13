@@ -367,16 +367,16 @@ def Junc_eff_Ham_gen(omega, Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, kx, m_ef
     H_eff = H_J + sNRG_bot + sNRG_top
     return H_eff
 
-def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50):
-    if eigs_omega0 >= 5*delta:
+def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu, Vj, alpha, delta, phi, kx, eigs_omega0, m_eff, tol, k=4, iter=50, SOLVE = False):
+    if not SOLVE and eigs_omega0 >= 5*delta:
         return eigs_omega0
     if eigs_omega0 < tol:
         return 0
     y1 = eigs_omega0
     omega1 = 0
-    omega2 = y1/50
+    omega2 = y1*0.1
     n = .01
-    N = 40
+    N = 30
     while True:
 
         H = Junc_eff_Ham_gen(omega=omega2, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyB=cutyB, cutxB=cutxB, cutyT=cutyT, ax=ax, ay=ay, kx=kx, m_eff=m_eff, alp_l=alpha, alp_t=alpha, mu=mu, Vj=Vj, Gam=gam, Gam_SC_factor=0, delta=delta, phi=phi, iter=iter, eta=0)
@@ -398,7 +398,11 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
             print(y1, y2, tol)
             return eigs_omega0
         if abs(y2) < tol:
-            return abs(omega2)
+            #print('here')
+            if abs(omega2) > eigs_omega0:
+                return eigs_omega0
+            else:
+                return abs(omega2)
         m = (y2-y1)/(omega2-omega1)
         b = y1-m*omega1
         omega_c = -b/m
@@ -410,7 +414,7 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
             #print('here')
             omega2 = abs(eigs_omega0*(1-np.exp(-n/N)))
             n += 0.5
-            if abs(omega2-eigs_omega0) < 1e-2 or abs(omega2-delta) < 1e-2:
+            if abs(omega2-eigs_omega0) < 1e-2 or (abs(omega2-delta) < 1e-2 and not SOLVE):
                 return eigs_omega0
     return None
 
@@ -421,8 +425,8 @@ def gap(
     PLOT=False
     ):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
-    n1 = 200
-    n2 = 40
+    n1 = 500#1500
+    n2 = 80
     print("steps", n1, n2)
     VVJ = 0
     if Vj < 0:
@@ -461,22 +465,40 @@ def gap(
     print("Energy of k=pi/lx w=0: ", omega0_bands[-1])
     #print(omega0_bands[0]/5, min(omega0_bands[local_min_idx]))
 
-    if omega0_bands[0]/5 <= min(omega0_bands[local_min_idx]):
-        true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
-        mins.append(true_gap_of_k0)
-        kx_of_mins.append(qx[0])
-    if omega0_bands[-1]/5 <= min(omega0_bands[local_min_idx]):
-        true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
-        mins.append(true_gap_of_kedge)
-        kx_of_mins.append(qx[-1])
-    if omega0_bands[0]/5 > min(omega0_bands[local_min_idx]):
-        true_gap_of_k0 = omega0_bands[0]
-        mins.append(omega0_bands[0])
-        kx_of_mins.append(qx[0])
-    if omega0_bands[-1]/5 > min(omega0_bands[local_min_idx]):
-        true_gap_of_kedge = omega0_bands[-1]
-        mins.append(omega0_bands[-1])
-        kx_of_mins.append(qx[-1])
+    if local_min_idx.size == 0:
+        if omega0_bands[0]/5 <= omega0_bands[-1]:
+            true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter, SOLVE=False)
+            mins.append(true_gap_of_k0)
+            kx_of_mins.append(qx[0])
+        else:
+            true_gap_of_k0 = omega0_bands[0]
+            mins.append(omega0_bands[0])
+            kx_of_mins.append(qx[0])
+        if omega0_bands[-1]/5 <= omega0_bands[0]:
+            true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter, SOLVE=False)
+            mins.append(true_gap_of_kedge)
+            kx_of_mins.append(qx[-1])
+        else:
+            true_gap_of_kedge = omega0_bands[-1]
+            mins.append(omega0_bands[-1])
+            kx_of_mins.append(qx[-1])
+    else:
+        if omega0_bands[0]/5 <= min(omega0_bands[local_min_idx]):
+            true_gap_of_k0 = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=0, eigs_omega0=omega0_bands[0], m_eff=m_eff, tol=tol, k=k, iter=iter)
+            mins.append(true_gap_of_k0)
+            kx_of_mins.append(qx[0])
+        else:
+            true_gap_of_k0 = omega0_bands[0]
+            mins.append(omega0_bands[0])
+            kx_of_mins.append(qx[0])
+        if omega0_bands[-1]/5 <= min(omega0_bands[local_min_idx]):
+            true_gap_of_kedge = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=qx[-1], eigs_omega0=omega0_bands[-1], m_eff=m_eff, tol=tol, k=k, iter=iter)
+            mins.append(true_gap_of_kedge)
+            kx_of_mins.append(qx[-1])
+        else:
+            true_gap_of_kedge = omega0_bands[-1]
+            mins.append(omega0_bands[-1])
+            kx_of_mins.append(qx[-1])
 
     print("Energy at kx=0: ", true_gap_of_k0)
     print("Energy at k_max:  ", true_gap_of_kedge)
@@ -533,10 +555,16 @@ def gap(
     true_gap, idx = fndrs.minima(mins)
     kx_of_gap = kx_of_mins[idx]
 
-    print("Gap: ", true_gap)
-    print("kx of gap: ", kx_of_gap)
-    print()
-    return true_gap, kx_of_gap
+    if local_min_idx.shape[0] != 0 and true_gap > min(omega0_bands[local_min_idx]):
+        print("Gap: ", min(omega0_bands[local_min_idx]))
+        print("kx of gap: ", kx_of_gap)
+        print()
+        return min(omega0_bands[local_min_idx]), kx_of_gap
+    else:
+        print("Gap: ", true_gap)
+        print("kx of gap: ", kx_of_gap)
+        print()
+        return true_gap, kx_of_gap
 
 if False:
     #plotting local density of states

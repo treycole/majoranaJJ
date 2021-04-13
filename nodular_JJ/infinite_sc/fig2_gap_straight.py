@@ -11,22 +11,25 @@ import majoranaJJ.modules.finders as finders
 import majoranaJJ.modules.constants as const
 import majoranaJJ.modules.fig_params as params
 import matplotlib.lines as mlines
+from scipy.signal import argrelextrema
 ###################################################
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
 Nx = 3 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
-nodx = 0 #width of nodule
-nody = 0 #height of nodule
-Lx = Nx*ax
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
+cutxT = cutx
+cutxB = cutx
+cutyT = 2*cuty
+cutyB = 0
+Lx = Nx*ax #Angstrom
 Junc_width = Wj*.1 #nm
-Nod_widthx = nodx*ay*.1 #nm
-Nod_widthy = nody*ay*.1 #nm
-
-print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
-print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
-print("Junction Width = ", Junc_width, "(nm)")
+cutxT_width = cutxT*ax*.1 #nm
+cutyT_width = cutyT*ax*.1 #nm
+cutxB_width = cutxB*ax*.1 #nm
+cutyB_width = cutyB*ax*.1 #nm
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
@@ -45,19 +48,43 @@ Vj_f = 11
 ###################################################
 dirS = 'gap_data'
 
-gap_mu0 = np.load("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, 0, mu_i, mu_f, gx))
-gap_mupi = np.load("%s/gapfxmu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, np.pi, mu_i, mu_f, gx))
-gap_gam0 = np.load("%s/gapfxgam Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, 0, gi, gf, 0))
-gap_gampi = np.load("%s/gapfxgam Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, np.pi, gi, gf, 10))
-gap_Vjpi = np.load("%s/gapfxVj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, 10, alpha, delta, np.pi, Vj_i, Vj_f, gx))
-#gap_Vj0 = np.load("%s/gapfxVj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, 10, alpha, delta, np.pi, Vj_i, Vj_f, gx))
+gap_mu0 = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, mu_i, mu_f, gx))
+gap_mupi = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, mu_i, mu_f, gx))
+gap_gam0 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, gi, gf, 0))
+gap_gampi = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, gi, gf, 10))
+gap_Vjpi = np.load("%s/gapfxVj Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f mu = %.1f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, 10, np.pi, Vj_i, Vj_f, gx))
 
-gam_0 = np.load("%s/gamx Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, 0, gi, gf, 0))
-gam_pi = np.load("%s/gamx Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, np.pi, gi, gf, 10))
-mu_0 = np.load("%s/mu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, 0, mu_i, mu_f, gx))
-mu_pi = np.load("%s/mu Wj = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, Vj, alpha, delta, np.pi, mu_i, mu_f, gx))
-Vj_pi = np.load("%s/Vj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, 10, alpha, delta, np.pi, Vj_i, Vj_f, gx))
-#Vj_pi = np.load("%s/Vj Wj = %.1f nodx = %.1f nody = %.1f mu = %.1f alpha = %.1f delta = %.2f phi = %.3f Vj_i = %.1f Vj_f=%.1f gx=%.2f.npy" % (dirS, Junc_width, Nod_widthx,  Nod_widthy, 10, alpha, delta, np.pi, Vj_i, Vj_f, gx))
+KOG_mu0 = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, mu_i, mu_f, gx))
+KOG_mupi = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, mu_i, mu_f, gx))
+KOG_gam0 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, gi, gf, 0))
+KOG_gampi = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, gi, gf, 10))
+
+mu_0 = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, mu_i, mu_f, gx))
+mu_pi = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, mu_i, mu_f, gx))
+gam_0 = np.linspace(gi, gf, gap_gam0.shape[0])
+gam_pi = np.linspace(gi, gf, gap_gampi.shape[0])
+Vj_pi = np.linspace(Vj_i, Vj_f, gap_Vjpi.shape[0])
+
+local_min_idx = np.array(argrelextrema(gap_mu0, np.less)[0])
+for i in range(local_min_idx.shape[0]):
+    lower_bound = local_min_idx[i]
+    if gap_mu0[local_min_idx[i]]/delta < 0.04 and (Lx*KOG_mu0[local_min_idx[i]] <= 0.2 or abs(Lx*KOG_mu0[local_min_idx[i]] - np.pi) <= .2):
+        gap_mu0[local_min_idx[i]] = 0
+local_min_idx = np.array(argrelextrema(gap_mupi, np.less)[0])
+for i in range(local_min_idx.shape[0]):
+    lower_bound = local_min_idx[i]
+    if gap_mupi[local_min_idx[i]]/delta < 0.04 and (Lx*KOG_mupi[local_min_idx[i]] <= 0.2 or abs(Lx*KOG_mupi[local_min_idx[i]] - np.pi) <= .2):
+        gap_mupi[local_min_idx[i]] = 0
+local_min_idx = np.array(argrelextrema(gap_gam0, np.less)[0])
+for i in range(local_min_idx.shape[0]):
+    lower_bound = local_min_idx[i]
+    if gap_gam0[local_min_idx[i]]/delta < 0.04 and (Lx*KOG_gam0[local_min_idx[i]] <= 0.2 or abs(Lx*KOG_gam0[local_min_idx[i]] - np.pi) <= .2):
+        gap_gam0[local_min_idx[i]] = 0
+local_min_idx = np.array(argrelextrema(gap_gampi, np.less)[0])
+for i in range(local_min_idx.shape[0]):
+    lower_bound = local_min_idx[i]
+    if gap_gampi[local_min_idx[i]]/delta < 0.04 and (Lx*KOG_gampi[local_min_idx[i]] <= 0.2 or abs(Lx*KOG_gampi[local_min_idx[i]] - np.pi) <= .2):
+        gap_gampi[local_min_idx[i]] = 0
 
 fig, axs = plt.subplots(3, 1, gridspec_kw={'hspace':0.80})#, sharey='row')#, sharex='col', sharey='row', gridspec_kw={'hspace':0.5, 'wspace':0.1})
 
@@ -91,10 +118,10 @@ axmu.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 axgam.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 axvj.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 
-axmu.set_xlim(left=None, right=12+(mu_f-mu_i)*.06)
 #axvj.set_xlim(left=-11, right=11)
 #axgam.set_xlim(left=None, right=2.8)
 #axmu.set_xmargin(m=0.06)
+axmu.set_xmargin(m=0.06)
 axgam.set_xmargin(m=0.06)
 axvj.set_xmargin(m=0.06)
 axmu.set_ylim(-0.03, 0.33)

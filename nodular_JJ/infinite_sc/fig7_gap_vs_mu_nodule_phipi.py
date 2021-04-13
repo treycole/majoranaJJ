@@ -48,7 +48,7 @@ gx = 1.0
 mu_iB = -5
 mu_fB = 15
 mu_iG = -2.0
-mu_fG = 13.2
+mu_fG = 12.8
 resB = 0.005
 resG = 0.01
 
@@ -60,11 +60,11 @@ num_bound = 10
 dirS1 = 'boundary_data'
 dirS2 = 'gap_data'
 
-boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS1, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu_iB, mu_fB))
+boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS1, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj,  phi, mu_iB, mu_fB))
 muB = np.load("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS1, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iB, mu_fB))
 gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS2, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iG, mu_fG, gx))
 kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS2, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iG, mu_fG, gx))
-muG = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS2, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_iG, mu_fG, gx))
+muG = np.linspace(mu_iG, mu_fG, gap.shape[0])
 
 top_arr = np.zeros(muG.shape[0])
 num = 1
@@ -73,7 +73,7 @@ lower_bound = 0
 top_arr[lower_bound:] = num
 for i in range(local_min_idx.shape[0]):
     lower_bound = local_min_idx[i]
-    if gap[local_min_idx[i]]/delta < 0.02 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.15 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .2):
+    if gap[local_min_idx[i]]/delta < 0.025 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .6):
         num=num*-1
     if num==1:
         top_arr[lower_bound+1:] = num
@@ -117,13 +117,13 @@ for i in range(int(num_bound/2)):
 axs[1].plot(gap/delta, muG, c='r', linewidth=1.0)
 art = axs[1].fill_betweenx(muG, gap/delta, visible=True, alpha=1, ec='r', color=color, where=top_arr[:]<0, lw=1)
 art.set_edgecolor('r')
-axs[0].plot([1,1], [-2,12], c='r', lw=1.0, zorder=3)
+axs[0].plot([1,1], [-2,12.8], c='r', lw=1.0, zorder=3)
 
 axs[1].set_xlim([0, 0.210])
 axs[0].set_xlim([0, 1.10])
 axs[0].set_ylim([mu_iB-.2, mu_fB + .2])
 axs[1].set_ylim([mu_iG-.2, mu_fG + .2])
-axs[0].set_yticks([0, 5, 10, 15, 20])
+axs[0].set_yticks([0, 5, 10, 15])
 axs[0].set_xticks([0, 0.5, 1])
 axs[1].set_xticks([0, 0.1, 0.2])
 axs[0].set_xlabel(r'$E_Z$ (meV)', size=9, labelpad=1)

@@ -22,8 +22,8 @@ cutx = 4 #width of nodule
 cuty = 8 #height of nodule
 cutxT = cutx
 cutxB = cutx
-cutyT = 2*cuty
-cutyB = 0
+cutyT = cuty
+cutyB = cuty
 Lx = Nx*ax #Angstrom
 Junc_width = Wj*.1 #nm
 cutxT_width = cutxT*ax*.1 #nm
@@ -46,8 +46,8 @@ delta = 0.30 #Superconducting Gap: [meV]
 Vj = -40 #Junction potential: [meV]
 gx = 1.0 #mev
 
-mu_i = -2.5
-mu_f = 14.0
+mu_i = -2
+mu_f = 12.8
 delta_mu = mu_f - mu_i
 res = 0.015
 steps = int(abs(delta_mu/res))+1
@@ -63,9 +63,9 @@ except:
 if PLOT != 'P':
     gap = np.zeros(mu.shape[0])
     kx_of_gap = np.zeros(mu.shape[0])
-    gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
-    kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
-    mu = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    #gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, 12.0, gx))
+    #kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, 12.0, gx))
+    #mu = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
     #b = 224
     #e = 298
     #print(mu[b], mu[e])
@@ -83,8 +83,8 @@ if PLOT != 'P':
     #mu = np.concatenate((mu1, mu2, mu3), axis=None)
     #print(mu[0:160])
     #sys.exit()
-    np.save("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), mu)
-    for i in range(mu.shape[0]-270, mu.shape[0]):
+    #np.save("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx), mu)
+    for i in range(0, mu.shape[0]):
         print(mu.shape[0]-i, "| mu =", mu[i])
         GAP, KX = SNRG.gap(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gx, mu=mu[i], Vj=Vj, alpha=alpha, delta=delta, phi=phi, targ_steps=50000, n_avg=4, muf=mu[i], PLOT=False, tol=1e-7)
         gap[i] = GAP
