@@ -33,7 +33,6 @@ cutyB_width = cutyB*ax*.1 #nm
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
 delta = 0.30 #Superconducting Gap: [meV]
 
 Vj = 0 #Junction potential: [meV], for boundary plot phi=pi,0 and gap plots vs Ez and mu
@@ -59,8 +58,8 @@ KOG_mupi = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f
 KOG_gam0 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, gi, gf, 0))
 KOG_gampi = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, gi, gf, 10))
 
-mu_0 = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, 0, mu_i, mu_f, gx))
-mu_pi = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, np.pi, mu_i, mu_f, gx))
+mu_0 = np.linspace(mu_i, mu_f, gap_mupi.shape[0])
+mu_pi = np.linspace(mu_i, mu_f, gap_mu0.shape[0])
 gam_0 = np.linspace(gi, gf, gap_gam0.shape[0])
 gam_pi = np.linspace(gi, gf, gap_gampi.shape[0])
 Vj_pi = np.linspace(Vj_i, Vj_f, gap_Vjpi.shape[0])
@@ -118,15 +117,13 @@ axmu.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 axgam.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 axvj.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 
-#axvj.set_xlim(left=-11, right=11)
-#axgam.set_xlim(left=None, right=2.8)
-#axmu.set_xmargin(m=0.06)
 axmu.set_xmargin(m=0.06)
 axgam.set_xmargin(m=0.06)
 axvj.set_xmargin(m=0.06)
 axmu.set_ylim(-0.03, 0.33)
 axgam.set_ylim(-0.03, 0.33)
 axvj.set_ylim(-0.03, 0.33)
+
 axmu.tick_params(axis='x', labelsize=8)
 axgam.tick_params(axis='x', labelsize=8)
 axvj.tick_params(axis='x', labelsize=8)
@@ -134,13 +131,11 @@ axmu.tick_params(axis='y', labelsize=8)
 axgam.tick_params(axis='y', labelsize=8)
 axvj.tick_params(axis='y', labelsize=8)
 
-plt.subplots_adjust(bottom=0.2, left=0.2, top=0.95, right=0.98)
 axmu.grid('on')
 axgam.grid('on')
 axvj.grid('on')
 
-#plt.savefig('gapfxmu juncwidth = {} nodwidthx = {} nodwidthy = {} alpha = {} phi = {} Vj = {}.png'.format(Junc_width, Nod_widthx, Nod_widthy, alpha, phi, Vj), dpi=700)
+
+plt.subplots_adjust(bottom=0.15, left=0.2, top=0.95, right=0.98)
 plt.savefig('FIG2', dpi=700)
 plt.show()
-
-sys.exit()

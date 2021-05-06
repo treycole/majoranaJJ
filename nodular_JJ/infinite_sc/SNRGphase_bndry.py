@@ -18,10 +18,10 @@ import majoranaJJ.lattice.shapes as shps
 #Defining System
 ax = 50 #lattice spacing in x-direction: [A]
 ay = 50 #lattice spacing in y-direction: [A]
-Nx = 12 #Number of lattice sites along x-direction
+Nx = 3 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
-cutx = 4 #width of nodule
-cuty = 8 #height of nodule
+cutx = 0 #width of nodule
+cuty = 0 #height of nodule
 
 cutxT = cutx
 cutxB = cutx
@@ -43,12 +43,12 @@ print("Junction Width = ", Junc_width, "(nm)")
 ###################################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi/2 #SC phase difference
+phi = 0*np.pi #SC phase difference
 delta = 0.3 #Superconducting Gap: [meV]
-Vj = -40 #junction potential: [meV]
+Vj =  10 #meV, Junction potential
 
-mu_i = -5
-mu_f = 15
+mu_i = 5
+mu_f = 25
 res = 0.005
 delta_mu = mu_f - mu_i
 mu_steps = int(delta_mu/res)
@@ -74,8 +74,10 @@ try:
 except:
     PLOT = 'F'
 if PLOT != 'P':
-    #boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, alpha, delta, phi, mu_i, mu_f))
-    #mu = np.load("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f, cutxB = %.1f cutyB = %.1f, Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, alpha, delta, phi, mu_i, mu_f))
+    boundary = np.load("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, 15))
+    boundary_new = np.zeros((int(mu_steps/2), num_bound))
+    boundary = np.concatenate((boundary, boundary_new))
+    #mu = np.load("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, 15))
     #print(boundary[2853, 0], boundary[2853:2855, 0], mu[2853:2855])
     #cutoff = 2853
     #res = res/5
@@ -87,8 +89,7 @@ if PLOT != 'P':
     #boundary_new = np.zeros((mu.shape[0], num_bound))
     #for i in range(num_bound):
     #    boundary_new[:, i] = np.concatenate((boundary[0:cutoff, i], np.zeros(mu_new.shape)), axis=None)
-    #sys.exit()
-    np.save("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f), mu)
+    np.save("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f), mu)
     for i in range(0, mu.shape[0]):
         print(mu.shape[0]-i, "| mu =", mu[i])
         gx = fndrs.SNRG_gam_finder(ax, ay, mu[i], gi, gf, Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, Vj=Vj, alpha=alpha, delta=delta, phi=phi, k=20, tol = 1e-5, PLOT=False, plot_junction=False)
@@ -99,6 +100,7 @@ if PLOT != 'P':
                 boundary[i, j] = gx[j]
 
         np.save("%s/boundary Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f mu_i = %.1f mu_f = %.1f.npy" % (dirS, Lx*.1, Junc_width, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f), boundary)
+
         gc.collect()
 
     sys.exit()
@@ -113,6 +115,7 @@ else:
     for i in range(len(c)):
         #axs.scatter(boundary[:, i], mu, s=10, c=c[i], zorder=0)
         pass
+
     for i in range(mu.shape[0]-1):
         for j in range(int(boundary.shape[1]/2)):
             if np.isnan(boundary[i,2*j+1]) and not np.isnan(boundary[i,2*j]):
@@ -120,27 +123,22 @@ else:
                 break
 
     dist_arr = np.zeros((mu.shape[0], num_bound))
-    for j in range(num_bound-1):
-        for i in range(int(mu.shape[0])-1):
-            dist_arr[i,j] = abs(boundary[i, j] - boundary[i+1, j])
+    for i in range(int(mu.shape[0])-1):
+        for j in range(num_bound-1):
+            if np.isnan(boundary[i, j]) or np.isnan(boundary[i+1, j]):
+                dist_arr[i,j] = 100000
+            else:
+                dist_arr[i,j] = abs(boundary[i, j] - boundary[i+1, j])
             if dist_arr[i,j]>0.1:
-                idx = i+1
-                #if abs(mu[i]-10)<1:
-                while abs(boundary[i, j] - boundary[idx, j])>0.1 and idx-i<10 and mu[i]>10 and (boundary[i, j] - boundary[idx, j])<0:
-                    print(j, mu[i], boundary[i, j], boundary[idx, j])#, i , idx)
-                    idx+=1
-
-                boundary[i:idx, j:] = None
+                boundary[i, j:] = None
                 pass
 
-    for i in range(2, mu.shape[0]-2):
+    for i in range(1, mu.shape[0]-1):
         for j in range(num_bound):
-            if np.isnan(boundary[i+1,j]) and np.isnan(boundary[i-1, j]) or np.isnan(boundary[i+2,j]) and np.isnan(boundary[i-2, j])and boundary[i,j]==5:
+            if np.isnan(boundary[i+1,j]) and np.isnan(boundary[i-1, j]):
                 boundary[i,j]=None
 
-    color = colors.colorConverter.to_rgba('lightcyan', alpha=1)
-    color = list(color)
-    color[0] = 0.85
+    color = colors.colorConverter.to_rgba('lightblue', alpha=1)
     for i in range(int(num_bound/2)):
         art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, alpha=1, fc=color, ec='k', lw=4, where=dist_arr[:,i]<0.1, zorder=1)
     for i in range(int(num_bound/2)):
@@ -163,7 +161,7 @@ else:
     axs.tick_params(axis='x', labelsize=9)
     axs.tick_params(axis='y', labelsize=9)
     axs.xaxis.set_major_locator(ticker.MultipleLocator(1))
-    title = r'Lx = {} nm, lxT = {} nm, lxB = {} nm, Nody_T = {} nm, Nody_B = {} nm, Vj = {} meV, phi = {}'.format(Lx*.1, cutxT_width, cutxB_width, cutyT_width, cutyB_width, Vj, phi)
+    title = r'Lx = %.1f nm, lxT = %.1f nm, lxB = %.1f nm, Nody_T = %.1f nm, Nody_B = %.1f nm, Vj = %.1f meV, phi = %.2f' % (Lx*.1, cutxT_width, cutxB_width, cutyT_width, cutyB_width, Vj, phi)
     plt.title(title, loc = 'center', wrap = True)
 
     plt.show()

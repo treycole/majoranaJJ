@@ -89,29 +89,26 @@ for i in range(1, mu.shape[0]-1):
         if np.isnan(boundary[i+1,j]) and np.isnan(boundary[i-1, j]):
             boundary[i,j]=None
 
-color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
-color = list(color)
-color[0] = 0.85
+color = colors.colorConverter.to_rgba('lightblue', alpha=1.0)
 for i in range(int(num_bound/2)):
     art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=4, zorder=1, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.2, zorder=1.2, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=1, zorder=1.2, where=dist_arr[:,i]<0.1)
     #art.set_edgecolor(color)
 
-plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 axs.set_xlabel(r'$E_Z$ (meV)', size=9)
 axs.set_ylabel(r'$\mu$ (meV)', size=9)
 
 axs.set_xlim([0, 4.2])
 axs.set_ylim([-3, 13])
 
-axs.plot([1,1], [-2,12], c='b', lw=1.5, mec='k', zorder=4)
-axs.plot([0,3], [7.36,7.36], c='b', lw=1.5, mec='k', zorder=4)
-#axs.plot([0,3], [9.2,9.2], c='b', lw=1.5, mec='k', zorder=4)
-axs.plot([0,3], [11.12,11.12], c='b', lw=1.5, mec='k', zorder=4)
+axs.plot([1,1], [-2,12], c='b', lw=1.5, mec='k', zorder=2)
+axs.plot([0,3], [7.36,7.36], c='b', lw=1.5, mec='k', zorder=2)
+axs.plot([0,3], [11.12,11.12], c='b', lw=1.5, mec='k', zorder=2)
 axs.tick_params(axis='x', labelsize=9)
 axs.tick_params(axis='y', labelsize=9)
 axs.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
+plt.subplots_adjust(top=0.95, left=0.15, bottom=0.15, right=0.98)
 plt.savefig('FIG3', dpi=700)
 plt.show()

@@ -90,43 +90,41 @@ for i in range(local_min_idx2.shape[0]):
         top_arr2[lower_bound2:] = num2
 
 fig, ax = plt.subplots(2, 1, gridspec_kw={'hspace':0.1}, sharex=True)
-ax[0].set_xticks([0, 1, 2, 3])
-ax[0].set_yticks([0, 0.1, 0.2])
-ax[1].set_yticks([0, 0.1, 0.2])
-#ax[0].text(mu_i+0.7*(mu_f-mu_i+0.06*(mu_f-mu_i)*2), 0.20,'(a)', fontdict=None, fontsize=9)
-#ax[1].text(gi+0.7*(gf-gi+0.06*(gf-gi)*2), 0.20,'(b)', fontdict=None, fontsize=9)
-#ax[2].text(Vj_i+0.7*(Vj_f-Vj_i+0.06*(Vj_f-Vj_i)*2), 0.20,'(c)', fontdict=None, fontsize=9)
-color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
-color = list(color)
-color[0] = 0.85
-art = ax[1].fill_between(gx1, gap1/delta, visible=True, alpha=1, color=color, where=top_arr1[:]<0)
-art = ax[0].fill_between(gx2, gap2/delta, visible=True, alpha=1, color=color, where=top_arr2[:]<0)
+
+color = colors.colorConverter.to_rgba('lightblue', alpha=1.0)
+art = ax[1].fill_between(gx1, gap1/delta, visible=True, alpha=1, color=color, ec='b', where=top_arr1[:]<0)
+art.set_edgecolor('r')
+art = ax[0].fill_between(gx2, gap2/delta, visible=True, alpha=1, color=color, ec='b', where=top_arr2[:]<0)
+art.set_edgecolor('r')
 ax[1].plot(gx1, gap1/delta, c='r', lw=1.50)
 ax[0].plot(gx2, gap2/delta, c='r', lw=1.50)
 
-#red_circ = mlines.Line2D([],[], c='r', marker='o', mec='k')
-#axvj.legend(handles=[red_circ])
-
-ax[1].set_xlabel(r'$\Gamma_x$ (meV)', size=9)
+ax[1].set_xlabel(r'$E_Z$ (meV)', size=9)
 ax[0].set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 ax[1].set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
 
-ax[0].set_xmargin(m=0.05)
-ax[1].set_xmargin(m=0.05)
-ax[0].set_ymargin(m=0.05)
-ax[1].set_ymargin(m=0.05)
-ax[0].set_ylim(-0.01, 0.22)
-ax[1].set_ylim(-0.01, 0.22)
+ax[0].set_xticks([0, 1, 2, 3])
+ax[0].set_yticks([0, 0.1, 0.2])
+ax[1].set_yticks([0, 0.1, 0.2])
+
+ax[0].text(gi+0.7*(gf-gi+0.07*(gf-gi)*2), 0.15,'(a)', fontdict=None, fontsize=9)
+ax[1].text(gi+0.7*(gf-gi+0.07*(gf-gi)*2), 0.15,'(b)', fontdict=None, fontsize=9)
+
+ax[0].set_ylim(-0.02, 0.25)
+ax[1].set_ylim(-0.02, 0.25)
+ax[0].set_xlim(-0.1, 3.1)
+ax[1].set_xlim(-0.1, 3.1)
 
 ax[0].tick_params(axis='x', labelsize=8)
 ax[1].tick_params(axis='x', labelsize=8)
 ax[0].tick_params(axis='y', labelsize=8)
 ax[1].tick_params(axis='y', labelsize=8)
-plt.subplots_adjust(bottom=0.2, left=0.2, top=0.95, right=0.98)
+
 ax[0].grid('on')
 ax[1].grid('on')
 
-plt.savefig('FIG13', dpi=700)
+plt.subplots_adjust(bottom=0.15, left=0.2, top=0.95, right=0.98)
+plt.savefig('FIG14', dpi=700)
 plt.show()
 
 sys.exit()

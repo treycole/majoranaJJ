@@ -52,21 +52,18 @@ mu_pi = np.linspace(mu_i, mu_f, boundary_pi.shape[0])
 
 fig, axs = plt.subplots(2, gridspec_kw={'hspace':0.1, 'wspace':0.1})
 #axs.set_facecolor("w")
-axs[0].set_yticks([0, 5, 10, 15, 20])
-axs[1].set_yticks([0, 5, 10, 15, 20])
+axs[0].set_yticks([0, 5, 10])
+axs[1].set_yticks([0, 5, 10])
 for i in range(boundary_0.shape[1]):
-    axs[0].plot(boundary_0[:, i], mu_0, c='k', linewidth=1.7)
-    axs[1].plot(boundary_pi[:, i], mu_pi, c='k', linewidth=1.7)
+    axs[0].plot(boundary_0[:, i], mu_0, c='k', linewidth=1.7, zorder=2)
+    axs[1].plot(boundary_pi[:, i], mu_pi, c='k', linewidth=1.7, zorder=2)
 
-color = colors.colorConverter.to_rgba('paleturquoise', alpha=1.0)
-print(color)
-color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
-color = list(color)
-color[0] = 0.85
+color = colors.colorConverter.to_rgba('lightblue', alpha=1.0)
+#color = list(color)
+#color[0] = 0.85
 print(color)
 axs[0].fill_betweenx(mu_0, boundary_0[:, 0], boundary_0[:, 1], visible=True, alpha=1, color=color)
 axs[1].fill_betweenx(mu_pi, boundary_pi[:, 0], boundary_pi[:, 1], visible=True, alpha=1, color=color)
-axs[1].plot(1, 10, 'o', c='r', mec='k', zorder=2)
 
 for ax in axs.flat:
     ax.set_xlabel(r'$E_Z$ (meV)', size=9)
@@ -74,21 +71,22 @@ for ax in axs.flat:
 for ax in fig.get_axes():
     ax.label_outer()
 
-plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
-axs[1].text(0.15, 12, '(b)', fontdict=None, size=9)
-axs[0].text(0.15, 12, '(a)', fontdict=None, size=9)
+axs[1].text(0.15, 10.8, '(b)', fontdict=None, size=9)
+axs[0].text(0.15, 10.8, '(a)', fontdict=None, size=9)
 
 cut1 = np.linspace(-2, 12, 100)
 cut2 = np.linspace(0, 3, 100)
-axs[0].plot(cut1*0+1, cut1, c='b', lw=2)
-axs[0].plot(cut2, cut2*0, c='b', lw=2)
-axs[1].plot(cut1*0+1, cut1, c='r', lw=2, zorder=1)
-axs[1].plot(cut2, cut2*0+10, c='r', lw=2, zorder=1)
+axs[0].plot(cut1*0+1, cut1, c='b', lw=1.5, zorder=2)
+axs[0].plot(cut2, cut2*0, c='b', lw=1.5, zorder=2)
+axs[1].plot(cut1*0+1, cut1, c='r', lw=1.5, zorder=2)
+axs[1].plot(cut2, cut2*0+10, c='r', lw=1.5, zorder=2)
+axs[1].plot(1, 10, 'o', c='r', mec='k', zorder=2.2)
 
 axs[0].set_xlim([0, 4.2])
-axs[0].set_ylim([-2.0, 15.5])
+axs[0].set_ylim([-2.0, 13])
 axs[1].set_xlim([0, 4.2])
-axs[1].set_ylim([-2.0, 15.5])
+axs[1].set_ylim([-2.0, 13])
+
 axs[0].tick_params(axis='x', labelsize=9)
 axs[1].tick_params(axis='x', labelsize=9)
 axs[0].tick_params(axis='y', labelsize=9)
@@ -96,6 +94,7 @@ axs[1].tick_params(axis='y', labelsize=9)
 axs[0].xaxis.set_major_locator(ticker.MultipleLocator(1))
 axs[1].xaxis.set_major_locator(ticker.MultipleLocator(1))
 
-#plt.savefig('boundary juncwidth = {} nodwidthx = {} nodwidthy = {} phi = {} Vj = {} mu_i = {} mu_f = {}.png'.format(Junc_width, Nod_widthx, Nod_widthy, delta, alpha, phi, Vj, mu_i, mu_f), dpi=700)
+
+plt.subplots_adjust(top=0.95, left=0.15, bottom=0.15, right=0.98)
 plt.savefig('FIG1', dpi=700)
 plt.show()

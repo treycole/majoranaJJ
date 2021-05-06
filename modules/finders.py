@@ -1,13 +1,64 @@
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+import scipy.linalg as LA
+import scipy.sparse.linalg as spLA
+from scipy.signal import argrelextrema
+
+import majoranaJJ.modules.checkers as check
 import majoranaJJ.operators.sparse_operators as spop #sparse operators
 import majoranaJJ.modules.SNRG as SNRG
 import majoranaJJ.operators.potentials as pot
 from majoranaJJ.modules import constants as const
-import numpy as np
-import scipy.linalg as LA
-import scipy.sparse.linalg as spLA
-from scipy.signal import argrelextrema
-import sys
-import matplotlib.pyplot as plt
+
+def Lagrange_interp(x, x_s, y_s):
+    x_s = np.array(x_s)
+    y_s = np.array(y_s)
+    n = x_s.shape[0]
+    L = np.zeros(n)
+    for i in range(n):
+        if i == 0:
+            L[i] = (x-x_s[1])/(x_s[0]-x_s[1])
+        else:
+            L[i] = (x-x_s[0])/(x_s[i]-x_s[0])
+        for j in range(1, n):
+            if i != j:
+                L[i] = L[i]*((x-x_s[j])/(x_s[i]-x_s[j]))
+
+    P = y_s[0]*L[0]
+    for i in range(1, n):
+        P += y_s[i]*L[i]
+    return P
+
+def weights(eigs, vecs, coor, Wsc, Wj, cutxT, cutyT, cutxB, cutyB, k):
+    nth = 0
+    n = int(k/2) + nth
+    idx_sort = np.argsort(eigs)
+    vecs = vecs[:, idx_sort]
+    N = coor.shape[0]
+    num_div = int(vecs.shape[0]/N)
+    probdens = np.square(abs(vecs[:, n]))
+    map = np.zeros(N)
+    for i in range(num_div):
+        map[:] = map[:] + probdens[i*N:(i+1)*N]
+
+    wt_scT = 0
+    wt_scB = 0
+    wt_junc = 0
+    for i in range(coor.shape[0]):
+        bool_inSC, which = check.is_in_SC(i, coor, Wsc, Wj, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB)
+        if bool_inSC:
+            if which == 'T':
+                wt_scT += map[i]
+            if which == 'B':
+                wt_scB += map[i]
+        else:
+            wt_junc += map[i]
+
+    print("Weight in junction: ", wt_junc)
+    print("Weight in Top SC: ", wt_scT)
+    print("Weight in Bottom SC: ", wt_scB)
+    return wt_junc, wt_scT, wt_scB
 
 def minima(arr):
     abs_min = min(arr)
@@ -206,29 +257,27 @@ def SNRG_gam_finder(
     delta_gam = abs(gf - gi)
     steps = n1
     gx = np.linspace(gi, gf, steps)
-    eig_arr = np.zeros((4, gx.shape[0]))
+    eig_arr = np.zeros((gx.shape[0]))
     for i in range(gx.shape[0]):
         H_DB = HG0_DB + gx[i]*HG_DB
         eigs_DB, U_DB = LA.eigh(H_DB)
         idx_sort = np.argsort(eigs_DB)
         eigs_DB = eigs_DB[idx_sort]
-        #eig_arr[i] = eigs_DB[int(k/2)]
-        eig_arr[:,i] = eigs_DB[int(k/2)-2:int(k/2)+2]
+        eig_arr[i] = eigs_DB[int(k/2)]
 
     #checking edge cases
-    if eig_arr[2,0] < tol:
+    if eig_arr[0] < 1e-10:
+        print("eig at gx=0: ", eig_arr[0])
         G_crit.append(gx[0])
-    if eig_arr[2,-1] < tol:
+    if eig_arr[-1] < 1e-10:
+        print("eig at gx=0",gx[-1],": ", eig_arr[0])
         G_crit.append(gx[-1])
 
-    local_min_idx = np.array(argrelextrema(eig_arr[2,:], np.less)[0])
-
+    local_min_idx = np.array(argrelextrema(eig_arr, np.less)[0])
+    print(local_min_idx.size, "Energy local minima found at gx = ", gx[local_min_idx])
     #for i in range(local_min_idx.shape[0]):
     #    print(eig_arr[:, local_min_idx[i]])
     #sys.exit()
-
-    #local minima indices in the E vs gam plot
-    print(local_min_idx.size, "Energy local minima found at gx = ", gx[local_min_idx])
 
     if PLOT:
         plt.plot(gx, eig_arr[2,:], c='r')
@@ -266,7 +315,7 @@ def SNRG_gam_finder(
                 G_crit.append(gx_min_finer[m])
                 print("Crossing found at Gx = {} | E = {} meV".format(gx_min_finer[m], eigs_min_finer[m]))
 
-    if cutxT*cutxB == 0 and Vj == 0:
+    if cutxT == 0 and cutxB == 0 and cutyT == 0 and cutyB ==0 and Vj == 0:
         G_crit = np.array(G_crit)
         return G_crit
 

@@ -57,9 +57,9 @@ print("Junction Width = ", Junc_width, "(nm)")
 m_eff = 0.026
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
 delta = 0.3 #Superconducting Gap: [meV]
-phi = np.pi*0 #SC phase difference
+phi = np.pi #SC phase difference
 Vj = -40*0 #junction potential: [meV]
-mu = 10*0
+mu = 10
 gx = 1
 
 k = 4 #This is the number of eigenvalues and eigenvectors

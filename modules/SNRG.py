@@ -374,7 +374,7 @@ def self_consistency_finder(Wj, Lx, cutxT, cutyT, cutxB, cutyB, ax, ay, gam, mu,
         return 0
     y1 = eigs_omega0
     omega1 = 0
-    omega2 = y1*0.1
+    omega2 = y1/50
     n = .01
     N = 30
     while True:
@@ -425,8 +425,8 @@ def gap(
     PLOT=False
     ):
     n1, n2 = fndrs.step_finder(targ_steps, n_avg=n_avg)
-    n1 = 500#1500
-    n2 = 80
+    n1 = 300#1500
+    n2 = 40
     print("steps", n1, n2)
     VVJ = 0
     if Vj < 0:
@@ -534,7 +534,7 @@ def gap(
                 idx_sort = np.argsort(eigs)
                 eigs = eigs[idx_sort]
                 if slfCON:
-                    EIG = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[j], eigs_omega0=eigs[int(k/2)], m_eff=m_eff, tol=1e-7, k=k, iter=iter)
+                    EIG = self_consistency_finder(Wj=Wj, Lx=Lx, cutxT=cutxT, cutyT=cutyT, cutxB=cutxB, cutyB=cutyB, ax=ax, ay=ay, gam=gam, mu=mu, Vj=Vj, alpha=alpha, delta=delta, phi=phi, kx=kx_finer[j], eigs_omega0=eigs[int(k/2)], m_eff=m_eff, tol=tol, k=k, iter=iter)
                 else:
                     EIG = eigs[int(k/2)]
                 omega0_arr_finer[j] = EIG

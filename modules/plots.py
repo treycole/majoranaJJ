@@ -206,11 +206,27 @@ def state_cmap(
     eigs = eigs[idx_sort]
     states = states[:, idx_sort]
     print("Energy Value of State", eigs[n])
-    mapRe = np.zeros(N)
-    mapIm = np.zeros(N)
-    for i in range(num_div):
-        mapRe[:] = mapRe[:] + states[i*N : (i+1)*N, n]
-        mapIm[:] = mapIm[:] + np.imag(states[i*N : (i+1)*N, n])
+    mapRe_PU = np.zeros(N)
+    mapRe_PD = np.zeros(N)
+    mapRe_HU = np.zeros(N)
+    mapRe_HD = np.zeros(N)
+    mapIm_PU  = np.zeros(N)
+    mapIm_PD  = np.zeros(N)
+    mapIm_HU  = np.zeros(N)
+    mapIm_HD  = np.zeros(N)
+
+    i=0
+    mapRe_PU[:] = states[i*N : (i+1)*N, n]
+    mapIm_PU[:] = np.imag(states[i*N : (i+1)*N, n])
+    i=1
+    mapRe_PD[:] = states[i*N : (i+1)*N, n]
+    mapIm_PD[:] = np.imag(states[i*N : (i+1)*N, n])
+    i=2
+    mapRe_HU[:] = states[i*N : (i+1)*N, n]
+    mapIm_HU[:] = np.imag(states[i*N : (i+1)*N, n])
+    i=3
+    mapRe_HD[:] = states[i*N : (i+1)*N, n]
+    mapIm_HD[:] = np.imag(states[i*N : (i+1)*N, n])
 
     top_linex = []
     top_liney = []
@@ -269,17 +285,53 @@ def state_cmap(
         plt.show()
     else:
         x_idx = 1
-        oneD_Re = np.zeros(Ny)
-        oneD_Im = np.zeros(Ny)
+        oneD_Re_PU = np.zeros(Ny)
+        oneD_Im_PU = np.zeros(Ny)
+        oneD_Re_PD = np.zeros(Ny)
+        oneD_Im_PD = np.zeros(Ny)
+        oneD_Re_HU = np.zeros(Ny)
+        oneD_Im_HU = np.zeros(Ny)
+        oneD_Re_HD = np.zeros(Ny)
+        oneD_Im_HD = np.zeros(Ny)
         for j in range(Ny):
-            oneD_Re[j] = mapRe[x_idx+j*Nx]
-            oneD_Im[j] = mapIm[x_idx+j*Nx]
-        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Re, label='real', c='b')
-        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Im, label='imaginary', c='r')
+            oneD_Re_PU[j] = mapRe_PU[x_idx+j*Nx]
+            oneD_Im_PU[j] = mapIm_PU[x_idx+j*Nx]
+            oneD_Re_PD[j] = mapRe_PD[x_idx+j*Nx]
+            oneD_Im_PD[j] = mapIm_PD[x_idx+j*Nx]
+            oneD_Re_HU[j] = mapRe_HU[x_idx+j*Nx]
+            oneD_Im_HU[j] = mapIm_HU[x_idx+j*Nx]
+            oneD_Re_HD[j] = mapRe_HD[x_idx+j*Nx]
+            oneD_Im_HD[j] = mapIm_HD[x_idx+j*Nx]
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Re_PU, label='real', c='b')
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Im_PU, label='imaginary', c='r')
         plt.vlines(Ny-Wsc, -.05, 0.11, color='g')
         plt.vlines(0+Wsc-1, -.05, 0.11, color='g')
-        plt.ylabel(r'$\psi(y)$')
-        plt.ylabel('y')
+        plt.ylabel(r'$\psi(y) Particle Up$')
+        plt.xlabel('y')
+        plt.legend()
+        plt.show()
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Re_PD, label='real', c='b')
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Im_PD, label='imaginary', c='r')
+        plt.vlines(Ny-Wsc, -.05, 0.11, color='g')
+        plt.vlines(0+Wsc-1, -.05, 0.11, color='g')
+        plt.ylabel(r'$\psi(y) Particle Down$')
+        plt.xlabel('y')
+        plt.legend()
+        plt.show()
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Re_HU, label='real', c='b')
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Im_HU, label='imaginary', c='r')
+        plt.vlines(Ny-Wsc, -.05, 0.11, color='g')
+        plt.vlines(0+Wsc-1, -.05, 0.11, color='g')
+        plt.ylabel(r'$\psi(y) Hole Up$')
+        plt.xlabel('y')
+        plt.legend()
+        plt.show()
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Re_HD, label='real', c='b')
+        plt.plot(np.linspace(0, Ny-1, Ny), oneD_Im_HD, label='imaginary', c='r')
+        plt.vlines(Ny-Wsc, -.05, 0.11, color='g')
+        plt.vlines(0+Wsc-1, -.05, 0.11, color='g')
+        plt.ylabel(r'$\psi(y) Hole Down$')
+        plt.xlabel('y')
         plt.legend()
         plt.show()
     """

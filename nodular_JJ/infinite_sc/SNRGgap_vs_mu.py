@@ -41,7 +41,7 @@ print()
 #########################################
 #Defining Hamiltonian parameters
 alpha = 200 #Spin-Orbit Coupling constant: [meV*A]
-phi = np.pi #SC phase difference
+phi = 0*np.pi #SC phase difference
 delta = 0.30 #Superconducting Gap: [meV]
 Vj = -40 #Junction potential: [meV]
 gx = 1.0 #mev
@@ -63,8 +63,8 @@ except:
 if PLOT != 'P':
     gap = np.zeros(mu.shape[0])
     kx_of_gap = np.zeros(mu.shape[0])
-    #gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, 12.0, gx))
-    #kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, 12.0, gx))
+    #gap = np.load("%s/gapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
+    #kx_of_gap = np.load("%s/kxofgapfxmu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
     #mu = np.load("%s/mu Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.2f mu_i = %.1f mu_f = %.1f gx = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width,  cutyT_width, cutxB_width, cutyB_width, Vj, phi, mu_i, mu_f, gx))
     #b = 224
     #e = 298
@@ -114,7 +114,7 @@ else:
     top_arr[lower_bound:] = num
     for i in range(local_min_idx.shape[0]):
         lower_bound = local_min_idx[i]
-        if gap[local_min_idx[i]]/delta < 0.025 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .6):
+        if gap[local_min_idx[i]]/delta < 0.025 and (Lx*kx_of_gap[local_min_idx[i]] <= 0.2 or abs(Lx*kx_of_gap[local_min_idx[i]] - np.pi) <= .4):
             num=num*-1
             #gap[local_min_idx[i]] = 0
         top_arr[lower_bound:] = num

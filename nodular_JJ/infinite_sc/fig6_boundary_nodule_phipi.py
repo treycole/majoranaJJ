@@ -66,7 +66,7 @@ mu = np.load("%s/mu Lx = %.1f Wj = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f c
 
 
 fig, axs = plt.subplots(1, gridspec_kw={'hspace':0.1, 'wspace':0.1})
-axs.set_yticks([ 0, 5, 10])
+axs.set_yticks([0, 5, 10])
 axs.set_zorder(100)
 axs.label_outer()
 
@@ -94,32 +94,30 @@ for i in range(2, mu.shape[0]-2):
         if np.isnan(boundary[i+1,j]) and np.isnan(boundary[i-1, j]) or np.isnan(boundary[i+2,j]) and np.isnan(boundary[i-2, j])and boundary[i,j]==5:
             boundary[i,j]=None
 
-color = colors.colorConverter.to_rgba('lightcyan', alpha=1.0)
+color = colors.colorConverter.to_rgba('lightblue', alpha=1.0)
 color = list(color)
-color[0] = 0.85
+#color[0] = 0.85
 for i in range(int(num_bound/2)):
     art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='k', fc=color, lw=4.0, zorder=1, where=dist_arr[:,i]<0.1)
 for i in range(int(num_bound/2)):
-    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=0.21, zorder=1.1, where=dist_arr[:,i]<0.1)
+    art = axs.fill_betweenx(mu, boundary[:, 2*i], boundary[:, 2*i+1], visible = True, ec='face', fc=color, lw=1, zorder=1.1, where=dist_arr[:,i]<0.1)
     #art.set_edgecolor(color)
-for i in range(num_bound):
-    axs.scatter(boundary[:, i], mu, c='k', zorder=0, s=1)
-    pass
 
-plt.subplots_adjust(top=0.95, left=0.15, bottom=0.2, right=0.98)
 axs.set_xlabel(r'$E_Z$ (meV)', size=9)
 axs.set_ylabel(r'$\mu$ (meV)', size=9)
 
 axs.set_xlim([0, 4.2])
-axs.set_ylim([-4, 14])
+axs.set_ylim([-3, 13])
 
 axs.plot([1, 1], [-2, 13.2], c='r', lw=1.5, mec='k', zorder=1.2)
-axs.plot([0, 3], [10.988, 10.988], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([0, 3], [10.98, 10.98], c='r', lw=1.5, mec='k', zorder=1.2)
 axs.plot([0, 3], [6.28, 6.28], c='r', lw=1.5, mec='k', zorder=1.2)
-axs.plot([0, 3], [2.37, 2.37], c='r', lw=1.5, mec='k', zorder=1.2)
+axs.plot([0, 3], [2.73, 2.73], c='r', lw=1.5, mec='k', zorder=1.2)
+
 axs.tick_params(axis='x', labelsize=9)
 axs.tick_params(axis='y', labelsize=9)
 axs.xaxis.set_major_locator(ticker.MultipleLocator(1))
 
+plt.subplots_adjust(top=0.95, left=0.15, bottom=0.15, right=0.98)
 plt.savefig('FIG6', dpi=700)
 plt.show()

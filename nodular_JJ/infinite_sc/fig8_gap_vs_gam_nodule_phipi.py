@@ -22,13 +22,22 @@ Nx = 12 #Number of lattice sites along x-direction
 Wj = 1000 #Junction region [A]
 cutx = 4 #width of nodule
 cuty = 8 #height of nodule
+cutxT = cutx
+cutxB = cutx
+cutyT = cuty
+cutyB = cuty
 Lx = Nx*ax #Angstrom
-Junc_width = Wj*.10 #nm
-Nod_widthx = cutx*ax*.1 #nm
-Nod_widthy = cuty*ay*.1 #nm
+Junc_width = Wj*.1 #nm
+cutxT_width = cutxT*ax*.1 #nm
+cutyT_width = cutyT*ax*.1 #nm
+cutxB_width = cutxB*ax*.1 #nm
+cutyB_width = cutyB*ax*.1 #nm
 
-print("Nodule Width in x-direction = ", Nod_widthx, "(nm)")
-print("Nodule Width in y-direction = ", Nod_widthy, "(nm)")
+print("Lx = ", Lx*.1, "(nm)" )
+print("Top Nodule Width in x-direction = ", cutxT_width, "(nm)")
+print("Bottom Nodule Width in x-direction = ", cutxB_width, "(nm)")
+print("Top Nodule Width in y-direction = ", cutyT_width, "(nm)")
+print("Bottom Nodule Width in y-direction = ", cutyB_width, "(nm)")
 print("Junction Width = ", Junc_width, "(nm)")
 #########################################
 #Defining Hamiltonian parameters
@@ -42,19 +51,19 @@ gf = 3
 
 mu1 = 2.37
 mu2 = 6.28
-mu3 = 10.30
+mu3 = 10.98
 ###################################################
 dirS = 'gap_data'
 
-gap1 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu1))
-gx1 = np.load("%s/gamx Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu1))
-kx_of_gap1 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu1))
-gap2 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu2))
-gx2 = np.load("%s/gamx Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu2))
-kx_of_gap2 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu2))
-gap3 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu3))
-gx3 = np.load("%s/gamx Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu3))
-kx_of_gap3 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f nodx = %.1f nody = %.1f Vj = %.1f alpha = %.1f delta = %.2f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx, Nod_widthx,  Nod_widthy, Vj,  alpha, delta, phi, gi, gf, mu3))
+gap1 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, gi, gf, mu1))
+gx1 = np.linspace(gi, gf, gap1.shape[0])
+kx_of_gap1 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, gi, gf, mu1))
+gap2 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, gi, gf, mu2))
+gx2 = np.linspace(gi, gf, gap2.shape[0])
+kx_of_gap2 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, gi, gf, mu2))
+gap3 = np.load("%s/gapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, gi, gf, mu3))
+gx3 = np.linspace(gi, gf, gap3.shape[0])
+kx_of_gap3 = np.load("%s/kxofgapfxgam Wj = %.1f Lx = %.1f cutxT = %.1f cutyT = %.1f cutxB = %.1f cutyB = %.1f Vj = %.1f phi = %.3f gam_i = %.1f gam_f = %.1f mu = %.2f.npy" % (dirS, Junc_width, Lx*.1, cutxT_width, cutyT_width, cutxB_width, cutyB_width, Vj, phi, gi, gf, mu3))
 
 top_arr1 = np.zeros(gx1.shape[0])
 top_arr2 = np.zeros(gx2.shape[0])
@@ -134,12 +143,10 @@ ax[0].tick_params(axis='y', labelsize=8)
 ax[1].tick_params(axis='y', labelsize=8)
 ax[2].tick_params(axis='y', labelsize=8)
 
-plt.subplots_adjust(bottom=0.2, left=0.2, top=0.95, right=0.98)
 ax[0].grid('on')
 ax[1].grid('on')
 ax[2].grid('on')
 
+plt.subplots_adjust(bottom=0.15, left=0.2, top=0.95, right=0.98)
 plt.savefig('FIG8', dpi=700)
 plt.show()
-
-sys.exit()
