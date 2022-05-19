@@ -81,7 +81,7 @@ else:
     axs.plot(Wj*.1, gap2/delta, lw=2, zorder=1, c='b', label=r'$E_Z $ = 2 meV')
 
     axs.set_xlabel(r'$W_J$ (nm)', size=9)
-    axs.set_ylabel(r'$\Delta_{qp}/\Delta_{0}$', size=9)
+    axs.set_ylabel(r'$\Delta_{top}/\Delta_{0}$', size=9)
     axs.tick_params(axis='x', labelsize=9)
     axs.tick_params(axis='y', labelsize=9)
     axs.set_ylim(0, 0.23)

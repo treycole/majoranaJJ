@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 width = (3+3/8)
-height = width*0.95
+height = width*0.95/2
 
 params = {
     'axes.labelsize': 12,
